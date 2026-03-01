@@ -108,10 +108,10 @@ export function Registry() {
               <p className="text-sm font-light text-foreground/70">
                 Questions? Email us at{' '}
                 <a 
-                  href="mailto:wedding@baokrakoff.com" 
+                  href="mailto:bellabenbao@gmail..com" 
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
-                  wedding@baokrakoff.com
+                  bellabenbao@gmail.com
                 </a>
               </p>
             </div>
