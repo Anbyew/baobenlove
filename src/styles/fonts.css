@@ -1,0 +1,12 @@
+body {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+h1, h2, h3 {
+  font-family: 'Ojuju', sans-serif;
+}
+
+.italic-accent {
+  font-family: 'Imperial Script', cursive;
+  font-style: normal;
+}
