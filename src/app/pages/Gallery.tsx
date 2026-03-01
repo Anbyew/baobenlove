@@ -8,7 +8,7 @@ export function Gallery() {
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/gallery/img_1.jpg"
+          src="/bg6.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />
