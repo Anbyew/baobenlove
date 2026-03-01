@@ -1,23 +1,14 @@
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 
 export function Gallery() {
-  const images = [
-    "/bg1.jpg",
-    "/bg2.jpg",
-    "/bg3.jpg",
-    "/bg4.jpg",
-    "/bg5.jpg",
-    "/bg6.jpg",
-    "/bg7.jpg",
-    "/bg8.jpg",
-  ];
+  const images = Array.from({ length: 36 }, (_, i) => `/gallery/img_${i + 1}.jpg`);
 
   return (
     <div className="min-h-screen relative">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/bg8.jpg"
+          src="/gallery/img_1.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />
