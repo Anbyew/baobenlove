@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X } from 'lucide-react';
+import { useLang } from '../context/LanguageContext';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { lang, toggle, t } = useLang();
 
   const navItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Story', path: '/story' },
-    { label: 'Details', path: '/details' },
-    { label: 'Schedule', path: '/schedule' },
-    { label: 'Gallery', path: '/gallery' },
-    { label: 'RSVP', path: '/rsvp' },
-    { label: 'Travel', path: '/travel' },
-    { label: 'Registry', path: '/registry' },
+    { label: t.home, path: '/' },
+    { label: t.gallery, path: '/gallery' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -28,11 +24,11 @@ export function Navigation() {
             to="/"
             className="text-xl font-light tracking-wider text-foreground hover:text-primary transition-colors duration-300"
           >
-            Yuwei & Benjamin
+            {t.navLogo}
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex space-x-10">
+          <div className="hidden lg:flex items-center space-x-10">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -51,6 +47,12 @@ export function Navigation() {
                 />
               </Link>
             ))}
+            <button
+              onClick={toggle}
+              className="text-xs font-light text-foreground/50 hover:text-foreground border border-foreground/20 hover:border-foreground/40 rounded-full px-3 py-1 transition-all duration-300"
+            >
+              {lang === 'en' ? '中文' : 'EN'}
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -79,6 +81,14 @@ export function Navigation() {
                 {item.label}
               </Link>
             ))}
+            <div className="px-6 py-3">
+              <button
+                onClick={toggle}
+                className="text-xs font-light text-foreground/50 hover:text-foreground border border-foreground/20 hover:border-foreground/40 rounded-full px-3 py-1 transition-all duration-300"
+              >
+                {lang === 'en' ? '中文' : 'EN'}
+              </button>
+            </div>
           </div>
         )}
       </div>

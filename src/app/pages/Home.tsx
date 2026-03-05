@@ -1,8 +1,7 @@
-import { Link } from 'react-router';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { useLang } from '../context/LanguageContext';
 
 export function Home() {
+  const { t } = useLang();
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
       {/* Background Image with Overlay */}
@@ -30,59 +29,38 @@ export function Home() {
         {/* Names - Large and elegant */}
         <div className="mb-8 space-y-6">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground tracking-tight animate-slide-in-left">
-            Yuwei Bao
+            {t.name1}
           </h1>
           <div className="text-3xl md:text-4xl text-secondary/80 font-light my-6 animate-slide-up-scale" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>&</div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-foreground tracking-tight animate-slide-in-right" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-            Benjamin Krakoff
+            {t.name2}
           </h1>
         </div>
 
         {/* Latin Phrase */}
         <div className="my-16 animate-elegant-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
           <p className="text-2xl md:text-3xl lg:text-4xl text-primary/80 tracking-wide italic-accent">
-            Optimum attingitur. Amor infinitus est.
+            {t.latinPhrase}
           </p>
         </div>
 
         {/* Date & Location */}
         <div className="space-y-6 my-20 animate-slide-up-scale" style={{ animationDelay: '0.9s', animationFillMode: 'both' }}>
           <div className="text-3xl md:text-4xl font-light text-foreground tracking-wider">
-            October 3, 2026
+            {t.date}
           </div>
           <div className="h-px w-8 bg-primary/30 mx-auto" />
           <div className="text-xl md:text-2xl font-light text-foreground/90">
-            Longwood Gardens
+            {t.venue}
           </div>
           <div className="text-lg md:text-xl font-light text-foreground/80">
-            Kennett Square, Pennsylvania
+            {t.location}
           </div>
         </div>
 
         {/* Minimal decorative line */}
         <div className="h-px w-16 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto my-16 animate-elegant-fade-in" style={{ animationDelay: '1.2s', animationFillMode: 'both' }} />
 
-        {/* CTA Buttons - minimal and elegant */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up-scale mt-16" style={{ animationDelay: '1.4s', animationFillMode: 'both' }}>
-          <Link to="/rsvp">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white border-none shadow-none hover:shadow-lg transition-all duration-500 px-12 py-6 text-base tracking-widest uppercase font-light"
-            >
-              RSVP
-              <ArrowRight className="ml-3 w-4 h-4" />
-            </Button>
-          </Link>
-          <Link to="/details">
-            <Button
-              size="lg"
-              variant="ghost"
-              className="text-foreground/90 hover:text-foreground border border-foreground/30 hover:border-foreground/50 hover:bg-transparent transition-all duration-500 px-12 py-6 text-base tracking-widest uppercase font-light"
-            >
-              Details
-            </Button>
-          </Link>
-        </div>
       </div>
 
       {/* Minimal scroll indicator */}

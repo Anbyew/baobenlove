@@ -1,6 +1,8 @@
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
+import { useLang } from '../context/LanguageContext';
 
 export function Gallery() {
+  const { t } = useLang();
   const images = Array.from({ length: 36 }, (_, i) => `/gallery/img_${i + 1}.jpg`);
 
   return (
@@ -23,8 +25,8 @@ export function Gallery() {
             <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-sm" />
             <div className="relative">
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-12 animate-elegant-fade-in" />
-              <h1 className="text-5xl md:text-7xl font-light mb-6 text-foreground tracking-tight animate-slide-in-left">Gallery</h1>
-              <p className="text-xl font-light text-foreground/80 animate-slide-up-delayed">Moments from our journey</p>
+              <h1 className="text-5xl md:text-7xl font-light mb-6 text-foreground tracking-tight animate-slide-in-left">{t.galleryTitle}</h1>
+              <p className="text-xl font-light text-foreground/80 animate-slide-up-delayed">{t.gallerySubtitle}</p>
             </div>
           </div>
         </div>
@@ -50,21 +52,6 @@ export function Gallery() {
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Bottom Section */}
-        <div className="relative py-24 px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="h-px w-24 bg-gradient-to-r from-transparent via-secondary/30 to-transparent mx-auto mb-16 animate-elegant-fade-in" style={{ animationDelay: '1s' }} />
-            
-            <h3 className="text-2xl font-light text-foreground mb-8 animate-slide-up-scale" style={{ animationDelay: '1.1s' }}>Share Your Moments</h3>
-            <p className="text-base font-light text-foreground/80 mb-6 animate-slide-up-delayed" style={{ animationDelay: '1.2s' }}>
-              We'd love to see your photos from our special day
-            </p>
-            <p className="text-lg font-light animate-elegant-fade-in" style={{ animationDelay: '1.3s' }}>
-              <span className="text-primary">#BaoKrakoffWedding2026</span>
-            </p>
           </div>
         </div>
       </div>
