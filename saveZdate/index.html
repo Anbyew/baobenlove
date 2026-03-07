@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Save the Date · Yuwei & Benjamin</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* ─── DESK ─────────────────────────────────────────────────────── */
+body {
+  background-color: #b5a580;
+  background-image:
+    radial-gradient(ellipse at 26% 36%, rgba(240,222,172,0.26) 0%, transparent 52%),
+    radial-gradient(ellipse at 74% 70%, rgba(142,112,62,0.22) 0%, transparent 52%),
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px, transparent 56px,
+      rgba(108,80,30,0.052) 56px, rgba(108,80,30,0.052) 59px
+    ),
+    linear-gradient(168deg,
+      #d0c1a2 0%, #baa87a 18%, #ccba8c 42%,
+      #b2a474 62%, #c8b68a 82%, #bcaa80 100%);
+}
+
+/* ─── PHOTO STREAM ─────────────────────────────────────────────── */
+#stream {
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  opacity: 0; transition: opacity 2.2s ease;
+}
+#stream.on { opacity: 1; }
+.pol {
+  position: absolute;
+  box-shadow: 2px 4px 20px rgba(0,0,0,0.32), 0 1px 5px rgba(0,0,0,0.12);
+  opacity: 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pol img { display: block; object-fit: cover; }
+
+/* ─── SCENE ─────────────────────────────────────────────────────── */
+#scene {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+/* ─── ENVELOPE WRAP ─────────────────────────────────────────────── */
+#env-wrap {
+  position: relative;
+  width:  clamp(340px, 74vw, 740px);
+  height: clamp(230px, 51vw, 510px);
+  transform: perspective(1800px) rotateX(6deg);
+  filter: drop-shadow(0 26px 65px rgba(0,0,0,0.46));
+}
+
+/* ─── ENVELOPE BODY (interior, revealed when doors open) ─────────── */
+.e-body {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(160deg, #f5eedd 0%, #ede3c2 44%, #e5d9b8 100%);
+  border-radius: 4px;
+}
+.e-body::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(135deg, rgba(162,138,82,0.13) 0%, transparent 52%),
+    linear-gradient(225deg, rgba(162,138,82,0.13) 0%, transparent 52%);
+  border-radius: 4px;
+}
+.e-left  { position: absolute; inset: 0; z-index: 2; background: linear-gradient(155deg, #ddd1aa 0%, #cfc09c 100%); clip-path: polygon(0 0, 0 100%, 50% 50%); opacity: 0.68; }
+.e-right { position: absolute; inset: 0; z-index: 2; background: linear-gradient(155deg, #e6d9b4 0%, #d5c99c 100%); clip-path: polygon(100% 0, 100% 100%, 50% 50%); opacity: 0.68; }
+.e-bottom{ position: absolute; inset: 0; z-index: 3; background: linear-gradient(0deg, #d0c29e 0%, #ddd0ac 65%); clip-path: polygon(0 100%, 100% 100%, 50% 53%); opacity: 0.80; }
+
+/* ─── CARD INSIDE ───────────────────────────────────────────────── */
+.card-slot {
+  position: absolute;
+  bottom: 8%; left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  opacity: 0;
+  /* no transition by default — prevents flicker on page load */
+}
+.card-slot img {
+  height: clamp(130px, 25vw, 300px);
+  width: auto; display: block; border-radius: 2px;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.40);
+}
+
+/* ─── DOORS ─────────────────────────────────────────────────────── */
+/*
+   Each door is a full-height half of the envelope front.
+   Navy blue with a two-layer hex Star-of-David pattern.
+   On open: left slides LEFT, right slides RIGHT.
+   On close: they slide back in.
+*/
+.e-door {
+  position: absolute; top: 0; bottom: 0; z-index: 10;
+  background-image: url("../assets/gallery/pattern.png");
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity   0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.e-left-door {
+  left: 0; width: 50%;
+  border-radius: 4px 0 0 4px;
+  border-right: 1px solid rgba(198,162,72,0.55);
+  background-position: left center;
+}
+.e-right-door {
+  right: 0; width: 50%;
+  border-radius: 0 4px 4px 0;
+  border-left: 1px solid rgba(198,162,72,0.55);
+  background-position: right center;
+}
+
+/* outer gold border */
+.e-border {
+  position: absolute; inset: 0; z-index: 12;
+  border: 2px solid rgba(198,162,72,0.42);
+  border-radius: 4px; pointer-events: none;
+}
+.e-border::after {
+  content: ''; position: absolute; inset: 7px;
+  border: 1px solid rgba(198,162,72,0.20);
+  border-radius: 2px;
+}
+
+/* ─── WAX SEAL ──────────────────────────────────────────────────── */
+.seal {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  width: clamp(48px, 7vw, 70px);
+  height: clamp(48px, 7vw, 70px);
+  background: radial-gradient(circle at 38% 33%, #e8c44a 0%, #c9a030 56%, #a87c18 100%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(60,38,8,0.92);
+  font-size: clamp(11px, 1.6vw, 15px);
+  font-style: italic; letter-spacing: 0.5px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.42), inset 0 1px 3px rgba(255,235,160,0.40), 0 0 0 2px rgba(198,162,72,0.75);
+  animation: sealGlow 3s ease-in-out infinite;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  border: none; cursor: default;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+/* Seal becomes clickable when envelope is closed */
+#env-wrap:not(.open) .seal {
+  cursor: pointer;
+}
+#env-wrap:not(.open) .seal:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.50), inset 0 1px 3px rgba(255,235,160,0.40), 0 0 0 2px rgba(198,162,72,0.95), 0 0 28px rgba(198,162,72,0.50);
+}
+@keyframes sealGlow {
+  0%,100% { box-shadow: 0 3px 14px rgba(0,0,0,0.42), inset 0 1px 3px rgba(255,235,160,0.40), 0 0 0 2px rgba(198,162,72,0.75); }
+  55%     { box-shadow: 0 3px 14px rgba(0,0,0,0.42), inset 0 1px 3px rgba(255,235,160,0.40), 0 0 0 2px rgba(198,162,72,0.75), 0 0 22px rgba(198,162,72,0.45); }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   STATE MACHINE
+   States: (none) → open → open+rising → open+rising [overlay shown]
+   Close:  overlay hidden → open+closing → (none) reset
+   ══════════════════════════════════════════════════════════════════ */
+
+/* OPEN: doors slide apart */
+#env-wrap.open .e-left-door  { transform: translateX(-100%); opacity: 0.6; }
+#env-wrap.open .e-right-door { transform: translateX(100%);  opacity: 0.6; }
+#env-wrap.open .seal         { opacity: 0; transform: translate(-50%, -50%) scale(0.7); pointer-events: none; }
+
+/* Card becomes visible once doors open */
+#env-wrap.open .card-slot {
+  opacity: 1;
+  transition: opacity 0.5s ease 0.2s;
+}
+
+/* RISING: card lifts out of envelope */
+#env-wrap.rising .card-slot {
+  transform: translateX(-50%) translateY(-72%);
+  transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity  0.5s ease;
+}
+
+/* CLOSING: card sinks back in and fades — put after open+rising so it wins */
+#env-wrap.closing .card-slot {
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── FULL CARD OVERLAY ─────────────────────────────────────────── */
+#card-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(8, 18, 48, 0);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.9s ease, background 0.9s ease;
+}
+#card-overlay.show {
+  opacity: 1; pointer-events: auto;
+  background: rgba(8, 18, 48, 0.58);
+}
+.card-full {
+  position: relative;
+  transform: scale(0.88);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+#card-overlay.show .card-full { transform: scale(1); }
+.card-full img {
+  max-height: 84vh; max-width: 92vw; width: auto;
+  display: block; border-radius: 3px;
+  box-shadow: 0 32px 90px rgba(0,0,0,0.60), 0 4px 20px rgba(0,0,0,0.30);
+}
+
+/* close button */
+.card-close {
+  position: absolute; top: -44px; right: 0;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.75);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.card-close:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+/* lang toggle */
+.card-langs {
+  position: absolute; bottom: -46px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px; white-space: nowrap;
+}
+.card-langs button {
+  padding: 5px 18px; font-family: Georgia, serif;
+  font-size: 11px; letter-spacing: 1.2px;
+  color: rgba(225,210,165,0.88);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(198,162,72,0.32);
+  border-radius: 20px; cursor: pointer;
+  transition: background 0.22s, border-color 0.22s, color 0.22s;
+}
+.card-langs button.on { background: rgba(198,162,72,0.18); border-color: rgba(198,162,72,0.72); color: #e8d08a; }
+
+/* ─── HINT ──────────────────────────────────────────────────────── */
+#hint {
+  margin-top: 30px;
+  font-size: clamp(9px, 1vw, 11px);
+  letter-spacing: 3.5px; text-transform: uppercase;
+  color: rgba(52,38,12,0.46);
+  animation: blink 2.8s ease-in-out infinite alternate;
+}
+@keyframes blink { from { opacity: 0.28; } to { opacity: 0.70; } }
+#hint.gone { display: none; }
+
+/* ─── PASSWORD ──────────────────────────────────────────────────── */
+#pw {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(135,115,72,0.09);
+  backdrop-filter: blur(4px);
+  transition: opacity 0.8s ease;
+}
+#pw.out { opacity: 0; pointer-events: none; }
+.pw-box {
+  width: clamp(260px, 84vw, 314px);
+  padding: 48px 42px 40px;
+  background: rgba(253,247,233,0.97);
+  border: 1px solid rgba(148,120,72,0.20);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.22), 0 4px 18px rgba(0,0,0,0.10);
+  border-radius: 3px; text-align: center;
+}
+.pw-rule { width: 38px; height: 1px; background: linear-gradient(to right, transparent, #b89060, transparent); margin: 0 auto 24px; }
+.pw-box h2 { font-size: clamp(16px, 2.2vw, 21px); font-weight: 400; color: #3a2c1a; margin-bottom: 5px; }
+.pw-date   { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: #b89060; margin-bottom: 32px; }
+.pw-box input {
+  display: block; width: 100%; background: none; border: none;
+  border-bottom: 1px solid rgba(125,100,58,0.26);
+  padding: 10px 4px; font-family: Georgia, serif; font-size: 13px;
+  color: #3a2c1a; text-align: center; letter-spacing: 2px;
+  outline: none; transition: border-color 0.3s; margin-bottom: 20px;
+}
+.pw-box input:focus { border-color: rgba(125,100,58,0.68); }
+.pw-box input::placeholder { color: rgba(105,82,44,0.34); font-size: 11px; letter-spacing: 1px; }
+.pw-btn { width: 100%; padding: 12px; background: #7a5c32; color: #faf4e2; border: none; border-radius: 2px; font-family: Georgia, serif; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background 0.25s; }
+.pw-btn:hover { background: #5c4220; }
+.pw-err { font-size: 10px; color: #a02018; letter-spacing: 0.8px; margin-top: 12px; min-height: 14px; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  18% { transform: translateX(-9px); } 36% { transform: translateX(9px); }
+  54% { transform: translateX(-6px); } 72% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.44s ease; }
+</style>
+</head>
+<body>
+
+<div id="stream"></div>
+
+<div id="scene">
+  <div id="env-wrap">
+    <!-- Interior (revealed when doors open) -->
+    <div class="e-body">
+      <div class="e-left"></div>
+      <div class="e-right"></div>
+      <div class="e-bottom"></div>
+    </div>
+
+    <!-- Card sitting inside -->
+    <div class="card-slot">
+      <img id="cardImgInner" src="SaveThe Date.png" alt="Save the Date"/>
+    </div>
+
+    <!-- Two doors that slide open from center -->
+    <div class="e-door e-left-door"></div>
+    <div class="e-door e-right-door"></div>
+
+    <!-- Gold outer border -->
+    <div class="e-border"></div>
+
+    <!-- Wax seal — sits above both doors at center joint; click to reopen -->
+    <button class="seal" onclick="openEnvelope()">Y&amp;B</button>
+  </div>
+  <div id="hint">A letter has arrived</div>
+</div>
+
+<!-- Full centered card -->
+<div id="card-overlay">
+  <div class="card-full">
+    <button class="card-close" onclick="hideCard()" title="Close">&#x2715;</button>
+    <img id="cardImgFull" src="SaveThe Date.png" alt="Save the Date"/>
+    <div class="card-langs">
+      <button class="on" onclick="setLang('en', this)">EN</button>
+      <button onclick="setLang('zh', this)">中文</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password gate -->
+<div id="pw">
+  <div class="pw-box" id="pwBox">
+    <div class="pw-rule"></div>
+    <h2>Yuwei &amp; Benjamin</h2>
+    <p class="pw-date">October 3, 2026</p>
+    <input id="pwInput" type="password" placeholder="enter the secret code" autocomplete="off"/>
+    <button class="pw-btn" onclick="tryOpen()">Open</button>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
+
+<script>
+const PASS    = 'BellaBenBao2026';
+const GALLERY = '../assets/gallery/';
+const PICKS   = [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,36];
+let   streamLaunched = false;
+
+// ── Language toggle ────────────────────────────────────────────────
+function setLang(lang, btn) {
+  const src = lang === 'zh' ? 'SaveThe Date_Chinese.png' : 'SaveThe Date.png';
+  document.getElementById('cardImgInner').src = src;
+  document.getElementById('cardImgFull').src  = src;
+  document.querySelectorAll('.card-langs button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── Password ───────────────────────────────────────────────────────
+document.getElementById('pwInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') tryOpen();
+});
+function tryOpen() {
+  if (document.getElementById('pwInput').value === PASS) {
+    document.getElementById('pw').classList.add('out');
+    setTimeout(openEnvelope, 700);
+  } else {
+    document.getElementById('pwErr').textContent = 'Incorrect — try again';
+    const box = document.getElementById('pwBox');
+    box.classList.add('shake');
+    box.addEventListener('animationend', () => box.classList.remove('shake'), { once: true });
+    document.getElementById('pwInput').value = '';
+  }
+}
+
+// ── OPEN sequence ──────────────────────────────────────────────────
+function openEnvelope() {
+  document.getElementById('hint').classList.add('gone');
+  const wrap = document.getElementById('env-wrap');
+
+  // 1. Doors slide open
+  wrap.classList.add('open');
+
+  // 2. Card rises from inside (~1.1s)
+  setTimeout(() => wrap.classList.add('rising'), 1100);
+
+  // 3. Full card overlay pops up centered
+  setTimeout(() => {
+    document.getElementById('card-overlay').classList.add('show');
+    if (!streamLaunched) { streamLaunched = true; setTimeout(launchStream, 1200); }
+  }, 2000);
+}
+
+// ── CLOSE sequence (reverse) ───────────────────────────────────────
+function hideCard() {
+  const overlay = document.getElementById('card-overlay');
+  const wrap    = document.getElementById('env-wrap');
+
+  // 1. Fade out overlay
+  overlay.classList.remove('show');
+
+  setTimeout(() => {
+    // 2. Card sinks back into envelope
+    wrap.classList.remove('rising');
+    wrap.classList.add('closing');
+
+    setTimeout(() => {
+      // 3. Doors slide shut
+      wrap.classList.remove('open');
+
+      setTimeout(() => {
+        // 4. Clean up — reset to ground state (no flicker since card-slot has transition:none by default)
+        wrap.classList.remove('closing');
+      }, 1050); // match door transition duration
+    }, 500); // after card has sunk
+  }, 750); // after overlay fades
+}
+
+// ── Polaroid stream ────────────────────────────────────────────────
+function launchStream() {
+  const container = document.getElementById('stream');
+  let css = '';
+
+  PICKS.forEach((n, i) => {
+    const dur   = (10 + Math.random() * 10).toFixed(1);
+    const delay = (i * 1.4).toFixed(1);
+    const top   = (5  + Math.random() * 76).toFixed(1);
+    const rot   = (-22 + Math.random() * 44).toFixed(1);
+    const rot2  = (parseFloat(rot) + (-10 + Math.random() * 20)).toFixed(1);
+    const w     = 220 + Math.floor(Math.random() * 120);
+    const h     = Math.round(w * 0.72);
+    const nm    = `fly${i}`;
+
+    css += `@keyframes ${nm}{` +
+      `0%{transform:translateX(108vw) rotate(${rot}deg);opacity:0}` +
+      `6%{opacity:1}94%{opacity:1}` +
+      `100%{transform:translateX(-30vw) rotate(${rot2}deg);opacity:0}}`;
+
+    const pol = document.createElement('div');
+    pol.className = 'pol';
+    pol.style.cssText = `top:${top}%;left:0;animation:${nm} ${dur}s linear ${delay}s infinite;`;
+
+    const img = document.createElement('img');
+    img.src = `${GALLERY}img_${n}.jpg`;
+    img.width = w; img.height = h;
+    pol.appendChild(img);
+    container.appendChild(pol);
+  });
+
+  const styleEl = document.createElement('style');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+  requestAnimationFrame(() => requestAnimationFrame(() => container.classList.add('on')));
+}
+</script>
+</body>
+</html>
