@@ -7,7 +7,7 @@ export function Home() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img 
-          src="/bg1.jpg"
+          src="/assets/backgrounds/bg1.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />

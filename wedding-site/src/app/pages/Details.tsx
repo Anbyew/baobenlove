@@ -6,7 +6,7 @@ export function Details() {
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/bg2.jpg"
+          src="/assets/backgrounds/bg2.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />

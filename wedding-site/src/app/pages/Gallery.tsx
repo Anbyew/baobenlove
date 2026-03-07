@@ -10,7 +10,7 @@ export function Gallery() {
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/bg6.jpg"
+          src="/assets/backgrounds/bg6.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />

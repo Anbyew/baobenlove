@@ -6,7 +6,7 @@ export function Travel() {
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/bg4.jpg"
+          src="/assets/backgrounds/bg4.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />
