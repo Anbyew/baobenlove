@@ -3,3 +3,4 @@ node_modules/
 dist/
 wedding-site/node_modules/
 wedding-site/dist/
+emails/
