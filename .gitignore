@@ -3,4 +3,6 @@ node_modules/
 dist/
 wedding-site/node_modules/
 wedding-site/dist/
-emails/
+emails/*.xlsx
+emails/credentials.json
+emails/token.json
