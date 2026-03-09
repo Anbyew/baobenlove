@@ -17,6 +17,9 @@ Install deps:
 
 import base64
 import openpyxl
+import sys
+import webbrowser
+import tempfile
 from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -62,24 +65,28 @@ def build_html_body(name: str) -> str:
 
 <p>Dear {name},</p>
 
-<p>Over the years, our paths have wandered through proofs and algorithms, through long conversations and the quiet pursuit of elegant ideas. Somewhere along the way, we arrived at a realization both simple and profound: <strong>life is loveliest when its path is walked together.</strong> 💾</p>
+<p>Over the years, our paths have wandered through proofs and algorithms, through long conversations and the quiet pursuit of elegant ideas. Somewhere along the way, we arrived at a realization both simple and profound: <strong>Life is loveliest when its path is walked together.</strong></p>
 
-<p>With great joy, we are getting married. 💍</p>
+<p>With great joy, we are getting married.</p>
 
 <p>Our wedding will take place on <strong>October 3, 2026</strong>, at <strong>Longwood Gardens in Kennett Square, Pennsylvania</strong>, and it would mean a great deal to us to celebrate this occasion with you. ✨</p>
 
 <p>Please find our <strong>Save the Date</strong> for the U.S. celebration attached. A formal invitation with further details will follow in the months ahead.</p>
 
-<p>As our family and friends are scattered across many corners of the world, we will be marking this new chapter with <strong>two celebrations</strong>. You are warmly invited to both, and we would be delighted to celebrate together wherever you may choose to join us. Additional details regarding the <strong>China celebration</strong> will be shared soon.</p>
+<p>As our family and friends are scattered across many corners of the world, we will be marking this new chapter with <strong>two celebrations</strong>. You are warmly invited to both, and we would be delighted to celebrate together wherever you may choose to join us.</p>
 
 <p>In the meantime, you may find updates and information on our wedding website:<br>
 <strong>Website:</strong> <a href="http://www.baoben.love/">www.baoben.love</a><br>
 <strong>Password:</strong> BellaBenBao2026</p>
 
-<p>As in many beautiful things, elegance and harmony are found not only in ideas, but in the rare joy of gathering those we cherish and celebrating together. ❤️</p>
+<p>As in many beautiful things, elegance and harmony are found not only in ideas, but in the rare joy of gathering those we cherish and celebrating together ❤️</p>
 
 <p>With love,<br>
 Yuwei &amp; Ben</p>
+
+<hr style="border: none; border-top: 1px dashed #ccc; margin: 24px 0;">
+
+<p style="font-size: 13px; color: #666;">Additional details regarding the <strong>China celebration</strong> will be shared soon. You might find the following information on tourist visas to China and visa-waiver policies helpful: <a href="https://consular.mfa.gov.cn/VISA/">China Visa Application</a>, <a href="https://www.visaforchina.cn/SYD3_EN/tongzhigonggao/265975107544027136.html">Visa-Free Policy Notice</a></p>
 </body></html>
 """
 
@@ -95,7 +102,7 @@ Our wedding will take place on October 3, 2026, at Longwood Gardens in Kennett S
 
 Please find our Save the Date for the U.S. celebration attached. A formal invitation with further details will follow in the months ahead.
 
-As our family and friends are scattered across many corners of the world, we will be marking this new chapter with two celebrations. You are warmly invited to both, and we would be delighted to celebrate together wherever you may choose to join us. Additional details regarding the China celebration will be shared soon.
+As our family and friends are scattered across many corners of the world, we will be marking this new chapter with two celebrations. You are warmly invited to both, and we would be delighted to celebrate together wherever you may choose to join us.
 
 In the meantime, you may find updates and information on our wedding website:
 Website: www.baoben.love
@@ -105,6 +112,11 @@ As in many beautiful things, elegance and harmony are found not only in ideas, b
 
 With love,
 Yuwei & Ben
+
+---
+Additional details regarding the China celebration will be shared soon. You might find the following information on tourist visas to China and visa-waiver policies helpful:
+- China Visa Application: https://consular.mfa.gov.cn/VISA/
+- Visa-Free Policy Notice: https://www.visaforchina.cn/SYD3_EN/tongzhigonggao/265975107544027136.html
 """
 
 
@@ -145,7 +157,26 @@ def build_message(name, emails):
     return msg
 
 
+def preview():
+    """Open a browser preview of the email for the first recipient."""
+    recipients = load_recipients()
+    if not recipients:
+        print("No recipients found.")
+        return
+    r = recipients[0]
+    html = build_html_body(r["name"])
+    with tempfile.NamedTemporaryFile(suffix=".html", delete=False, mode="w", encoding="utf-8") as f:
+        f.write(html)
+        path = f.name
+    print(f"Preview for: {r['name']} <{r['emails']}>")
+    webbrowser.open(f"file://{path}")
+
+
 def main():
+    if "--preview" in sys.argv:
+        preview()
+        return
+
     recipients = load_recipients()
     print(f"Found {len(recipients)} recipients.\n")
 
