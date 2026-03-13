@@ -16,8 +16,8 @@ Install deps:
 """
 
 import base64
+import csv
 import re
-import openpyxl
 import sys
 import webbrowser
 import tempfile
@@ -35,12 +35,12 @@ from googleapiclient.discovery import build
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 SENDER_EMAIL    = "bellabenbao@gmail.com"
 BASE_DIR        = Path(__file__).parent.parent
-XLSX_PATH       = BASE_DIR / "emails" / "testList.xlsx"
+XLSX_PATH       = BASE_DIR / "emails" / "testList.csv"
 ATTACHMENT_PATH = BASE_DIR / "assets" / "saveTheDate" / "SaveThe Date.png"
 CREDS_PATH      = BASE_DIR / "emails" / "credentials.json"
 TOKEN_PATH      = BASE_DIR / "emails" / "token.json"
 
-DRY_RUN = True  # ← set to False to actually send
+DRY_RUN = False  # ← set to False to actually send
 # ─────────────────────────────────────────────────────────────────────────────
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
@@ -149,16 +149,14 @@ Additional details regarding the China celebration will be shared soon. You migh
 
 
 def load_recipients():
-    wb = openpyxl.load_workbook(XLSX_PATH)
-    ws = wb.active
-    headers = [cell.value for cell in ws[1]]
-    name_col  = headers.index("Name on Envelope")
-    email_col = headers.index("Email")
+    with open(XLSX_PATH, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
 
     recipients = []
-    for row_number, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
-        name       = row[name_col]
-        emails_raw = row[email_col]
+    for row_number, row in enumerate(rows, start=2):
+        name       = row.get("Name on Envelope")
+        emails_raw = row.get("Email")
         if not name or not emails_raw:
             continue
         emails = [e.strip() for e in str(emails_raw).split(",") if e.strip()]
