@@ -1,8 +1,15 @@
 const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID?.trim() ?? "";
 
 const SOURCE_PARAM = "src";
+const GUEST_PARAM = "guest";
 const SOURCE_STORAGE_KEY = "wedding_invite_source";
+const GUEST_STORAGE_KEY = "wedding_guest_id";
 const SCRIPT_ID = "google-analytics";
+
+export interface InviteAttribution {
+  inviteSource: string | null;
+  guestId: string | null;
+}
 
 declare global {
   interface Window {
@@ -19,7 +26,7 @@ function getGtag() {
   return window.gtag;
 }
 
-function normalizeSource(value: string | null) {
+function normalizeAttributionValue(value: string | null) {
   if (!value) return null;
 
   const normalized = value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
@@ -58,52 +65,75 @@ export function initializeAnalytics() {
   });
 }
 
-export function captureInviteSource(search: string) {
+export function captureInviteAttribution(search: string): InviteAttribution {
   if (typeof window === "undefined") {
-    return null;
+    return {
+      inviteSource: null,
+      guestId: null,
+    };
   }
 
   const params = new URLSearchParams(search);
-  const source = normalizeSource(params.get(SOURCE_PARAM));
+  const inviteSource = normalizeAttributionValue(params.get(SOURCE_PARAM));
+  const guestId = normalizeAttributionValue(params.get(GUEST_PARAM));
 
-  if (!source) {
-    return getStoredInviteSource();
+  if (inviteSource) {
+    window.localStorage.setItem(SOURCE_STORAGE_KEY, inviteSource);
   }
 
-  window.localStorage.setItem(SOURCE_STORAGE_KEY, source);
+  if (guestId) {
+    window.localStorage.setItem(GUEST_STORAGE_KEY, guestId);
+  }
+
   params.delete(SOURCE_PARAM);
+  params.delete(GUEST_PARAM);
 
   const nextSearch = params.toString();
   const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`;
   window.history.replaceState(window.history.state, "", nextUrl);
 
-  return source;
+  return {
+    inviteSource,
+    guestId,
+  };
 }
 
-export function getStoredInviteSource() {
+export function getStoredInviteAttribution(): InviteAttribution {
   if (typeof window === "undefined") {
-    return null;
+    return {
+      inviteSource: null,
+      guestId: null,
+    };
   }
 
-  return normalizeSource(window.localStorage.getItem(SOURCE_STORAGE_KEY));
+  return {
+    inviteSource: normalizeAttributionValue(window.localStorage.getItem(SOURCE_STORAGE_KEY)),
+    guestId: normalizeAttributionValue(window.localStorage.getItem(GUEST_STORAGE_KEY)),
+  };
 }
 
-export function trackInviteSource(source: string | null, pagePath: string) {
+export function trackSaveTheDateClick(attribution: InviteAttribution, pagePath: string) {
   const gtag = getGtag();
-  if (!analyticsEnabled() || !gtag || !source) {
+  if (
+    !analyticsEnabled() ||
+    !gtag ||
+    (!attribution.inviteSource && !attribution.guestId)
+  ) {
     return;
   }
 
   gtag("set", "user_properties", {
-    invite_source: source,
+    invite_source: attribution.inviteSource ?? undefined,
+    guest_id: attribution.guestId ?? undefined,
   });
-  gtag("event", "invite_source_captured", {
-    invite_source: source,
+  gtag("event", "save_the_date_click", {
+    invite_source: attribution.inviteSource ?? undefined,
+    guest_id: attribution.guestId ?? undefined,
     page_path: pagePath,
   });
 }
 
-export function trackPageView(pagePath: string, inviteSource?: string | null) {
+export function trackPageView(pagePath: string, attribution?: InviteAttribution) {
   const gtag = getGtag();
   if (!analyticsEnabled() || !gtag) {
     return;
@@ -112,6 +142,7 @@ export function trackPageView(pagePath: string, inviteSource?: string | null) {
   gtag("event", "page_view", {
     page_path: pagePath,
     page_title: document.title,
-    invite_source: inviteSource ?? undefined,
+    invite_source: attribution?.inviteSource ?? undefined,
+    guest_id: attribution?.guestId ?? undefined,
   });
 }
