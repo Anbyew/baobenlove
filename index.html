@@ -7,8 +7,80 @@
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+
+  const SOURCE_PARAM = 'src';
+  const GUEST_PARAM = 'guest';
+  const SOURCE_STORAGE_KEY = 'wedding_invite_source';
+  const GUEST_STORAGE_KEY = 'wedding_guest_id';
+
+  function normalizeAttributionValue(value) {
+    if (!value) return null;
+    const normalized = value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    return normalized ? normalized.slice(0, 64) : null;
+  }
+
+  function captureInviteAttribution() {
+    const params = new URLSearchParams(window.location.search);
+    const inviteSource = normalizeAttributionValue(params.get(SOURCE_PARAM));
+    const guestId = normalizeAttributionValue(params.get(GUEST_PARAM));
+
+    if (inviteSource) {
+      window.localStorage.setItem(SOURCE_STORAGE_KEY, inviteSource);
+    }
+
+    if (guestId) {
+      window.localStorage.setItem(GUEST_STORAGE_KEY, guestId);
+    }
+
+    if (params.has(SOURCE_PARAM) || params.has(GUEST_PARAM)) {
+      params.delete(SOURCE_PARAM);
+      params.delete(GUEST_PARAM);
+      const nextSearch = params.toString();
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
+      window.history.replaceState(window.history.state, '', nextUrl);
+    }
+
+    return {
+      inviteSource,
+      guestId,
+    };
+  }
+
+  function getStoredInviteAttribution() {
+    return {
+      inviteSource: normalizeAttributionValue(window.localStorage.getItem(SOURCE_STORAGE_KEY)),
+      guestId: normalizeAttributionValue(window.localStorage.getItem(GUEST_STORAGE_KEY)),
+    };
+  }
+
   gtag('js', new Date());
-  gtag('config', 'G-SLL2EVJPM5');
+  gtag('config', 'G-SLL2EVJPM5', {
+    anonymize_ip: true,
+    send_page_view: false,
+  });
+
+  const capturedAttribution = captureInviteAttribution();
+  const storedAttribution = getStoredInviteAttribution();
+  const pagePath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+
+  if (capturedAttribution.inviteSource || capturedAttribution.guestId) {
+    gtag('set', 'user_properties', {
+      invite_source: capturedAttribution.inviteSource || undefined,
+      guest_id: capturedAttribution.guestId || undefined,
+    });
+    gtag('event', 'save_the_date_click', {
+      invite_source: capturedAttribution.inviteSource || undefined,
+      guest_id: capturedAttribution.guestId || undefined,
+      page_path: pagePath,
+    });
+  }
+
+  gtag('event', 'page_view', {
+    page_path: pagePath,
+    page_title: document.title,
+    invite_source: storedAttribution.inviteSource || undefined,
+    guest_id: storedAttribution.guestId || undefined,
+  });
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no"/>
