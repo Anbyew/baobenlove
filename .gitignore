@@ -4,5 +4,6 @@ dist/
 wedding-site/node_modules/
 wedding-site/dist/
 emails/*.xlsx
+emails/testList.csv
 emails/credentials.json
 emails/token.json
