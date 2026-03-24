@@ -1,0 +1,46 @@
+{
+  "base_url": "https://www.baoben.love/",
+  "contact_email": "wedding@baokrakoff.com",
+  "invites": [
+    {
+      "stable_key": "Dr. Emily Bao and Dr. Ben Bao|baobaoyuwei@gmail.com",
+      "token": "rtOJenJ6q9IyssgpePC0R7ZZ",
+      "slug": "001-dr-emily-bao-and-dr-ben-bao",
+      "status": "",
+      "affiliation": "Yuwei",
+      "relation": "Friends",
+      "party_name": "Dr. Emily Bao and Dr. Ben Bao",
+      "primary_email": "baobaoyuwei@gmail.com",
+      "secondary_email": "",
+      "guest_names": [
+        "Emily Bao",
+        "Ben Bao"
+      ],
+      "max_guests": 2,
+      "invite_url": "https://www.baoben.love/?invite=rtOJenJ6q9IyssgpePC0R7ZZ",
+      "fallback_url": "https://www.baoben.love/rsvp",
+      "contact_email": "wedding@baokrakoff.com",
+      "qr_code_path": "wedding-site/generated/invites/qr/001-dr-emily-bao-and-dr-ben-bao.png"
+    },
+    {
+      "stable_key": "The Touger Family|davidtouger@hotmail.com",
+      "token": "wnIwFhKzDLO98uoEl7-DBxN6",
+      "slug": "002-the-touger-family",
+      "status": "",
+      "affiliation": "Ben",
+      "relation": "Family",
+      "party_name": "The Touger Family",
+      "primary_email": "davidtouger@hotmail.com",
+      "secondary_email": "",
+      "guest_names": [
+        "David",
+        "Liz Touger"
+      ],
+      "max_guests": 2,
+      "invite_url": "https://www.baoben.love/?invite=wnIwFhKzDLO98uoEl7-DBxN6",
+      "fallback_url": "https://www.baoben.love/rsvp",
+      "contact_email": "wedding@baokrakoff.com",
+      "qr_code_path": "wedding-site/generated/invites/qr/002-the-touger-family.png"
+    }
+  ]
+}

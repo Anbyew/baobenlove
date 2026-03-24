@@ -7,3 +7,6 @@ emails/*.xlsx
 emails/testList.csv
 emails/credentials.json
 emails/token.json
+
+# Local Netlify folder
+.netlify

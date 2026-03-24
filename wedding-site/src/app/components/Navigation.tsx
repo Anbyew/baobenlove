@@ -2,15 +2,22 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { Menu, X } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
+import { useGuestSession } from '../context/GuestSessionContext';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { lang, toggle, t } = useLang();
+  const { invite } = useGuestSession();
 
   const navItems = [
     { label: t.home, path: '/' },
-    { label: t.gallery, path: '/gallery' },
+    { label: t.story, path: '/story' },
+    { label: t.details, path: '/details' },
+    { label: t.schedule, path: '/schedule' },
+    { label: t.rsvp, path: '/rsvp' },
+    { label: t.travel, path: '/travel' },
+    { label: t.registry, path: '/registry' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -29,6 +36,11 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-10">
+            {invite && (
+              <div className="text-[11px] tracking-[0.24em] uppercase text-foreground/45">
+                Viewing as {invite.partyName}
+              </div>
+            )}
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -67,6 +79,11 @@ export function Navigation() {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="lg:hidden py-6 space-y-1 border-t border-foreground/5">
+            {invite && (
+              <div className="px-6 py-3 text-[11px] tracking-[0.24em] uppercase text-foreground/45">
+                Viewing as {invite.partyName}
+              </div>
+            )}
             {navItems.map((item) => (
               <Link
                 key={item.path}

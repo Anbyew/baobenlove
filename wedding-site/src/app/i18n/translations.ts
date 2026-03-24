@@ -5,7 +5,13 @@ export const t = {
     // Navigation
     navLogo: 'Yuwei & Benjamin',
     home: 'Home',
+    story: 'Our Story',
+    details: 'Details',
+    schedule: 'Schedule',
     gallery: 'Gallery',
+    rsvp: 'RSVP',
+    travel: 'Travel',
+    registry: 'Registry',
 
     // Password Gate
     enterPassword: 'Enter password',
@@ -28,7 +34,13 @@ export const t = {
     // Navigation
     navLogo: '包雨薇 & 本杰明',
     home: '主页',
+    story: '我们的故事',
+    details: '详情',
+    schedule: '日程',
     gallery: '相册',
+    rsvp: '回复',
+    travel: '交通住宿',
+    registry: '心愿单',
 
     // Password Gate
     enterPassword: '请输入密码',

@@ -3,8 +3,8 @@ export function Story() {
     <div className="min-h-screen relative">
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
-        <img 
-          src="/assets/backgrounds/bg3.jpg"
+        <img
+          src="/backgrounds/bg3.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />
