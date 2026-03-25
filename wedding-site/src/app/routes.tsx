@@ -7,6 +7,7 @@ import { Schedule } from "./pages/Schedule";
 import { RSVPPage } from "./pages/RSVPPage";
 import { Travel } from "./pages/Travel";
 import { Registry } from "./pages/Registry";
+import { VideoScrollTest } from "./pages/VideoScrollTest";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "rsvp", Component: RSVPPage },
       { path: "travel", Component: Travel },
       { path: "registry", Component: Registry },
+      { path: "video-test", Component: VideoScrollTest },
     ],
   },
 ]);

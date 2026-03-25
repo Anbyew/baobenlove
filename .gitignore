@@ -10,3 +10,6 @@ emails/token.json
 
 # Local Netlify folder
 .netlify
+
+# Large video files (kept local only)
+assets/backgrounds/vid4.mp4
