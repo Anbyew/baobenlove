@@ -2,6 +2,8 @@
 
 :root {
   --font-size: 16px;
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Jost', system-ui, sans-serif;
   --background: #f0f2f5;
   --foreground: #2a2a2a;
   --card: #ffffff;
@@ -126,6 +128,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
 
   /**
@@ -135,6 +138,10 @@
 
   html {
     font-size: var(--font-size);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
   }
 
   h1 {

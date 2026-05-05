@@ -18,7 +18,7 @@ export function Navigation() {
     { label: t.rsvp, path: '/rsvp' },
     { label: t.travel, path: '/travel' },
     { label: t.registry, path: '/registry' },
-    { label: 'Video', path: '/video-test' },
+    { label: t.faq, path: '/faq' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

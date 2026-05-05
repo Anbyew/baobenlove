@@ -12,6 +12,7 @@ export const t = {
     rsvp: 'RSVP',
     travel: 'Travel',
     registry: 'Registry',
+    faq: 'Q&A',
 
     // Password Gate
     enterPassword: 'Enter password',
@@ -41,6 +42,7 @@ export const t = {
     rsvp: '回复',
     travel: '交通住宿',
     registry: '心愿单',
+    faq: '常见问题',
 
     // Password Gate
     enterPassword: '请输入密码',

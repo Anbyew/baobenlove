@@ -157,6 +157,37 @@
   animation: scroll 2s ease-in-out infinite;
 }
 
+@keyframes text-shimmer {
+  to { background-position: 200% center; }
+}
+
+.text-white-gold {
+  background: linear-gradient(
+    105deg,
+    #A07828 0%,
+    #D4B86A 20%,
+    #FBF3DC 42%,
+    #FFFFF0 50%,
+    #FBF3DC 58%,
+    #D4B86A 80%,
+    #A07828 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: text-shimmer 5s linear infinite;
+}
+
+/* Hide native cursor when custom cursor is active */
+@media (hover: hover) and (pointer: fine) {
+  html.custom-cursor,
+  html.custom-cursor *:not(input):not(textarea):not(select) {
+    cursor: none !important;
+  }
+}
+
 /* Page Transitions */
 .page-transition-enter {
   opacity: 0;
