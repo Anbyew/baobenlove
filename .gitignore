@@ -13,3 +13,6 @@ emails/token.json
 
 # Large video files (kept local only)
 assets/backgrounds/vid4.mp4
+
+# Large local asset folders
+assets/Wedding Cherries/

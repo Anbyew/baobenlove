@@ -73,20 +73,6 @@ export function VideoScrollTest() {
           preload="auto"
         />
 
-        {/* Overlay text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <div className="text-white text-center drop-shadow-lg">
-            <p className="text-sm tracking-widest uppercase mb-4 opacity-80">Scroll to explore</p>
-            <h1 className="text-6xl font-light">Yuwei &amp; Benjamin</h1>
-            <p className="mt-4 text-xl tracking-wide opacity-70">October 3, 2026</p>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 text-xs tracking-widest uppercase">
-          <span>Scroll</span>
-          <div className="w-px h-8 bg-white/40 animate-pulse" />
-        </div>
       </div>
     </div>
   );
