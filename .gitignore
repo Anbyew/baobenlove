@@ -4,7 +4,8 @@ dist/
 wedding-site/node_modules/
 wedding-site/dist/
 emails/*.xlsx
-emails/testList.csv
+emails/*.csv
+emails/*.numbers
 emails/credentials.json
 emails/token.json
 
@@ -16,3 +17,4 @@ assets/backgrounds/vid4.mp4
 
 # Large local asset folders
 assets/Wedding Cherries/
+local-assets/

@@ -11,8 +11,8 @@ const events = [
       'What began over coffee and long conversations about science and life evolved into an unbreakable bond. A connection that went far beyond textbooks and lectures.',
     ],
     photos: [
-      '/Wedding%20Cherries/IMG_0266.JPG',
-      '/Wedding%20Cherries/IMG_0270.JPG',
+      '/Wedding%20Cherries%20Web/IMG_0266.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0270.jpg',
     ],
   },
   {
@@ -24,8 +24,8 @@ const events = [
       'We found beauty in the simple moments — cooking dinner together, wandering through botanical gardens, and dreaming about the adventures ahead.',
     ],
     photos: [
-      '/Wedding%20Cherries/IMG_0385.JPG',
-      '/Wedding%20Cherries/IMG_0392.JPG',
+      '/Wedding%20Cherries%20Web/IMG_0385.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0392.jpg',
     ],
   },
   {
@@ -37,8 +37,8 @@ const events = [
       'Through happy tears and an overflowing heart, Yuwei said yes.',
     ],
     photos: [
-      '/Wedding%20Cherries/MEITU_20260202_181027290.jpg',
-      '/Wedding%20Cherries/MEITU_20260202_181601549.jpg',
+      '/Wedding%20Cherries%20Web/MEITU_20260202_181027290.jpg',
+      '/Wedding%20Cherries%20Web/MEITU_20260202_181601549.jpg',
     ],
   },
 ];
@@ -47,7 +47,7 @@ export function Story() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/backgrounds/bg3.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0393.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 

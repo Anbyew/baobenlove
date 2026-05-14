@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { Reveal } from '../components/Reveal';
 
 const events = [
-  { time: '2:30 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
+  { time: '2:45 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
   { time: '3:00 PM', title: 'Ceremony', description: 'Join us at Hartefeld National as we exchange our vows under the autumn sky' },
   { time: '4:15 PM', title: 'Travel to Longwood Gardens', description: 'Head to Longwood Gardens for the evening — about a 15-minute drive' },
   { time: '4:30 PM', title: 'Explore Longwood Gardens', description: 'Wander the outdoor gardens and enjoy the autumn beauty while we take wedding photos' },
@@ -15,7 +15,7 @@ export function Schedule() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/backgrounds/bg6.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0387.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 

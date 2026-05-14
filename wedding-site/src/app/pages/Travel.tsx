@@ -45,7 +45,7 @@ export function Travel() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/backgrounds/bg4.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0394.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 

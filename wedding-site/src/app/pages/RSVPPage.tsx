@@ -82,7 +82,7 @@ export function RSVPPage() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/backgrounds/bg7.jpg" alt="" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0400.jpg" alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/20 to-white/40" />
       </div>
 

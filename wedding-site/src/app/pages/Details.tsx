@@ -6,7 +6,7 @@ export function Details() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/backgrounds/bg2.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0392.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 
@@ -43,7 +43,7 @@ export function Details() {
             <div className="mb-32">
               <div className="text-center mb-16">
                 <Reveal>
-                  <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">Ceremony</div>
+                  <div className="text-sm tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">Ceremony</div>
                 </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
@@ -76,14 +76,14 @@ export function Details() {
             <div className="mb-32">
               <div className="text-center mb-16">
                 <Reveal>
-                  <div className="text-xs tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">Reception</div>
+                  <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">Reception</div>
                 </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
                   { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null, href: null },
                   { icon: Clock, label: 'Time', value: '6:00 PM – 11:00 PM', sub: 'Dinner at 7:00 PM', href: null },
-                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: 'Kennett Square, PA', href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
+                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: '1001 Longwood Rd, Kennett Square, PA', href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
@@ -108,47 +108,19 @@ export function Details() {
             {/* Additional info */}
             <div className="grid md:grid-cols-3 gap-16 max-w-4xl mx-auto">
               {[
-                {
-                  label: 'Dress Code',
-                  title: 'Expressive Garden Formal',
-                  body: 'We encourage formal attire with a creative, garden-inspired flair. Ladies may prefer block heels or wedges for the outdoor ceremony.',
-                },
-                {
-                  label: 'Weather',
-                  title: 'October in Pennsylvania',
-                  body: 'Expect pleasant fall weather around 60–70°F. Ceremony is outdoors (indoor option available); reception is indoors in a climate-controlled conservatory.',
-                },
-                {
-                  label: 'Parking',
-                  title: 'Complimentary',
-                  body: 'Free parking is available at both Hartefeld National and Longwood Gardens.',
-                },
+                { label: 'Dress Code', title: 'Expressive Garden Formal' },
+                { label: 'Weather', title: '60–70°F · Outdoor + Indoor' },
+                { label: 'Parking', title: 'Complimentary' },
               ].map((card, i) => (
                 <Reveal key={card.label} delay={i * 0.12}>
                   <div className="text-center">
                     <div className="text-xs tracking-[0.3em] uppercase text-foreground/55 mb-6 font-light">{card.label}</div>
-                    <h3 className="text-xl font-light text-foreground mb-4">{card.title}</h3>
-                    <p className="text-sm font-light text-foreground/75 leading-relaxed">{card.body}</p>
+                    <h3 className="text-xl font-light text-foreground">{card.title}</h3>
                   </div>
                 </Reveal>
               ))}
             </div>
 
-            {/* Addresses */}
-            <Reveal delay={0.2}>
-              <div className="text-center mt-24 space-y-8">
-                <a href="https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311" target="_blank" rel="noreferrer" className="text-sm font-light text-foreground/65 space-y-1 hover:text-primary transition-colors duration-200 block">
-                  <div className="text-xs tracking-[0.25em] uppercase text-foreground/40 mb-2 font-light">Ceremony</div>
-                  <p>1 Hartefeld Drive</p>
-                  <p>Avondale, Pennsylvania 19311</p>
-                </a>
-                <a href="https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348" target="_blank" rel="noreferrer" className="text-sm font-light text-foreground/65 space-y-1 hover:text-primary transition-colors duration-200 block">
-                  <div className="text-xs tracking-[0.25em] uppercase text-foreground/40 mb-2 font-light">Cocktail & Reception</div>
-                  <p>1001 Longwood Road</p>
-                  <p>Kennett Square, Pennsylvania 19348</p>
-                </a>
-              </div>
-            </Reveal>
           </div>
         </div>
       </div>
