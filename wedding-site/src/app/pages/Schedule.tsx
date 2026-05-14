@@ -2,14 +2,12 @@ import { motion } from 'motion/react';
 import { Reveal } from '../components/Reveal';
 
 const events = [
-  { time: '4:00 PM', title: 'Guest Arrival', description: "Please arrive early and find your seats in the Open Air Theatre" },
-  { time: '4:30 PM', title: 'Ceremony Begins', description: 'Join us in the garden as we exchange our vows under the autumn sky' },
-  { time: '5:15 PM', title: 'Garden Stroll & Photos', description: 'Explore the beautiful Longwood Gardens while we take wedding photos' },
-  { time: '6:00 PM', title: 'Cocktail Hour', description: "Enjoy signature cocktails and hors d'oeuvres on the Terrace" },
+  { time: '2:30 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
+  { time: '3:00 PM', title: 'Ceremony', description: 'Join us at Hartefeld National as we exchange our vows under the autumn sky' },
+  { time: '4:15 PM', title: 'Travel to Longwood Gardens', description: 'Head to Longwood Gardens for the evening — about a 15-minute drive' },
+  { time: '4:30 PM', title: 'Explore Longwood Gardens', description: 'Wander the outdoor gardens and enjoy the autumn beauty while we take wedding photos' },
+  { time: '6:00 PM', title: 'Cocktail Hour', description: "Enjoy signature cocktails and hors d'oeuvres at Longwood Gardens" },
   { time: '7:00 PM', title: 'Reception & Dinner', description: 'A seated dinner featuring seasonal, locally-sourced cuisine' },
-  { time: '8:30 PM', title: 'First Dance & Toasts', description: 'Special moments with heartfelt toasts from loved ones' },
-  { time: '9:00 PM', title: 'Cake Cutting', description: 'Join us for a sweet celebration with our garden-inspired wedding cake' },
-  { time: '9:30 PM', title: 'Dancing', description: "Let's celebrate on the dance floor all night long" },
   { time: '11:00 PM', title: 'Sparkler Send-Off', description: 'A magical farewell under the stars with sparklers' },
 ];
 
@@ -42,14 +40,6 @@ export function Schedule() {
                   <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Schedule</h1>
                 </motion.div>
               </div>
-              <motion.p
-                className="text-xl font-light text-foreground/70"
-                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.9, delay: 0.6 }}
-              >
-                Timeline for our special day
-              </motion.p>
             </div>
           </div>
         </div>

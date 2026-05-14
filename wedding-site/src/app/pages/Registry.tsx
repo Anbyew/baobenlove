@@ -23,7 +23,6 @@ export function Registry() {
             <div className="relative">
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-12 animate-elegant-fade-in" />
               <h1 className="text-5xl md:text-7xl font-light mb-6 text-foreground tracking-tight animate-slide-in-left">Registry</h1>
-              <p className="text-xl font-light text-foreground/80 animate-slide-up-delayed">Your presence is the greatest gift</p>
             </div>
           </div>
         </div>

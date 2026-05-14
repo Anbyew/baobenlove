@@ -72,14 +72,6 @@ export function Story() {
                   <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Our Story</h1>
                 </motion.div>
               </div>
-              <motion.p
-                className="text-xl font-light text-foreground/70"
-                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.9, delay: 0.6 }}
-              >
-                A journey written in the stars
-              </motion.p>
             </div>
           </div>
         </div>

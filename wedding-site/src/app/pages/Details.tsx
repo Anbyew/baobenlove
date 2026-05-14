@@ -31,14 +31,6 @@ export function Details() {
                   <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Details</h1>
                 </motion.div>
               </div>
-              <motion.p
-                className="text-xl font-light text-foreground/70"
-                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.9, delay: 0.6 }}
-              >
-                Everything you need to know
-              </motion.p>
             </div>
           </div>
         </div>
@@ -53,21 +45,22 @@ export function Details() {
                 <Reveal>
                   <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">Ceremony</div>
                 </Reveal>
-                <Reveal delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-light text-foreground mb-12">Join us as we exchange our vows</h2>
-                </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
-                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null },
-                  { icon: Clock, label: 'Time', value: '4:30 PM', sub: 'Arrive by 4:15 PM' },
-                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: 'Open Air Theatre' },
+                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null, href: null },
+                  { icon: Clock, label: 'Time', value: '3:00 PM', sub: 'Arrive by 2:45 PM', href: null },
+                  { icon: MapPin, label: 'Location', value: 'Hartefeld National', sub: '1 Hartefeld Dr, Avondale, PA', href: 'https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
                       <item.icon className="w-7 h-7 text-primary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-primary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
-                      <div className="text-lg font-light text-foreground">{item.value}</div>
+                      {item.href ? (
+                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-primary transition-colors duration-200">{item.value}</a>
+                      ) : (
+                        <div className="text-lg font-light text-foreground">{item.value}</div>
+                      )}
                       {item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
                     </div>
                   </Reveal>
@@ -85,21 +78,22 @@ export function Details() {
                 <Reveal>
                   <div className="text-xs tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">Reception</div>
                 </Reveal>
-                <Reveal delay={0.1}>
-                  <h2 className="text-3xl md:text-4xl font-light text-foreground mb-12">Dinner, drinks, and dancing to follow</h2>
-                </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
-                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null },
-                  { icon: Clock, label: 'Time', value: '6:00 PM – 11:00 PM', sub: 'Cocktail hour at 6:00 PM' },
-                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: 'Terrace Restaurant' },
+                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null, href: null },
+                  { icon: Clock, label: 'Time', value: '6:00 PM – 11:00 PM', sub: 'Dinner at 7:00 PM', href: null },
+                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: 'Kennett Square, PA', href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
                       <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
-                      <div className="text-lg font-light text-foreground">{item.value}</div>
+                      {item.href ? (
+                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                      ) : (
+                        <div className="text-lg font-light text-foreground">{item.value}</div>
+                      )}
                       {item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
                     </div>
                   </Reveal>
@@ -116,18 +110,18 @@ export function Details() {
               {[
                 {
                   label: 'Dress Code',
-                  title: 'Formal Garden Attire',
-                  body: 'Please wear formal attire in garden-appropriate colors. Ladies may prefer block heels or wedges for the outdoor ceremony.',
+                  title: 'Expressive Garden Formal',
+                  body: 'We encourage formal attire with a creative, garden-inspired flair. Ladies may prefer block heels or wedges for the outdoor ceremony.',
                 },
                 {
                   label: 'Weather',
                   title: 'October in Pennsylvania',
-                  body: 'Expect pleasant fall weather around 60–70°F. We recommend bringing a light jacket for the evening.',
+                  body: 'Expect pleasant fall weather around 60–70°F. Ceremony is outdoors (indoor option available); reception is indoors in a climate-controlled conservatory.',
                 },
                 {
                   label: 'Parking',
                   title: 'Complimentary',
-                  body: 'Free parking is available at Longwood Gardens. Valet service will be provided at the main entrance.',
+                  body: 'Free parking is available at both Hartefeld National and Longwood Gardens.',
                 },
               ].map((card, i) => (
                 <Reveal key={card.label} delay={i * 0.12}>
@@ -140,13 +134,19 @@ export function Details() {
               ))}
             </div>
 
-            {/* Address */}
+            {/* Addresses */}
             <Reveal delay={0.2}>
-              <div className="text-center mt-24">
-                <div className="text-sm font-light text-foreground/65 space-y-1">
+              <div className="text-center mt-24 space-y-8">
+                <a href="https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311" target="_blank" rel="noreferrer" className="text-sm font-light text-foreground/65 space-y-1 hover:text-primary transition-colors duration-200 block">
+                  <div className="text-xs tracking-[0.25em] uppercase text-foreground/40 mb-2 font-light">Ceremony</div>
+                  <p>1 Hartefeld Drive</p>
+                  <p>Avondale, Pennsylvania 19311</p>
+                </a>
+                <a href="https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348" target="_blank" rel="noreferrer" className="text-sm font-light text-foreground/65 space-y-1 hover:text-primary transition-colors duration-200 block">
+                  <div className="text-xs tracking-[0.25em] uppercase text-foreground/40 mb-2 font-light">Cocktail & Reception</div>
                   <p>1001 Longwood Road</p>
                   <p>Kennett Square, Pennsylvania 19348</p>
-                </div>
+                </a>
               </div>
             </Reveal>
           </div>
