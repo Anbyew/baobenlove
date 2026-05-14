@@ -17,38 +17,18 @@ export function PageLoader() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[9999] bg-background flex flex-col items-center justify-center select-none"
+          className="fixed inset-0 z-[9999] flex items-center justify-center select-none"
+          style={{ background: 'linear-gradient(135deg, #f4efea 0%, #ede7e1 50%, #eae4dc 100%)' }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
         >
-          <motion.div
-            className="h-px w-14 bg-gradient-to-r from-transparent via-primary to-transparent mb-10"
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.9, delay: 0.1 }}
-          />
-          <motion.p
-            className="text-5xl font-light text-foreground tracking-tight"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-            initial={{ opacity: 0, y: 18, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1.1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Yuwei &amp; Benjamin
-          </motion.p>
-          <motion.p
-            className="mt-5 text-[10px] tracking-[0.4em] uppercase text-primary/50 font-light"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.15 }}
-          >
-            Optimum attingitur
-          </motion.p>
-          <motion.div
-            className="h-px w-14 bg-gradient-to-r from-transparent via-secondary to-transparent mt-10"
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.9, delay: 0.5 }}
+          <motion.img
+            src="/AI/seal.png"
+            alt=""
+            className="w-48 md:w-56"
+            initial={{ opacity: 0, scale: 0.88, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           />
         </motion.div>
       )}
