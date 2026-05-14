@@ -7,7 +7,7 @@ export function Registry() {
       {/* Background Image with Overlay */}
       <div className="fixed inset-0 z-0">
         <img 
-          src="/Wedding Cherries Web/IMG_0401.jpg"
+          src="/Wedding Cherries Web/IMG_0267.jpg"
           alt="Garden background"
           className="w-full h-full object-cover"
         />

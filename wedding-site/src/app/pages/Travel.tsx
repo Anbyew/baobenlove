@@ -1,4 +1,5 @@
 import { motion } from 'motion/react';
+import { Plane, Hotel, Map } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 
 const hotels = [
@@ -45,7 +46,7 @@ export function Travel() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/Wedding Cherries Web/IMG_0394.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0385.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 
@@ -83,7 +84,10 @@ export function Travel() {
               {/* Getting Here */}
               <div className="mb-16">
                 <Reveal>
-                  <h2 className="text-3xl font-light text-foreground mb-10">Getting Here</h2>
+                  <div className="flex items-center gap-3 mb-10">
+                    <Plane className="w-5 h-5 text-primary/40" />
+                    <h2 className="text-3xl font-light text-foreground">Getting Here</h2>
+                  </div>
                 </Reveal>
                 <div className="space-y-8">
                   <Reveal delay={0.08}>
@@ -108,7 +112,10 @@ export function Travel() {
               {/* Hotels */}
               <div className="mb-16">
                 <Reveal>
-                  <h2 className="text-3xl font-light text-foreground mb-10">Where to Stay</h2>
+                  <div className="flex items-center gap-3 mb-10">
+                    <Hotel className="w-5 h-5 text-primary/40" />
+                    <h2 className="text-3xl font-light text-foreground">Where to Stay</h2>
+                  </div>
                 </Reveal>
                 <div className="space-y-8">
                   {hotels.map((hotel, i) => (
@@ -139,7 +146,10 @@ export function Travel() {
               {/* Explore the Area */}
               <div>
                 <Reveal>
-                  <h2 className="text-3xl font-light text-foreground mb-10">Explore the Area</h2>
+                  <div className="flex items-center gap-3 mb-10">
+                    <Map className="w-5 h-5 text-primary/40" />
+                    <h2 className="text-3xl font-light text-foreground">Explore the Area</h2>
+                  </div>
                 </Reveal>
                 <div className="space-y-8">
                   {attractions.flatMap((group) =>

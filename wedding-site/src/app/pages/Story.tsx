@@ -11,8 +11,8 @@ const events = [
       'What began over coffee and long conversations about science and life evolved into an unbreakable bond. A connection that went far beyond textbooks and lectures.',
     ],
     photos: [
-      '/Wedding%20Cherries%20Web/IMG_0266.jpg',
-      '/Wedding%20Cherries%20Web/IMG_0270.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0392.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0394.jpg',
     ],
   },
   {
@@ -24,8 +24,8 @@ const events = [
       'We found beauty in the simple moments — cooking dinner together, wandering through botanical gardens, and dreaming about the adventures ahead.',
     ],
     photos: [
-      '/Wedding%20Cherries%20Web/IMG_0385.jpg',
-      '/Wedding%20Cherries%20Web/IMG_0392.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0389.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0398.jpg',
     ],
   },
   {
@@ -37,8 +37,8 @@ const events = [
       'Through happy tears and an overflowing heart, Yuwei said yes.',
     ],
     photos: [
-      '/Wedding%20Cherries%20Web/MEITU_20260202_181027290.jpg',
-      '/Wedding%20Cherries%20Web/MEITU_20260202_181601549.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0386.jpg',
+      '/Wedding%20Cherries%20Web/IMG_0401.jpg',
     ],
   },
 ];

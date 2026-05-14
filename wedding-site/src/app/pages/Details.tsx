@@ -6,7 +6,7 @@ export function Details() {
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
-        <img src="/Wedding Cherries Web/IMG_0392.jpg" alt="Garden background" className="w-full h-full object-cover" />
+        <img src="/Wedding Cherries Web/IMG_0403.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
 
@@ -40,7 +40,7 @@ export function Details() {
           <div className="bg-white/80 backdrop-blur-xl shadow-2xl shadow-black/8 border border-white/50 p-8 md:p-16 rounded-sm">
 
             {/* Ceremony */}
-            <div className="mb-32">
+            <div className="mb-16">
               <div className="text-center mb-16">
                 <Reveal>
                   <div className="text-sm tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">Ceremony</div>
@@ -69,11 +69,11 @@ export function Details() {
             </div>
 
             <Reveal>
-              <div className="h-px w-24 bg-gradient-to-r from-transparent via-secondary/30 to-transparent mx-auto my-24" />
+              <div className="h-px w-24 bg-gradient-to-r from-transparent via-secondary/30 to-transparent mx-auto my-12" />
             </Reveal>
 
             {/* Reception */}
-            <div className="mb-32">
+            <div className="mb-16">
               <div className="text-center mb-16">
                 <Reveal>
                   <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">Reception</div>
@@ -102,7 +102,7 @@ export function Details() {
             </div>
 
             <Reveal>
-              <div className="h-px w-24 bg-gradient-to-r from-transparent via-primary/30 to-transparent mx-auto my-24" />
+              <div className="h-px w-24 bg-gradient-to-r from-transparent via-primary/30 to-transparent mx-auto my-12" />
             </Reveal>
 
             {/* Additional info */}
@@ -120,6 +120,40 @@ export function Details() {
                 </Reveal>
               ))}
             </div>
+
+            <Reveal delay={0.15}>
+              <div className="flex justify-center items-end gap-2 md:gap-4 mt-16 overflow-hidden">
+                {[
+                  { n: 2, rot: -6, w: 88,  y: 10 },
+                  { n: 1, rot: -3, w: 128, y: 0  },
+                  { n: 7, rot:  3, w: 104, y: 18 },
+                  { n: 3, rot: -1, w: 148, y: 4  },
+                  { n: 6, rot:  4, w: 112, y: 12 },
+                  { n: 8, rot: -5, w: 136, y: 6  },
+                  { n: 4, rot:  6, w: 96,  y: 20 },
+                ].map(({ n, rot, w, y }) => (
+                  <img
+                    key={n}
+                    src={`/AI/couples/couple_${n}.png`}
+                    alt=""
+                    className="drop-shadow-lg shrink-0 cursor-default"
+                    style={{
+                      width: w,
+                      transform: `rotate(${rot}deg) translateY(${y}px)`,
+                      transition: 'transform 0.35s ease, filter 0.35s ease',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = `rotate(${rot * 0.4}deg) translateY(${y - 14}px) scale(1.1)`;
+                      e.currentTarget.style.filter = 'drop-shadow(0 12px 20px rgba(0,0,0,0.18))';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = `rotate(${rot}deg) translateY(${y}px)`;
+                      e.currentTarget.style.filter = '';
+                    }}
+                  />
+                ))}
+              </div>
+            </Reveal>
 
           </div>
         </div>
