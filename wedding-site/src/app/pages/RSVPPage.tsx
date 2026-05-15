@@ -7,12 +7,14 @@ import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { useGuestSession } from '../context/GuestSessionContext';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 import { saveInviteRsvp, type AttendanceStatus } from '../lib/invite';
+import { useLang } from '../context/LanguageContext';
 
 type FormField = 'attendance' | 'guestCount' | 'dietaryRestrictions' | 'songRequest';
 
 export function RSVPPage() {
   const { invite, token, isLoading, error, identifyGuest, refreshInvite } = useGuestSession();
   const { identity } = useGuestIdentity();
+  const { t, lang } = useLang();
   const contactEmail = import.meta.env.VITE_RSVP_CONTACT_EMAIL?.trim() || 'bellabenbao@gmail.com';
 
   const [formData, setFormData] = useState({
@@ -27,7 +29,6 @@ export function RSVPPage() {
 
   const autoLookupAttempted = useRef(false);
 
-  // Auto-lookup the invite once we have an identity and no invite yet
   useEffect(() => {
     if (identity && !invite && !isLoading && !autoLookupAttempted.current) {
       autoLookupAttempted.current = true;
@@ -51,7 +52,7 @@ export function RSVPPage() {
     e.preventDefault();
     if (!token) return;
     if (formData.attendance !== 'yes' && formData.attendance !== 'no') {
-      setSubmitError('Please let us know whether you will be attending.');
+      setSubmitError(t.rsvpAttendError);
       return;
     }
     const guestCount = Math.max(1, Number.parseInt(formData.guestCount, 10) || 1);
@@ -68,7 +69,7 @@ export function RSVPPage() {
       setSubmitted(true);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : 'We could not save your RSVP. Please try again.',
+        err instanceof Error ? err.message : t.rsvpSaveError,
       );
     } finally {
       setIsSubmitting(false);
@@ -103,79 +104,76 @@ export function RSVPPage() {
           <div className="bg-white/85 backdrop-blur-md shadow-2xl shadow-black/5 p-8 md:p-16 rounded-sm">
             <div className="text-center mb-16 animate-slide-up-delayed-2">
               <p className="text-sm tracking-wider uppercase text-secondary/70 font-light">
-                Please respond by September 1, 2026
+                {t.rsvpDeadline}
               </p>
             </div>
 
             {submitted && invite ? (
               <div className="text-center py-16 animate-elegant-fade-in">
                 <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
-                <h3 className="text-3xl font-light text-foreground mb-6">Thank you</h3>
+                <h3 className="text-3xl font-light text-foreground mb-6">{t.rsvpThankYou}</h3>
                 <p className="text-base font-light text-foreground/80">
-                  Your RSVP for {invite.partyName} has been received. We can't wait to celebrate with you.
+                  {lang === 'zh'
+                    ? <>{t.rsvpReceivedPre} {invite.partyName} {t.rsvpReceivedPost}</>
+                    : <>{t.rsvpReceivedPre} {invite.partyName} {t.rsvpReceivedPost}</>}
                 </p>
               </div>
             ) : isLoading ? (
               <div className="text-center py-16 animate-elegant-fade-in">
                 <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
-                <h3 className="text-2xl font-light text-foreground mb-4">Opening your invitation</h3>
+                <h3 className="text-2xl font-light text-foreground mb-4">{t.rsvpLoading}</h3>
                 <p className="text-base font-light text-foreground/80">
-                  Please wait a moment while we load your household details.
+                  {t.rsvpLoadingMsg}
                 </p>
               </div>
             ) : !invite ? (
               <div className="text-center py-16 animate-elegant-fade-in">
                 <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
                 <h3 className="text-2xl font-light text-foreground mb-4">
-                  We couldn't find your invitation
+                  {t.rsvpNotFound}
                 </h3>
                 <p className="text-base font-light text-foreground/80 mb-8">
-                  {error
-                    ? error
-                    : "We looked up your invitation but couldn't find a match. This may happen if you were invited under a different email address."}
+                  {error ? error : t.rsvpNotFoundMsg}
                 </p>
                 <p className="text-sm font-light text-foreground/70">
-                  Please reach out to us at{' '}
+                  {t.rsvpContactPre}{' '}
                   <a
                     href={`mailto:${contactEmail}`}
                     className="text-primary hover:text-primary/80 transition-colors"
                   >
                     {contactEmail}
                   </a>{' '}
-                  and we'll sort it out.
+                  {t.rsvpContactPost}
                 </p>
               </div>
             ) : (
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-8 animate-slide-up-delayed-3"
-              >
+              <form onSubmit={handleSubmit} className="space-y-8 animate-slide-up-delayed-3">
                 <div className="space-y-5 border border-foreground/10 bg-white/40 px-5 py-6">
                   <div>
                     <p className="text-sm tracking-wider uppercase text-secondary/70 font-light">
-                      Household
+                      {t.rsvpHousehold}
                     </p>
                     <h3 className="mt-2 text-2xl font-light text-foreground">{invite.partyName}</h3>
                   </div>
                   <div className="grid gap-3 text-sm font-light text-foreground/75 md:grid-cols-2">
                     <p>
-                      Reserved seats: <span className="text-foreground">{invite.maxGuests}</span>
+                      {t.rsvpReservedSeats}: <span className="text-foreground">{invite.maxGuests}</span>
                     </p>
                     <p>
-                      Guests:{' '}
+                      {t.rsvpGuests}:{' '}
                       <span className="text-foreground">
                         {invite.guestNames.join(', ') || invite.partyName}
                       </span>
                     </p>
                     {invite.primaryEmail && (
                       <p className="md:col-span-2">
-                        Invitation email:{' '}
+                        {t.rsvpInvitationEmail}:{' '}
                         <span className="text-foreground">{invite.primaryEmail}</span>
                       </p>
                     )}
                     {invite.rsvp.submittedAt && (
                       <p className="md:col-span-2 text-foreground/60">
-                        Last updated {new Date(invite.rsvp.submittedAt).toLocaleDateString()}
+                        {t.rsvpLastUpdated} {new Date(invite.rsvp.submittedAt).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -183,7 +181,7 @@ export function RSVPPage() {
 
                 <div className="space-y-4">
                   <Label className="text-sm tracking-wider uppercase font-light text-foreground/80">
-                    Will you be attending? *
+                    {t.rsvpAttending}
                   </Label>
                   <RadioGroup
                     value={formData.attendance}
@@ -192,13 +190,13 @@ export function RSVPPage() {
                     <div className="flex items-center space-x-3 p-5 border border-foreground/10 hover:border-primary/30 transition-colors">
                       <RadioGroupItem value="yes" id="yes" />
                       <Label htmlFor="yes" className="font-light flex-1 cursor-pointer">
-                        Joyfully accepts
+                        {t.rsvpAccepts}
                       </Label>
                     </div>
                     <div className="flex items-center space-x-3 p-5 border border-foreground/10 hover:border-primary/30 transition-colors">
                       <RadioGroupItem value="no" id="no" />
                       <Label htmlFor="no" className="font-light flex-1 cursor-pointer">
-                        Regretfully declines
+                        {t.rsvpDeclines}
                       </Label>
                     </div>
                   </RadioGroup>
@@ -211,7 +209,7 @@ export function RSVPPage() {
                         htmlFor="guestCount"
                         className="text-sm tracking-wider uppercase font-light text-foreground/80"
                       >
-                        Number of Guests
+                        {t.rsvpGuestCount}
                       </Label>
                       <Input
                         id="guestCount"
@@ -223,8 +221,10 @@ export function RSVPPage() {
                         className="border-foreground/10 focus:border-primary bg-transparent py-6 font-light"
                       />
                       <p className="text-xs font-light text-foreground/70">
-                        Including yourself, up to {invite.maxGuests} reserved seat
-                        {invite.maxGuests === 1 ? '' : 's'}.
+                        {t.rsvpSeatHintPre} {invite.maxGuests}{' '}
+                        {lang === 'zh'
+                          ? t.rsvpSeatHintPost
+                          : invite.maxGuests === 1 ? t.rsvpSeatHintPost : t.rsvpSeatHintPostPlural}.
                       </p>
                     </div>
 
@@ -233,13 +233,13 @@ export function RSVPPage() {
                         htmlFor="dietary"
                         className="text-sm tracking-wider uppercase font-light text-foreground/80"
                       >
-                        Dietary Restrictions
+                        {t.rsvpDietary}
                       </Label>
                       <Textarea
                         id="dietary"
                         value={formData.dietaryRestrictions}
                         onChange={(e) => handleChange('dietaryRestrictions', e.target.value)}
-                        placeholder="Please let us know of any dietary restrictions"
+                        placeholder={t.rsvpDietaryPlaceholder}
                         rows={4}
                         className="border-foreground/10 focus:border-primary bg-transparent font-light resize-none"
                       />
@@ -250,13 +250,13 @@ export function RSVPPage() {
                         htmlFor="songRequest"
                         className="text-sm tracking-wider uppercase font-light text-foreground/80"
                       >
-                        Song Request
+                        {t.rsvpSongRequest}
                       </Label>
                       <Input
                         id="songRequest"
                         value={formData.songRequest}
                         onChange={(e) => handleChange('songRequest', e.target.value)}
-                        placeholder="Any song you'd like to hear?"
+                        placeholder={t.rsvpSongPlaceholder}
                         className="border-foreground/10 focus:border-primary bg-transparent py-6 font-light"
                       />
                     </div>
@@ -274,10 +274,10 @@ export function RSVPPage() {
                     className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-sm tracking-widest uppercase font-light transition-all duration-300"
                   >
                     {isSubmitting
-                      ? 'Saving RSVP…'
+                      ? t.rsvpSaving
                       : invite.rsvp.submittedAt
-                        ? 'Update RSVP'
-                        : 'Submit RSVP'}
+                        ? t.rsvpUpdate
+                        : t.rsvpSubmit}
                   </Button>
                 </div>
               </form>
@@ -285,12 +285,12 @@ export function RSVPPage() {
 
             <div className="mt-16 text-center">
               <p className="text-sm font-light text-foreground/70">
-                Questions?{' '}
+                {t.rsvpQuestions}{' '}
                 <a
                   href={`mailto:${contactEmail}`}
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
-                  Email us
+                  {t.rsvpEmailUs}
                 </a>
               </p>
             </div>

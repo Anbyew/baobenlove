@@ -1,17 +1,11 @@
 import { motion } from 'motion/react';
 import { Reveal } from '../components/Reveal';
-
-const events = [
-  { time: '2:45 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
-  { time: '3:00 PM', title: 'Ceremony', description: 'Join us at Hartefeld National as we exchange our vows under the autumn sky' },
-  { time: '4:15 PM', title: 'Travel to Longwood Gardens', description: 'Head to Longwood Gardens for the evening — about a 15-minute drive' },
-  { time: '4:30 PM', title: 'Explore Longwood Gardens', description: 'Wander the outdoor gardens and enjoy the autumn beauty while we take wedding photos' },
-  { time: '6:00 PM', title: 'Cocktail Hour', description: "Enjoy signature cocktails and hors d'oeuvres at Longwood Gardens" },
-  { time: '7:00 PM', title: 'Reception & Dinner', description: 'A seated dinner featuring seasonal, locally-sourced cuisine' },
-  { time: '11:00 PM', title: 'Sparkler Send-Off', description: 'A magical farewell under the stars with sparklers' },
-];
+import { useLang } from '../context/LanguageContext';
 
 export function Schedule() {
+  const { t } = useLang();
+  const events = t.scheduleEvents;
+
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
@@ -37,7 +31,7 @@ export function Schedule() {
                   animate={{ y: '0%' }}
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Schedule</h1>
+                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">{t.scheduleTitle}</h1>
                 </motion.div>
               </div>
             </div>
@@ -79,7 +73,7 @@ export function Schedule() {
             <Reveal delay={0.2}>
               <div className="mt-24 text-center">
                 <p className="text-sm font-light text-foreground/60 italic">
-                  Times are approximate and may vary slightly throughout the evening
+                  {t.scheduleNote}
                 </p>
               </div>
             </Reveal>

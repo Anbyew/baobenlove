@@ -1,7 +1,9 @@
 import { Gift, ExternalLink } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { useLang } from '../context/LanguageContext';
 
 export function Registry() {
+  const { t } = useLang();
   return (
     <div className="min-h-screen relative">
       {/* Background Image with Overlay */}
@@ -22,7 +24,7 @@ export function Registry() {
             <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-sm" />
             <div className="relative">
               <div className="h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mb-12 animate-elegant-fade-in" />
-              <h1 className="text-5xl md:text-7xl font-light mb-6 text-foreground tracking-tight animate-slide-in-left">Registry</h1>
+              <h1 className="text-5xl md:text-7xl font-light mb-6 text-foreground tracking-tight animate-slide-in-left">{t.registryTitle}</h1>
             </div>
           </div>
         </div>
@@ -33,8 +35,7 @@ export function Registry() {
             {/* Introduction */}
             <div className="text-center mb-24 animate-slide-up-delayed-2">
               <p className="text-base font-light text-foreground/80 leading-relaxed">
-                Your presence at our wedding is the greatest gift of all. However, if you wish to honor us 
-                with a gift, we've registered at the following stores.
+                {t.registryIntro}
               </p>
             </div>
 
@@ -43,13 +44,13 @@ export function Registry() {
               <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-3">
                 <div>
                   <h3 className="text-xl font-light text-foreground mb-1">Crate & Barrel</h3>
-                  <p className="text-sm font-light text-foreground/70">Home & Kitchen</p>
+                  <p className="text-sm font-light text-foreground/70">{t.registryHomeKitchen}</p>
                 </div>
                 <Button 
                   variant="ghost" 
                   className="text-primary hover:text-primary/80 font-light"
                 >
-                  View
+                  {t.registryView}
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -57,13 +58,13 @@ export function Registry() {
               <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-4">
                 <div>
                   <h3 className="text-xl font-light text-foreground mb-1">Williams Sonoma</h3>
-                  <p className="text-sm font-light text-foreground/70">Gourmet Kitchen</p>
+                  <p className="text-sm font-light text-foreground/70">{t.registryGourmet}</p>
                 </div>
                 <Button 
                   variant="ghost" 
                   className="text-primary hover:text-primary/80 font-light"
                 >
-                  View
+                  {t.registryView}
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -71,13 +72,13 @@ export function Registry() {
               <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-5">
                 <div>
                   <h3 className="text-xl font-light text-foreground mb-1">Zola</h3>
-                  <p className="text-sm font-light text-foreground/70">Universal Registry</p>
+                  <p className="text-sm font-light text-foreground/70">{t.registryUniversal}</p>
                 </div>
                 <Button 
                   variant="ghost" 
                   className="text-primary hover:text-primary/80 font-light"
                 >
-                  View
+                  {t.registryView}
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -88,26 +89,25 @@ export function Registry() {
             {/* Honeymoon Fund */}
             <div className="text-center">
               <Gift className="w-12 h-12 text-primary/30 mx-auto mb-8 animate-slide-up-scale" style={{ animationDelay: '0.9s' }} />
-              <h2 className="text-3xl font-light text-foreground mb-6 animate-slide-up-delayed" style={{ animationDelay: '1s' }}>Honeymoon Fund</h2>
-              <p className="text-sm font-light text-foreground/80 mb-3 animate-slide-up-delayed" style={{ animationDelay: '1.1s' }}>Japan</p>
+              <h2 className="text-3xl font-light text-foreground mb-6 animate-slide-up-delayed" style={{ animationDelay: '1s' }}>{t.registryHoneymoon}</h2>
+              <p className="text-sm font-light text-foreground/80 mb-3 animate-slide-up-delayed" style={{ animationDelay: '1.1s' }}>{t.registryHoneymoonDest}</p>
               <p className="text-base font-light text-foreground/80 leading-relaxed mb-12 max-w-2xl mx-auto animate-slide-up-delayed" style={{ animationDelay: '1.2s' }}>
-                We're planning an unforgettable honeymoon to Japan, where we'll explore ancient temples, 
-                stroll through bamboo forests, and discover the beautiful gardens that inspired our wedding theme.
+                {t.registryHoneymoonDesc}
               </p>
-              <Button 
+              <Button
                 className="bg-primary hover:bg-primary/90 text-white px-12 py-6 font-light tracking-wider uppercase transition-all duration-300 animate-slide-up-scale"
                 style={{ animationDelay: '1.3s' }}
               >
-                Contribute
+                {t.registryContribute}
               </Button>
             </div>
 
             {/* Footer Note */}
             <div className="text-center mt-32 animate-elegant-fade-in" style={{ animationDelay: '1.4s' }}>
               <p className="text-sm font-light text-foreground/70">
-                Questions? Email us at{' '}
+                {t.registryContact}{' '}
                 <a 
-                  href="mailto:bellabenbao@gmail..com" 
+                  href="mailto:bellabenbao@gmail.com"
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
                   bellabenbao@gmail.com

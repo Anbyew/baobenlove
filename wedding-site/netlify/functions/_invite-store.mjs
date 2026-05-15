@@ -125,6 +125,27 @@ function emailSelect(email) {
   return `${INVITES_TABLE}?select=*&or=(primary_email.eq.${normalizedEmail},secondary_email.eq.${normalizedEmail})&limit=5`;
 }
 
+export async function lookupInviteByEmail(email) {
+  if (USE_MOCK_INVITES) {
+    const invites = await loadMockInvites();
+    const normalizedEmail = normalizeEmail(email);
+    return (
+      invites.find(
+        (invite) =>
+          normalizeEmail(invite.primaryEmail) === normalizedEmail ||
+          normalizeEmail(invite.secondaryEmail) === normalizedEmail,
+      ) ?? null
+    );
+  }
+
+  const rows = await requestSupabase(emailSelect(email), {
+    method: 'GET',
+    headers: { Prefer: 'return=minimal' },
+  });
+
+  return rows[0] ? toInviteSession(rows[0]) : null;
+}
+
 export async function getInviteByToken(token) {
   if (USE_MOCK_INVITES) {
     const invites = await loadMockInvites();

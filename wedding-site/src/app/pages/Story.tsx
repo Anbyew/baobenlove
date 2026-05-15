@@ -1,49 +1,17 @@
 import { motion } from 'motion/react';
 import { Reveal } from '../components/Reveal';
+import { useLang } from '../context/LanguageContext';
 
-const events = [
-  {
-    year: '2018',
-    title: 'How We Met',
-    isPrimary: true,
-    paragraphs: [
-      'Our paths first crossed in the hallways of medical school in 2018. Driven by the same passion for healing and discovery, we found ourselves drawn together — study partners first, then something much more.',
-      'What began over coffee and long conversations about science and life evolved into an unbreakable bond. A connection that went far beyond textbooks and lectures.',
-    ],
-    photos: [
-      '/Wedding%20Cherries%20Web/IMG_0392.jpg',
-      '/Wedding%20Cherries%20Web/IMG_0394.jpg',
-    ],
-  },
-  {
-    year: '2019 – 2024',
-    title: 'Growing Together',
-    isPrimary: false,
-    paragraphs: [
-      'Through residency programs, late-night shifts, and the joys and challenges of building our careers, we supported each other every step of the way.',
-      'We found beauty in the simple moments — cooking dinner together, wandering through botanical gardens, and dreaming about the adventures ahead.',
-    ],
-    photos: [
-      '/Wedding%20Cherries%20Web/IMG_0389.jpg',
-      '/Wedding%20Cherries%20Web/IMG_0398.jpg',
-    ],
-  },
-  {
-    year: 'February 2026',
-    title: 'The Proposal',
-    isPrimary: true,
-    paragraphs: [
-      'Surrounded by blooming cherry blossoms, Benjamin got down on one knee. With a ring that sparkled as brightly as their future together, he asked the question that would change their lives forever.',
-      'Through happy tears and an overflowing heart, Yuwei said yes.',
-    ],
-    photos: [
-      '/Wedding%20Cherries%20Web/IMG_0386.jpg',
-      '/Wedding%20Cherries%20Web/IMG_0401.jpg',
-    ],
-  },
+const photos = [
+  ['/Wedding%20Cherries%20Web/IMG_0392.jpg', '/Wedding%20Cherries%20Web/IMG_0394.jpg'],
+  ['/Wedding%20Cherries%20Web/IMG_0389.jpg', '/Wedding%20Cherries%20Web/IMG_0398.jpg'],
+  ['/Wedding%20Cherries%20Web/IMG_0386.jpg', '/Wedding%20Cherries%20Web/IMG_0401.jpg'],
 ];
+const isPrimary = [true, false, true];
 
 export function Story() {
+  const { t } = useLang();
+  const events = t.storyEvents.map((e, i) => ({ ...e, photos: photos[i], isPrimary: isPrimary[i] }));
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
@@ -69,7 +37,7 @@ export function Story() {
                   animate={{ y: '0%' }}
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Our Story</h1>
+                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">{t.storyTitle}</h1>
                 </motion.div>
               </div>
             </div>
@@ -162,8 +130,8 @@ export function Story() {
                     October 3, 2026
                   </span>
                 </div>
-                <p className="text-lg font-light text-primary/75 italic leading-relaxed max-w-sm mx-auto">
-                  And now, we can't wait to celebrate this next beautiful chapter with all of you at Longwood Gardens, where our story continues…
+                <p className="text-base font-light text-foreground/75 leading-relaxed max-w-sm mx-auto">
+                  {t.storyClosing}
                 </p>
               </div>
             </Reveal>

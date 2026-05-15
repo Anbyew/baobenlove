@@ -1,8 +1,10 @@
 import { motion } from 'motion/react';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
+import { useLang } from '../context/LanguageContext';
 
 export function Details() {
+  const { t } = useLang();
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
@@ -28,7 +30,7 @@ export function Details() {
                   animate={{ y: '0%' }}
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Details</h1>
+                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">{t.detailsTitle}</h1>
                 </motion.div>
               </div>
             </div>
@@ -43,14 +45,14 @@ export function Details() {
             <div className="mb-16">
               <div className="text-center mb-16">
                 <Reveal>
-                  <div className="text-sm tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">Ceremony</div>
+                  <div className="text-sm tracking-[0.3em] uppercase text-primary/55 mb-6 font-light">{t.ceremonyLabel}</div>
                 </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
-                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null, href: null },
-                  { icon: Clock, label: 'Time', value: '3:00 PM', sub: 'Arrive by 2:45 PM', href: null },
-                  { icon: MapPin, label: 'Location', value: 'Hartefeld National', sub: '1 Hartefeld Dr, Avondale, PA', href: 'https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311' },
+                  { icon: Calendar, label: t.dateLabel, value: t.date, sub: null, href: null },
+                  { icon: Clock, label: t.timeLabel, value: t.ceremonyTime, sub: t.ceremonyArrive, href: null },
+                  { icon: MapPin, label: t.locationLabel, value: t.ceremonyVenue, sub: t.ceremonyAddress, href: 'https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
@@ -76,14 +78,14 @@ export function Details() {
             <div className="mb-16">
               <div className="text-center mb-16">
                 <Reveal>
-                  <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">Reception</div>
+                  <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">{t.cocktailReceptionLabel}</div>
                 </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
-                  { icon: Calendar, label: 'Date', value: 'October 3, 2026', sub: null, href: null },
-                  { icon: Clock, label: 'Time', value: '6:00 PM – 11:00 PM', sub: 'Dinner at 7:00 PM', href: null },
-                  { icon: MapPin, label: 'Location', value: 'Longwood Gardens', sub: '1001 Longwood Rd, Kennett Square, PA', href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
+                  { icon: Calendar, label: t.dateLabel, value: t.date, sub: null, href: null },
+                  { icon: Clock, label: t.timeLabel, value: t.receptionTime, sub: t.receptionDinner, href: null },
+                  { icon: MapPin, label: t.locationLabel, value: t.receptionVenue, sub: t.receptionAddress, href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
@@ -108,9 +110,9 @@ export function Details() {
             {/* Additional info */}
             <div className="grid md:grid-cols-3 gap-16 max-w-4xl mx-auto">
               {[
-                { label: 'Dress Code', title: 'Expressive Garden Formal' },
-                { label: 'Weather', title: '60–70°F · Outdoor + Indoor' },
-                { label: 'Parking', title: 'Complimentary' },
+                { label: t.dressCodeLabel, title: t.dressCodeValue },
+                { label: t.weatherLabel, title: t.weatherValue },
+                { label: t.parkingLabel, title: t.parkingValue },
               ].map((card, i) => (
                 <Reveal key={card.label} delay={i * 0.12}>
                   <div className="text-center">
@@ -122,15 +124,14 @@ export function Details() {
             </div>
 
             <Reveal delay={0.15}>
-              <div className="flex justify-center items-end gap-2 md:gap-4 mt-16 overflow-hidden">
+              <div className="flex justify-center items-end gap-1 md:gap-2 mt-16">
                 {[
                   { n: 2, rot: -6, w: 88,  y: 10 },
                   { n: 1, rot: -3, w: 128, y: 0  },
                   { n: 7, rot:  3, w: 104, y: 18 },
                   { n: 3, rot: -1, w: 148, y: 4  },
                   { n: 6, rot:  4, w: 112, y: 12 },
-                  { n: 8, rot: -5, w: 136, y: 6  },
-                  { n: 4, rot:  6, w: 96,  y: 20 },
+                  { n: 5, rot: -5, w: 136, y: 6  },
                 ].map(({ n, rot, w, y }) => (
                   <img
                     key={n}
@@ -152,6 +153,24 @@ export function Details() {
                     }}
                   />
                 ))}
+                <img
+                  src="/AI/couples/couple_8.png"
+                  alt=""
+                  className="drop-shadow-lg shrink-0 cursor-default"
+                  style={{
+                    width: 124,
+                    transform: 'rotate(6deg) translateY(20px)',
+                    transition: 'transform 0.35s ease, filter 0.35s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'rotate(2.4deg) translateY(6px) scale(1.1)';
+                    e.currentTarget.style.filter = 'drop-shadow(0 12px 20px rgba(0,0,0,0.18))';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'rotate(6deg) translateY(20px)';
+                    e.currentTarget.style.filter = '';
+                  }}
+                />
               </div>
             </Reveal>
 

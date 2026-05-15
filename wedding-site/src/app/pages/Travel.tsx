@@ -1,48 +1,51 @@
 import { motion } from 'motion/react';
 import { Plane, Hotel, Map } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
-
-const hotels = [
-  {
-    name: 'Best Western Plus Concordville Hotel',
-    mapUrl: 'https://maps.google.com/?q=675+Conchester+Hwy,+Glen+Mills,+PA+19342',
-    distance: '~15 min from Longwood Gardens',
-    note: 'Call and reference the "Bao/Krakoff Wedding Block," or book using the link below',
-    link: 'https://www.bestwestern.com/en_US/book/hotel-rooms.39066.html?groupId=4N7TX2L4',
-    codeColor: 'text-secondary/65',
-  },
-  {
-    name: 'Home2 Suites by Hilton Glen Mills Chadds Ford',
-    mapUrl: 'https://maps.google.com/?q=75+Applied+Bank+Blvd,+Glen+Mills,+PA+19342',
-    distance: '~15 min from Longwood Gardens',
-    note: null,
-    link: 'https://www.hilton.com/en/book/reservation/rooms/?ctyhocn=PHLCFHT&arrivalDate=2026-10-02&departureDate=2026-10-04&groupCode=CHT92I&room1NumAdults=1&cid=OM%2CWW%2CHILTONLINK%2CEN%2CDirectLink',
-    codeColor: 'text-primary/65',
-  },
-  {
-    name: 'Holiday Inn Express & Suites West Chester',
-    mapUrl: 'https://maps.google.com/?q=1310+Wilmington+Pike,+West+Chester,+PA+19382',
-    distance: '~25 min from Longwood Gardens',
-    note: null,
-    link: null,
-    codeColor: 'text-secondary/65',
-  },
-];
-
-const attractions = [
-  { region: 'Near the Venue', items: [
-    { name: 'Longwood Gardens', description: 'Iconic fountains, conservatories, and 1,000 acres of gardens', mapUrl: 'https://maps.google.com/?q=Longwood+Gardens,+Kennett+Square,+PA' },
-  ]},
-  { region: 'Philadelphia · ~45 min', items: [
-    { name: 'Philadelphia Museum of Art', description: 'World-class collections and the legendary Rocky Steps', mapUrl: 'https://maps.google.com/?q=Philadelphia+Museum+of+Art' },
-    { name: 'Reading Terminal Market', description: 'A beloved historic market hall filled with incredible local food', mapUrl: 'https://maps.google.com/?q=Reading+Terminal+Market,+Philadelphia' },
-  ]},
-  { region: 'Wilmington · ~30 min', items: [
-    { name: 'Riverfront Wilmington', description: 'Waterfront restaurants, shops, and the lively Christina riverbank', mapUrl: 'https://maps.google.com/?q=Riverfront+Wilmington,+DE' },
-  ]},
-];
+import { useLang } from '../context/LanguageContext';
 
 export function Travel() {
+  const { t } = useLang();
+
+  const hotels = [
+    {
+      name: 'Best Western Plus Concordville Hotel',
+      mapUrl: 'https://maps.google.com/?q=675+Conchester+Hwy,+Glen+Mills,+PA+19342',
+      distance: t.distanceLongwood15,
+      hasNote: true,
+      link: 'https://www.bestwestern.com/en_US/book/hotel-rooms.39066.html?groupId=4N7TX2L4',
+      codeColor: 'text-secondary/65',
+    },
+    {
+      name: 'Home2 Suites by Hilton Glen Mills Chadds Ford',
+      mapUrl: 'https://maps.google.com/?q=75+Applied+Bank+Blvd,+Glen+Mills,+PA+19342',
+      distance: t.distanceLongwood15,
+      hasNote: false,
+      link: 'https://www.hilton.com/en/book/reservation/rooms/?ctyhocn=PHLCFHT&arrivalDate=2026-10-02&departureDate=2026-10-04&groupCode=CHT92I&room1NumAdults=1&cid=OM%2CWW%2CHILTONLINK%2CEN%2CDirectLink',
+      codeColor: 'text-primary/65',
+    },
+    {
+      name: 'Holiday Inn Express & Suites West Chester',
+      mapUrl: 'https://maps.google.com/?q=1310+Wilmington+Pike,+West+Chester,+PA+19382',
+      distance: t.distanceLongwood25,
+      hasNote: false,
+      link: null,
+      codeColor: 'text-secondary/65',
+    },
+  ];
+
+  const attractions = [
+    { region: t.nearVenueRegion, items: [
+      { name: t.longwoodName, description: t.longwoodDesc, mapUrl: 'https://maps.google.com/?q=Longwood+Gardens,+Kennett+Square,+PA' },
+    ]},
+    { region: t.phillyRegion, items: [
+      { name: t.phillyMuseumName, description: t.phillyMuseumDesc, mapUrl: 'https://maps.google.com/?q=Philadelphia+Museum+of+Art' },
+      { name: t.readingMarketName, description: t.readingMarketDesc, mapUrl: 'https://maps.google.com/?q=Reading+Terminal+Market,+Philadelphia' },
+    ]},
+    { region: t.wilmingtonRegion, items: [
+      { name: t.riverfrontName, description: t.riverfrontDesc, mapUrl: 'https://maps.google.com/?q=Riverfront+Wilmington,+DE' },
+    ]},
+  ];
+
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
@@ -68,7 +71,7 @@ export function Travel() {
                   animate={{ y: '0%' }}
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">Travel</h1>
+                  <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">{t.travelTitle}</h1>
                 </motion.div>
               </div>
             </div>
@@ -86,20 +89,20 @@ export function Travel() {
                 <Reveal>
                   <div className="flex items-center gap-3 mb-10">
                     <Plane className="w-5 h-5 text-primary/40" />
-                    <h2 className="text-3xl font-light text-foreground">Getting Here</h2>
+                    <h2 className="text-3xl font-light text-foreground">{t.gettingHereTitle}</h2>
                   </div>
                 </Reveal>
                 <div className="space-y-8">
                   <Reveal delay={0.08}>
                     <div className="border-b border-foreground/5 pb-8 group">
-                      <a href="https://maps.google.com/?q=Philadelphia+International+Airport" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">Philadelphia International Airport (PHL)</a>
-                      <p className="text-sm font-light text-foreground/65 mt-1">~45 minutes from venues</p>
+                      <a href="https://maps.google.com/?q=Philadelphia+International+Airport" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.phlAirport}</a>
+                      <p className="text-sm font-light text-foreground/65 mt-1">{t.phlDistance}</p>
                     </div>
                   </Reveal>
                   <Reveal delay={0.16}>
                     <div className="border-b border-foreground/5 pb-8 group">
-                      <a href="https://maps.google.com/?q=Wilmington+Airport+ILG+Delaware" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">Wilmington Airport (ILG)</a>
-                      <p className="text-sm font-light text-foreground/65 mt-1">~30 minutes from venues</p>
+                      <a href="https://maps.google.com/?q=Wilmington+Airport+ILG+Delaware" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.ilgAirport}</a>
+                      <p className="text-sm font-light text-foreground/65 mt-1">{t.ilgDistance}</p>
                     </div>
                   </Reveal>
                 </div>
@@ -114,7 +117,7 @@ export function Travel() {
                 <Reveal>
                   <div className="flex items-center gap-3 mb-10">
                     <Hotel className="w-5 h-5 text-primary/40" />
-                    <h2 className="text-3xl font-light text-foreground">Where to Stay</h2>
+                    <h2 className="text-3xl font-light text-foreground">{t.whereToStayTitle}</h2>
                   </div>
                 </Reveal>
                 <div className="space-y-8">
@@ -125,13 +128,13 @@ export function Travel() {
                         <p className="text-sm font-light text-foreground/65 mt-1">{hotel.distance}</p>
                         {hotel.link ? (
                           <a href={hotel.link} target="_blank" rel="noreferrer" className={`text-sm font-light mt-3 inline-block underline underline-offset-2 ${hotel.codeColor}`}>
-                            Book room block →
+                            {t.bookRoomBlock}
                           </a>
                         ) : (
-                          <p className={`text-sm font-light mt-3 ${hotel.codeColor}`}>Room block link coming soon</p>
+                          <p className={`text-sm font-light mt-3 ${hotel.codeColor}`}>{t.roomBlockSoon}</p>
                         )}
-                        {hotel.note && (
-                          <p className="text-sm font-light text-foreground/50 mt-1">Reference: "Bao/Krakoff Wedding Block"</p>
+                        {hotel.hasNote && (
+                          <p className="text-sm font-light text-foreground/50 mt-1">{t.bookingNoteRef} <span className="underline underline-offset-2">{t.bookOnline}</span></p>
                         )}
                       </div>
                     </Reveal>
@@ -148,7 +151,7 @@ export function Travel() {
                 <Reveal>
                   <div className="flex items-center gap-3 mb-10">
                     <Map className="w-5 h-5 text-primary/40" />
-                    <h2 className="text-3xl font-light text-foreground">Explore the Area</h2>
+                    <h2 className="text-3xl font-light text-foreground">{t.exploreTitle}</h2>
                   </div>
                 </Reveal>
                 <div className="space-y-8">
