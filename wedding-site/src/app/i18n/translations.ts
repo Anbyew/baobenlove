@@ -175,7 +175,7 @@ export const t = {
         title: 'The Proposal',
         paragraphs: [
           'We had settled into the rhythm of living in the city — walks along the riverfront, dinner on the patio with our cat, commuting on the PATH. The timing was clearly right, and we got engaged on January 3rd outside a nice Italian restaurant overlooking lower Manhattan.',
-          'A few weeks later we got married in the New York City courthouse, officially starting our future together.',
+          'A few weeks later we got married in the New York City City Hall, officially starting our future together.',
         ],
       },
     ],
