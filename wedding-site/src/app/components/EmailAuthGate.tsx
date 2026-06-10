@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Label } from './ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
-import { useGuestIdentity, type GuestIdentity } from '../context/GuestIdentityContext';
+import { useGuestIdentity, parseName, type GuestIdentity } from '../context/GuestIdentityContext';
 import { useLang } from '../context/LanguageContext';
-import { sendOtp, verifyOtp, lookupByEmail } from '../lib/auth';
+import { sendOtp, verifyOtp, lookupByEmail, createSession } from '../lib/auth';
 
 type Step = 'email' | 'code' | 'profile';
 
@@ -21,7 +21,7 @@ interface LookupResult {
 const TITLES = ['', 'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
 
 export function EmailAuthGate({ children }: { children: React.ReactNode }) {
-  const { identity, setIdentity } = useGuestIdentity();
+  const { identity, isValidating, setIdentity } = useGuestIdentity();
   const { lang, setLang, t } = useLang();
 
   const [step, setStep] = useState<Step>('email');
@@ -34,6 +34,11 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  if (isValidating) return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="h-px w-16 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
+    </div>
+  );
   if (identity) return <>{children}</>;
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -85,21 +90,35 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let name: string;
-    if (lookup?.found) {
-      name = selectedName;
-    } else {
-      name = [customName.title, customName.firstName, customName.lastName].filter(Boolean).join(' ');
+    setError(null);
+    setIsLoading(true);
+    try {
+      const fullName = lookup?.found
+        ? selectedName
+        : [customName.title, customName.firstName, customName.lastName].filter(Boolean).join(' ');
+
+      const { title, firstName, lastName } = lookup?.found
+        ? parseName(fullName)
+        : { title: customName.title, firstName: customName.firstName, lastName: customName.lastName };
+
+      const session = await createSession(email.trim().toLowerCase(), fullName, lang);
+      setIdentity({
+        email: email.trim().toLowerCase(),
+        name: fullName,
+        title,
+        firstName,
+        lastName,
+        language: lang,
+        verifiedAt: new Date().toISOString(),
+        sessionToken: session.sessionToken,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save session.');
+    } finally {
+      setIsLoading(false);
     }
-    const next: GuestIdentity = {
-      email: email.trim().toLowerCase(),
-      name,
-      language: lang,
-      verifiedAt: new Date().toISOString(),
-    };
-    setIdentity(next);
   };
 
   const nameOptions: string[] = lookup?.found

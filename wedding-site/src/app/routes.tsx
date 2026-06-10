@@ -9,6 +9,7 @@ import { Travel } from "./pages/Travel";
 import { Registry } from "./pages/Registry";
 import { FAQ } from "./pages/FAQ";
 import { VideoScrollTest } from "./pages/VideoScrollTest";
+import { ProfilePage } from "./pages/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
       { path: "registry", Component: Registry },
       { path: "faq", Component: FAQ },
       { path: "video-test", Component: VideoScrollTest },
+      { path: "profile", Component: ProfilePage },
     ],
   },
 ]);

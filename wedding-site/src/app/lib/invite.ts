@@ -29,7 +29,7 @@ export interface SaveRsvpInput {
   songRequest: string;
 }
 
-const API_BASE = '/.netlify/functions';
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
 
 async function parseJson<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => null);

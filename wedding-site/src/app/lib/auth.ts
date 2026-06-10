@@ -1,4 +1,12 @@
-const API_BASE = '/.netlify/functions';
+const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
+
+export interface SessionPayload {
+  sessionToken: string;
+  email: string;
+  name: string;
+  language: string;
+  invite: unknown;
+}
 
 async function parseJson<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => null);
@@ -33,6 +41,62 @@ export async function verifyOtp(payload: {
     body: JSON.stringify(payload),
   });
   return parseJson(response);
+}
+
+export async function createSession(
+  email: string,
+  name: string,
+  language: 'en' | 'zh',
+): Promise<SessionPayload> {
+  const response = await fetch(`${API_BASE}/session/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, name, language }),
+  });
+  return parseJson(response);
+}
+
+export async function validateSession(token: string): Promise<SessionPayload | null> {
+  try {
+    const response = await fetch(`${API_BASE}/session/validate?token=${encodeURIComponent(token)}`);
+    if (response.status === 401) return null;
+    return parseJson<SessionPayload>(response);
+  } catch {
+    return null;
+  }
+}
+
+export async function updateSession(
+  token: string,
+  fields: { name?: string; language?: 'en' | 'zh' },
+): Promise<void> {
+  const response = await fetch(`${API_BASE}/session`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, ...fields }),
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.error ?? 'Could not update profile.');
+  }
+}
+
+export async function logEvent(payload: {
+  sessionToken?: string;
+  eventType: string;
+  page?: string;
+  referrer?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    // best-effort, never throw
+  }
 }
 
 export async function lookupByEmail(email: string): Promise<{

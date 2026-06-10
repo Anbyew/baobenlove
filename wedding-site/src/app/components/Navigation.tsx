@@ -1,13 +1,29 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, UserRound } from 'lucide-react';
 import { useLang } from '../context/LanguageContext';
 import { useGuestSession } from '../context/GuestSessionContext';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
+
+function ProfileLink() {
+  const { identity } = useGuestIdentity();
+  if (!identity) return null;
+
+  return (
+    <Link
+      to="/profile"
+      className="flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase text-foreground/50 hover:text-primary transition-colors duration-300 group"
+    >
+      <UserRound className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+      {identity.name}
+    </Link>
+  );
+}
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { lang, toggle, t } = useLang();
+  const { t } = useLang();
   const { invite } = useGuestSession();
 
   const navItems = [
@@ -26,22 +42,19 @@ export function Navigation() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-sm border-b border-foreground/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="text-xl font-light tracking-wider text-foreground hover:text-primary transition-colors duration-300"
-          >
-            {t.navLogo}
-          </Link>
+        <div className="flex items-center h-20">
+          {/* Logo — left */}
+          <div className="flex-1">
+            <Link
+              to="/"
+              className="text-xl font-light tracking-wider text-foreground hover:text-primary transition-colors duration-300"
+            >
+              {t.navLogo}
+            </Link>
+          </div>
 
-          {/* Desktop Navigation */}
+          {/* Nav items — centered */}
           <div className="hidden lg:flex items-center space-x-10">
-            {invite && (
-              <div className="text-[11px] tracking-[0.24em] uppercase text-foreground/45">
-                Viewing as {invite.partyName}
-              </div>
-            )}
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -60,18 +73,17 @@ export function Navigation() {
                 />
               </Link>
             ))}
-            <button
-              onClick={toggle}
-              className="text-xs font-light text-foreground/50 hover:text-foreground border border-foreground/20 hover:border-foreground/40 rounded-full px-3 py-1 transition-all duration-300"
-            >
-              {lang === 'en' ? '中文' : 'EN'}
-            </button>
+          </div>
+
+          {/* Profile link — right */}
+          <div className="hidden lg:flex flex-1 justify-end">
+            <ProfileLink />
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden text-foreground/60 hover:text-foreground transition-colors"
+            className="lg:hidden text-foreground/60 hover:text-foreground transition-colors ml-auto"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -99,14 +111,14 @@ export function Navigation() {
                 {item.label}
               </Link>
             ))}
-            <div className="px-6 py-3">
-              <button
-                onClick={toggle}
-                className="text-xs font-light text-foreground/50 hover:text-foreground border border-foreground/20 hover:border-foreground/40 rounded-full px-3 py-1 transition-all duration-300"
-              >
-                {lang === 'en' ? '中文' : 'EN'}
-              </button>
-            </div>
+            <Link
+              to="/profile"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2 px-6 py-3 text-sm font-light text-foreground/50 hover:text-primary transition-colors"
+            >
+              <UserRound className="w-4 h-4" />
+              Profile
+            </Link>
           </div>
         )}
       </div>

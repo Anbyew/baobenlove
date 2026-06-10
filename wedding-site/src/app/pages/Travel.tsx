@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Plane, Hotel, Map } from 'lucide-react';
+import { Plane, Hotel, Map, ExternalLink } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
 
@@ -28,7 +28,7 @@ export function Travel() {
       mapUrl: 'https://maps.google.com/?q=1310+Wilmington+Pike,+West+Chester,+PA+19382',
       distance: t.distanceLongwood25,
       hasNote: false,
-      link: null,
+      link: 'https://www.ihg.com/redirect?path=rates&brandCode=EX&regionCode=1&localeCode=en&checkInMonthYear=092026&checkInDate=2&checkOutDate=4&checkOutMonthYear=092026&hotelCode=PHLWP&GPC=KRA&numberOfAdults=1&numberOfRooms=1&adjustMonth=false&showApp=true&monthIndex=00',
       codeColor: 'text-secondary/65',
     },
   ];
@@ -134,7 +134,7 @@ export function Travel() {
                           <p className={`text-sm font-light mt-3 ${hotel.codeColor}`}>{t.roomBlockSoon}</p>
                         )}
                         {hotel.hasNote && (
-                          <p className="text-sm font-light text-foreground/50 mt-1">{t.bookingNoteRef} <span className="underline underline-offset-2">{t.bookOnline}</span></p>
+                          <p className="text-sm font-light text-foreground/50 mt-1">{t.bookingNoteRef}</p>
                         )}
                       </div>
                     </Reveal>
@@ -159,7 +159,10 @@ export function Travel() {
                     group.items.map((item, i) => (
                       <Reveal key={item.name} delay={i * 0.08}>
                         <div className="border-b border-foreground/5 pb-8 group">
-                          <a href={item.mapUrl} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{item.name}</a>
+                          <a href={item.mapUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-lg font-light text-primary/80 underline underline-offset-4 decoration-primary/25 hover:decoration-primary hover:text-primary transition-colors duration-300">
+                          {item.name}
+                          <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        </a>
                           <p className="text-sm font-light text-foreground/65 mt-1">{group.region} · {item.description}</p>
                         </div>
                       </Reveal>

@@ -7,10 +7,13 @@ import {
   trackSaveTheDateClick,
   trackPageView,
 } from "../lib/analytics";
+import { logEvent } from "../lib/auth";
+import { useGuestIdentity } from "../context/GuestIdentityContext";
 
 export function AnalyticsTracker() {
   const location = useLocation();
   const lastTrackedClickKey = useRef<string | null>(null);
+  const { identity } = useGuestIdentity();
 
   useEffect(() => {
     initializeAnalytics();
@@ -30,7 +33,14 @@ export function AnalyticsTracker() {
     }
 
     trackPageView(cleanPagePath, storedAttribution);
-  }, [location.pathname, location.search, location.hash]);
+
+    logEvent({
+      sessionToken: identity?.sessionToken,
+      eventType: "page_view",
+      page: cleanPagePath,
+      referrer: document.referrer || undefined,
+    });
+  }, [location.pathname, location.search, location.hash, identity?.sessionToken]);
 
   return null;
 }
