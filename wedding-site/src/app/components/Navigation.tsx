@@ -34,6 +34,7 @@ export function Navigation() {
     { label: t.rsvp, path: '/rsvp' },
     { label: t.travel, path: '/travel' },
     { label: t.registry, path: '/registry' },
+    { label: 'Moonboard', path: '/moonboard' },
     { label: t.faq, path: '/faq' },
   ];
 

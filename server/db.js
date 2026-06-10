@@ -54,6 +54,18 @@ db.exec(`
     created_at    TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS moonboard_holds (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    row        INTEGER NOT NULL,
+    col        INTEGER NOT NULL,
+    guest_name TEXT NOT NULL,
+    message    TEXT DEFAULT '',
+    shape      TEXT NOT NULL,
+    color      TEXT NOT NULL,
+    placed_at  TEXT NOT NULL,
+    UNIQUE(row, col)
+  );
+
   CREATE INDEX IF NOT EXISTS idx_invites_token   ON invites(token);
   CREATE INDEX IF NOT EXISTS idx_sessions_token  ON sessions(token);
   CREATE INDEX IF NOT EXISTS idx_sessions_invite ON sessions(invite_id);
@@ -276,6 +288,44 @@ export function updateSession(token, { name, language } = {}) {
   params.push(token);
   const result = db.prepare(`UPDATE sessions SET ${fields.join(', ')} WHERE token = ?`).run(...params);
   return result.changes > 0;
+}
+
+// --- Moonboard ---
+
+function toMoonboardHold(row) {
+  return {
+    id: String(row.id),
+    row: row.row,
+    col: row.col,
+    guestName: row.guest_name,
+    message: row.message || '',
+    shape: row.shape,
+    color: row.color,
+    placedAt: row.placed_at,
+  };
+}
+
+export function getMoonboardHolds() {
+  return db.prepare('SELECT * FROM moonboard_holds ORDER BY id ASC').all().map(toMoonboardHold);
+}
+
+// Returns the new hold, or null if the cell is already taken.
+// The UNIQUE(row, col) constraint makes this an atomic "first write wins" lock.
+export function placeMoonboardHold({ row, col, guestName, message, shape, color }) {
+  const placedAt = new Date().toISOString();
+  try {
+    const result = db.prepare(`
+      INSERT INTO moonboard_holds (row, col, guest_name, message, shape, color, placed_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(row, col, guestName, message, shape, color, placedAt);
+    return toMoonboardHold({
+      id: result.lastInsertRowid, row, col,
+      guest_name: guestName, message, shape, color, placed_at: placedAt,
+    });
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
+    throw err;
+  }
 }
 
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {

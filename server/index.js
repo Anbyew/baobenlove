@@ -11,6 +11,8 @@ import {
   validateSession,
   updateSession,
   logEvent,
+  getMoonboardHolds,
+  placeMoonboardHold,
 } from './db.js';
 
 const app = express();
@@ -295,6 +297,51 @@ app.post('/events', (req, res) => {
   } catch (err) {
     console.error('events error:', err);
     res.status(500).json({ error: 'Could not log event.' });
+  }
+});
+
+// --- Moonboard ---
+
+const MOONBOARD_COLS = 11;
+const MOONBOARD_ROWS = 18;
+const MOONBOARD_SHAPES = ['jug', 'crimp', 'sloper', 'pinch', 'pocket'];
+
+app.get('/moonboard', (req, res) => {
+  try {
+    res.json({ holds: getMoonboardHolds() });
+  } catch (err) {
+    console.error('moonboard GET error:', err);
+    res.status(500).json({ error: 'Could not load the moonboard.' });
+  }
+});
+
+app.post('/moonboard', (req, res) => {
+  try {
+    const { row, col, guestName, message, shape, color } = req.body ?? {};
+    const r = Number(row);
+    const c = Number(col);
+
+    if (!Number.isInteger(r) || r < 0 || r >= MOONBOARD_ROWS || !Number.isInteger(c) || c < 0 || c >= MOONBOARD_COLS)
+      return res.status(400).json({ error: 'Invalid board position.' });
+
+    const name = String(guestName ?? '').trim().slice(0, 60);
+    if (!name) return res.status(400).json({ error: 'Please enter your name.' });
+
+    if (!MOONBOARD_SHAPES.includes(shape))
+      return res.status(400).json({ error: 'Invalid hold shape.' });
+
+    if (!/^#[0-9A-Fa-f]{6}$/.test(String(color ?? '')))
+      return res.status(400).json({ error: 'Invalid hold color.' });
+
+    const msg = String(message ?? '').trim().slice(0, 80);
+
+    const hold = placeMoonboardHold({ row: r, col: c, guestName: name, message: msg, shape, color });
+    if (!hold) return res.status(409).json({ error: 'That spot was just taken — please pick another.' });
+
+    res.json({ hold });
+  } catch (err) {
+    console.error('moonboard POST error:', err);
+    res.status(500).json({ error: 'Could not place your hold. Please try again.' });
   }
 });
 
