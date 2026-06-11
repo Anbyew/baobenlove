@@ -9,7 +9,6 @@ import { Travel } from "./pages/Travel";
 import { Registry } from "./pages/Registry";
 import { Moonboard } from "./pages/Moonboard";
 import { FAQ } from "./pages/FAQ";
-import { VideoScrollTest } from "./pages/VideoScrollTest";
 import { ProfilePage } from "./pages/ProfilePage";
 
 export const router = createBrowserRouter([
@@ -26,7 +25,6 @@ export const router = createBrowserRouter([
       { path: "registry", Component: Registry },
       { path: "moonboard", Component: Moonboard },
       { path: "faq", Component: FAQ },
-      { path: "video-test", Component: VideoScrollTest },
       { path: "profile", Component: ProfilePage },
     ],
   },

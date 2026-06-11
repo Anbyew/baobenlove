@@ -2,14 +2,14 @@
 
 ## Before Launch (must-have)
 
-### 📤 Deploy Frontend to Netlify
-Push all auth + session changes to production.
+### 🪨 Deploy Moonboard backend to EC2
+Moonboard page is committed (frontend) but the backend changes aren't live yet.
 
 **What's needed:**
-1. Commit changes: `netlify.toml`, `vite.config.ts`, `src/app/lib/auth.ts`, `src/app/lib/invite.ts`, `src/app/App.tsx`, `src/app/components/EmailAuthGate.tsx`, `src/app/components/AnalyticsTracker.tsx`, `src/app/context/GuestIdentityContext.tsx`
-2. Push to main → Netlify auto-deploys
-3. Verify `/api/*` proxies correctly to EC2 (`32.194.163.99`)
-4. Test full auth flow on live site end-to-end
+1. Start EC2 instance `i-0d1842a28a23b35ab` (currently stopped)
+2. Deploy updated `server/db.js` + `server/index.js` (new `moonboard_holds` table + `/moonboard` endpoints, `pocket` shape) to EC2
+3. `pm2 restart baobenlove`
+4. Verify `/api/moonboard` works on the live site
 
 ---
 
