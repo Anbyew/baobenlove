@@ -35,7 +35,7 @@ from googleapiclient.discovery import build
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 SENDER_EMAIL    = "bellabenbao@gmail.com"
 BASE_DIR        = Path(__file__).parent.parent
-XLSX_PATH       = BASE_DIR / "emails" / "testList.csv"
+XLSX_PATH       = BASE_DIR / "emails" / "testList.tsv"
 ATTACHMENT_PATH = BASE_DIR / "assets" / "saveTheDate" / "SaveThe Date.png"
 CREDS_PATH      = BASE_DIR / "emails" / "credentials.json"
 TOKEN_PATH      = BASE_DIR / "emails" / "token.json"
@@ -150,7 +150,7 @@ Additional details regarding the China celebration will be shared soon. You migh
 
 def load_recipients():
     with open(XLSX_PATH, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter="\t")
         rows = list(reader)
 
     recipients = []

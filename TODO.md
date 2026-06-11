@@ -26,7 +26,7 @@ The OAuth app is in Testing mode — refresh tokens expire after 7 days.
 ### 👥 Replace test guest list with real one
 When the real guest list is ready:
 1. Replace `~/app/guests.tsv` on EC2 with the full list (same TSV format)
-2. `ssh -i ~/Desktop/baobenlove-key.pem ubuntu@32.194.163.99`
+2. `ssh baobenlove`
 3. `rm ~/app/server/data/wedding.db && pm2 restart baobenlove`
 4. DB re-seeds automatically from the new TSV
 
@@ -145,22 +145,22 @@ EC2 t2.micro (free tier) + SQLite + Express + PM2 + Nginx
 
 - Instance ID: `i-0d1842a28a23b35ab`
 - Elastic IP: `32.194.163.99` (static, free while running)
-- Key: `~/Desktop/baobenlove-key.pem`
+- Key: `~/.ssh/baobenlove-key.pem`
 - App: `/home/ubuntu/app/server/`
-- SSH: `ssh -i ~/Desktop/baobenlove-key.pem ubuntu@32.194.163.99`
+- SSH: `ssh baobenlove` (alias configured in `~/.ssh/config`)
 - Restart: `pm2 restart baobenlove`
 - Netlify proxies `baoben.love/api/*` → EC2
 - Dev proxy: `vite.config.ts` forwards `localhost:5173/api/*` → EC2
 
 **Query analytics:**
 ```bash
-ssh -i ~/Desktop/baobenlove-key.pem ubuntu@32.194.163.99 \
+ssh baobenlove \
   "sqlite3 ~/app/server/data/wedding.db 'SELECT * FROM events ORDER BY created_at DESC LIMIT 20;'"
 ```
 
 **Query sessions:**
 ```bash
-ssh -i ~/Desktop/baobenlove-key.pem ubuntu@32.194.163.99 \
+ssh baobenlove \
   "sqlite3 ~/app/server/data/wedding.db 'SELECT email, name, created_at FROM sessions;'"
 ```
 

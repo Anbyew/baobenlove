@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
@@ -9,6 +10,14 @@ import { fetchMoonboardHolds, placeMoonboardHold, type MoonboardHold } from '../
 
 type HoldShape = 'jug' | 'crimp' | 'sloper' | 'pinch' | 'pocket';
 
+interface DraftHold {
+  id: string;
+  shape: HoldShape;
+  color: string;
+  message: string;
+  position: { row: number; col: number } | null;
+}
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const COLS = 11;
@@ -17,7 +26,7 @@ const CELL = 40;
 const GAP = 4;
 const BOARD_PADDING = 16;
 const HOLD_PRICE = 25;
-const DRAG_MIME = 'application/x-moonboard-hold';
+const MAX_QTY = 10;
 
 const COLORS = [
   { name: 'Dusty Blue', hex: '#78B7D0' },
@@ -105,6 +114,42 @@ function ShapeButton({ shape, selected, color, onSelect }: {
   );
 }
 
+function openVenmo(amount: number, note: string) {
+  const params = new URLSearchParams({
+    txn: 'pay',
+    recipients: 'baobenlove',
+    amount: amount.toString(),
+    note,
+  });
+  const fallback = 'https://venmo.com/baobenlove';
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  if (!isMobile) {
+    window.open(fallback, '_blank');
+    return;
+  }
+
+  const deepLink = `venmo://paycharge?${params.toString()}`;
+  const start = Date.now();
+  window.location.href = deepLink;
+  setTimeout(() => {
+    if (Date.now() - start < 2000 && document.hasFocus()) {
+      window.open(fallback, '_blank');
+    }
+  }, 800);
+}
+
+let nextDraftId = 1;
+function makeDraft(colorIndex: number): DraftHold {
+  return {
+    id: `draft-${nextDraftId++}`,
+    shape: 'jug',
+    color: COLORS[colorIndex % COLORS.length].hex,
+    message: '',
+    position: null,
+  };
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function Moonboard() {
@@ -114,16 +159,15 @@ export function Moonboard() {
 
   const [viewingHold, setViewingHold] = useState<MoonboardHold | null>(null);
 
-  // Builder state
-  const [name, setName]       = useState('');
-  const [message, setMessage] = useState('');
-  const [shape, setShape]     = useState<HoldShape>('jug');
-  const [color, setColor]     = useState(COLORS[0].hex);
+  const [name, setName] = useState('');
   const [nameError, setNameError] = useState(false);
 
-  const [dragOverCell, setDragOverCell] = useState<{ row: number; col: number } | null>(null);
-  const [placing, setPlacing] = useState(false);
-  const [placeError, setPlaceError] = useState<string | null>(null);
+  const [qty, setQty] = useState(1);
+  const [drafts, setDrafts] = useState<DraftHold[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,66 +179,105 @@ export function Moonboard() {
   }, []);
 
   const holdMap = new Map(holds.map(h => [`${h.row},${h.col}`, h]));
+  const draftMap = new Map(
+    drafts.filter(d => d.position).map(d => [`${d.position!.row},${d.position!.col}`, d])
+  );
 
-  const tryPlace = async (row: number, col: number) => {
-    if (placing) return;
-    if (holdMap.has(`${row},${col}`)) return;
-    if (!name.trim()) {
-      setNameError(true);
-      return;
-    }
+  const active = drafts.find(d => d.id === activeId) ?? drafts[0] ?? null;
 
-    setPlacing(true);
-    setPlaceError(null);
-    try {
-      const hold = await placeMoonboardHold({
-        row, col,
-        guestName: name.trim(),
-        message: message.trim(),
-        shape,
-        color,
-      });
-      setHolds(prev => [...prev, hold]);
-      setMessage('');
-    } catch (err) {
-      setPlaceError(err instanceof Error ? err.message : 'Could not place your hold.');
-      // Someone may have just taken this (or another) spot — refresh the board.
-      fetchMoonboardHolds().then(setHolds).catch(() => {});
-    } finally {
-      setPlacing(false);
-    }
+  const handleFund = () => {
+    const fresh = Array.from({ length: qty }, (_, i) => makeDraft(drafts.length + i));
+    setDrafts(prev => [...prev, ...fresh]);
+    if (!active) setActiveId(fresh[0].id);
+    setQty(1);
   };
+
+  const updateActive = (patch: Partial<DraftHold>) => {
+    if (!active) return;
+    setDrafts(prev => prev.map(d => d.id === active.id ? { ...d, ...patch } : d));
+  };
+
+  const removeDraft = (id: string) => {
+    setDrafts(prev => {
+      const next = prev.filter(d => d.id !== id);
+      if (activeId === id) setActiveId(next[0]?.id ?? null);
+      return next;
+    });
+  };
+
 
   const handleCellClick = (row: number, col: number) => {
-    const existing = holdMap.get(`${row},${col}`);
-    if (existing) {
-      setViewingHold(existing);
-    } else {
-      tryPlace(row, col);
+    const key = `${row},${col}`;
+    const submitted = holdMap.get(key);
+    if (submitted) {
+      setViewingHold(submitted);
+      return;
     }
-  };
 
-  const handleDragStart = (e: React.DragEvent) => {
+    const draftHere = draftMap.get(key);
+    if (draftHere) {
+      if (draftHere.id === active?.id) {
+        // pick it back up
+        setDrafts(prev => prev.map(d => d.id === draftHere.id ? { ...d, position: null } : d));
+      } else {
+        setActiveId(draftHere.id);
+      }
+      return;
+    }
+
+    // empty cell — place (or move) the active draft here
+    if (!active) return;
     if (!name.trim()) {
-      e.preventDefault();
       setNameError(true);
       return;
     }
-    e.dataTransfer.setData(DRAG_MIME, '1');
-    e.dataTransfer.effectAllowed = 'copy';
+    setDrafts(prev => prev.map(d => d.id === active.id ? { ...d, position: { row, col } } : d));
   };
 
-  const handleDrop = (e: React.DragEvent, row: number, col: number) => {
-    e.preventDefault();
-    setDragOverCell(null);
-    if (!e.dataTransfer.types.includes(DRAG_MIME)) return;
-    tryPlace(row, col);
+  const allPlaced = drafts.length > 0 && drafts.every(d => d.position);
+
+  const handleSubmit = async () => {
+    if (!allPlaced || !name.trim() || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    const placed: MoonboardHold[] = [];
+    const placedDraftIds = new Set<string>();
+    for (const d of drafts) {
+      try {
+        const hold = await placeMoonboardHold({
+          row: d.position!.row,
+          col: d.position!.col,
+          guestName: name.trim(),
+          message: d.message.trim(),
+          shape: d.shape,
+          color: d.color,
+        });
+        placed.push(hold);
+        placedDraftIds.add(d.id);
+      } catch (err) {
+        setHolds(prev => [...prev, ...placed]);
+        setDrafts(prev => prev
+          .filter(x => !placedDraftIds.has(x.id))
+          .map(x => x.id === d.id ? { ...x, position: null } : x)
+        );
+        setSubmitError(err instanceof Error ? err.message : 'That spot was just taken — please pick another.');
+        fetchMoonboardHolds().then(setHolds).catch(() => {});
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    setHolds(prev => [...prev, ...placed]);
+    setDrafts([]);
+    setActiveId(null);
+    setName('');
+    setSubmitting(false);
   };
 
   const filledCount = holds.length;
   const remaining   = COLS * ROWS - filledCount;
   const boardW = COLS * CELL + (COLS - 1) * GAP + BOARD_PADDING * 2;
-  const canDrag = !!name.trim() && !placing;
 
   return (
     <div className="min-h-screen relative">
@@ -210,7 +293,7 @@ export function Moonboard() {
 
       <div className="relative z-10">
         {/* Hero */}
-        <div className="relative py-32 px-4">
+        <div className="relative py-20 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <div className="absolute inset-0 bg-white/30 backdrop-blur-sm rounded-sm" />
             <div className="relative">
@@ -227,7 +310,7 @@ export function Moonboard() {
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">
-                    Moonboard Registry
+                    Climbing Board Fund
                   </h1>
                 </motion.div>
               </div>
@@ -237,7 +320,7 @@ export function Moonboard() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                Place a climbing hold · Leave your mark
+                A climbing wall we dream about
               </motion.p>
             </div>
           </div>
@@ -247,26 +330,16 @@ export function Moonboard() {
         <div className="max-w-7xl mx-auto px-4 pb-32">
           <div className="bg-white/85 backdrop-blur-md shadow-2xl shadow-black/5 p-8 md:p-12 rounded-sm">
 
-            {/* Intro */}
-            <Reveal>
-              <div className="text-center max-w-2xl mx-auto mb-14">
-                <p className="text-base font-light text-foreground/80 leading-relaxed">
-                  We're building a moonboard — a training wall for our home gym.
-                  Place a ${HOLD_PRICE} hold and it becomes a permanent part of it, and our story.
-                </p>
-              </div>
-            </Reveal>
-
             {/* Stats */}
             <Reveal delay={0.1}>
-              <div className="flex justify-center gap-16 mb-14">
+              <div className="flex justify-center gap-16 mb-10">
                 {[
-                  { value: filledCount, label: 'Placed' },
+                  { value: filledCount, label: 'Funded' },
                   { value: remaining,   label: 'Available' },
                   { value: COLS * ROWS, label: 'Total' },
                 ].map(({ value, label }) => (
                   <div key={label} className="text-center">
-                    <div className={`text-3xl font-light mb-1 ${label === 'Placed' ? 'text-primary' : 'text-foreground/40'}`}>
+                    <div className={`text-3xl font-light mb-1 ${label === 'Funded' ? 'text-primary' : 'text-foreground/40'}`}>
                       {value}
                     </div>
                     <div className="text-xs tracking-wider uppercase text-foreground/50">{label}</div>
@@ -281,9 +354,6 @@ export function Moonboard() {
               {/* The Moonboard */}
               <Reveal direction="left" className="w-full lg:w-auto lg:flex-shrink-0">
                 <div className="w-full lg:flex-shrink-0">
-                  <div className="text-xs tracking-wider uppercase text-foreground/40 text-center mb-3">
-                    40° overhang · {COLS} × {ROWS} · {COLS * ROWS} holds
-                  </div>
                   <p className="lg:hidden text-center text-[11px] text-foreground/35 font-light mb-2">
                     Swipe sideways to see the full board →
                   </p>
@@ -315,22 +385,22 @@ export function Moonboard() {
                     )}
                     {Array.from({ length: ROWS }).flatMap((_, row) =>
                       Array.from({ length: COLS }).map((_, col) => {
-                        const hold = holdMap.get(`${row},${col}`);
-                        const isDragOver = dragOverCell?.row === row && dragOverCell?.col === col;
+                        const key = `${row},${col}`;
+                        const hold = holdMap.get(key);
+                        const draft = draftMap.get(key);
+                        const isActiveDraft = !!draft && draft.id === active?.id;
                         return (
                           <button
-                            key={`${row},${col}`}
+                            key={key}
                             onClick={() => handleCellClick(row, col)}
-                            onDragOver={(e) => { if (!hold) e.preventDefault(); }}
-                            onDragEnter={() => { if (!hold) setDragOverCell({ row, col }); }}
-                            onDragLeave={() => {
-                              setDragOverCell(prev => (prev?.row === row && prev?.col === col ? null : prev));
-                            }}
-                            onDrop={(e) => handleDrop(e, row, col)}
                             title={
                               hold
                                 ? `${hold.guestName}${hold.message ? ` — "${hold.message}"` : ''}`
-                                : 'Tap to place a hold, or drag one here'
+                                : draft
+                                  ? (isActiveDraft ? 'Tap to pick this up' : 'Tap to select this hold')
+                                  : active
+                                    ? 'Tap to place your hold here'
+                                    : 'Fund a hold to get started'
                             }
                             style={{
                               width: CELL,
@@ -339,11 +409,11 @@ export function Moonboard() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               borderRadius: 4,
-                              border: isDragOver ? '1px solid rgba(120,183,208,0.8)' : '1px solid transparent',
-                              cursor: hold ? 'pointer' : 'pointer',
-                              background: isDragOver
-                                ? 'rgba(120,183,208,0.18)'
-                                : hold ? 'rgba(255,255,255,0.04)' : 'transparent',
+                              border: draft
+                                ? `1.5px dashed ${isActiveDraft ? 'rgba(255,220,127,0.9)' : 'rgba(255,255,255,0.35)'}`
+                                : '1px solid transparent',
+                              cursor: 'pointer',
+                              background: hold ? 'rgba(255,255,255,0.04)' : 'transparent',
                               padding: 0,
                               opacity: loading ? 0 : 1,
                             }}
@@ -357,6 +427,15 @@ export function Moonboard() {
                                 className="group-hover:scale-110 transition-transform duration-150"
                               >
                                 <HoldSVG shape={hold.shape} color={hold.color} size={30} />
+                              </motion.div>
+                            ) : draft ? (
+                              <motion.div
+                                initial={{ scale: 0, rotate: -12 }}
+                                animate={{ scale: 1, rotate: 0, opacity: isActiveDraft ? 1 : 0.7 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+                                className="group-hover:scale-110 transition-transform duration-150"
+                              >
+                                <HoldSVG shape={draft.shape} color={draft.color} size={30} />
                               </motion.div>
                             ) : (
                               <div
@@ -382,7 +461,9 @@ export function Moonboard() {
                   />
                   </div>
                   <p className="text-xs text-center text-foreground/30 mt-3 font-light">
-                    Tap an open spot to place your hold · Tap a placed hold to see who placed it
+                    {drafts.length > 0
+                      ? 'Tap an open spot to place your hold · Tap it again to move it'
+                      : 'Tap a hold to see who placed it'}
                   </p>
                 </div>
               </Reveal>
@@ -391,137 +472,185 @@ export function Moonboard() {
               <Reveal direction="right" className="w-full lg:flex-1 lg:min-w-0 lg:max-w-sm">
                 <div className="space-y-8">
 
-                  {/* Build Your Hold */}
+                  {/* How it works */}
                   <div>
                     <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                      Build Your Hold
+                      How It Works
                     </div>
+                    <ol className="text-sm font-light text-foreground/60 leading-relaxed space-y-1 list-decimal list-inside">
+                      <li>Tap "Pay with Venmo" to send ${HOLD_PRICE} per hold</li>
+                      <li>Add your hold(s) below</li>
+                      <li>Pick a shape, color, and spot on the board</li>
+                      <li>Add your name and a message</li>
+                      <li>Lock it in when it's just right</li>
+                    </ol>
+                  </div>
 
-                    <div className="grid grid-cols-5 gap-1.5 mb-4">
-                      {SHAPES.map(s => (
-                        <ShapeButton
-                          key={s.id}
-                          shape={s.id}
-                          selected={shape === s.id}
-                          color={color}
-                          onSelect={() => setShape(s.id)}
-                        />
-                      ))}
+                  <div className="h-px bg-foreground/5" />
+
+                  {/* Fund a hold */}
+                  <div>
+                    <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
+                      {drafts.length > 0 ? 'Fund More' : 'Fund a Hold'}
                     </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {COLORS.map(c => (
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center border border-foreground/15 rounded-full overflow-hidden">
                         <button
-                          key={c.hex}
                           type="button"
-                          title={c.name}
-                          onClick={() => setColor(c.hex)}
-                          style={{ backgroundColor: c.hex }}
-                          className={`w-7 h-7 rounded-full transition-all duration-150 ${
-                            color === c.hex
-                              ? 'ring-2 ring-offset-2 ring-foreground/40 scale-110'
-                              : 'hover:scale-105'
-                          }`}
-                        />
-                      ))}
+                          onClick={() => setQty(q => Math.max(1, q - 1))}
+                          className="w-8 h-8 flex items-center justify-center text-foreground/60 hover:bg-foreground/5 transition-colors"
+                        >
+                          −
+                        </button>
+                        <span className="w-8 text-center text-sm font-light">{qty}</span>
+                        <button
+                          type="button"
+                          onClick={() => setQty(q => Math.min(MAX_QTY, q + 1))}
+                          className="w-8 h-8 flex items-center justify-center text-foreground/60 hover:bg-foreground/5 transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-sm font-light text-foreground/60">
+                        × ${HOLD_PRICE} = ${qty * HOLD_PRICE}
+                      </span>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                      <div
-                        draggable={canDrag}
-                        onDragStart={handleDragStart}
-                        style={{
-                          background: '#1a1a2e',
-                          borderRadius: '50%',
-                          width: 64,
-                          height: 64,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-                          flexShrink: 0,
-                        }}
-                        className={`transition-transform duration-150 ${
-                          canDrag ? 'cursor-grab active:cursor-grabbing hover:scale-105' : 'opacity-50 cursor-not-allowed'
-                        }`}
-                      >
-                        <HoldSVG shape={shape} color={color} size={42} />
-                      </div>
-                      <div className="flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => openVenmo(
+                        qty * HOLD_PRICE,
+                        `Krakoff Wedding -- Climbing Board Fund: $${qty * HOLD_PRICE}`
+                      )}
+                      className="w-full py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                    >
+                      Pay ${qty * HOLD_PRICE} with Venmo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleFund}
+                      className="w-full mt-2 py-2 text-foreground/40 hover:text-foreground/60 text-[11px] tracking-[0.15em] uppercase font-light transition-colors underline underline-offset-2"
+                    >
+                      Already paid? Add {qty}
+                    </button>
+                  </div>
+
+                  {drafts.length > 0 && (
+                    <>
+                      <div className="h-px bg-foreground/5" />
+
+                      {/* Place your holds */}
+                      <div>
+                        <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
+                          Make It Yours
+                        </div>
+
                         <Input
                           value={name}
                           onChange={e => { setName(e.target.value); if (e.target.value.trim()) setNameError(false); }}
                           placeholder="Your name *"
-                          className={`font-light mb-2 ${nameError ? 'border-destructive ring-1 ring-destructive/40' : ''}`}
+                          className={`font-light mb-4 ${nameError ? 'border-destructive ring-1 ring-destructive/40' : ''}`}
                         />
-                        <Input
-                          value={message}
-                          onChange={e => setMessage(e.target.value)}
-                          placeholder="Message (optional)"
-                          className="font-light"
-                          maxLength={80}
-                        />
-                      </div>
-                    </div>
-                    {nameError && (
-                      <p className="text-xs text-destructive font-light mt-2">Please enter your name first.</p>
-                    )}
-                    {placeError && (
-                      <p className="text-xs text-destructive font-light mt-2">{placeError}</p>
-                    )}
-                  </div>
+                        {nameError && (
+                          <p className="text-xs text-destructive font-light -mt-3 mb-4">Please enter your name first.</p>
+                        )}
 
-                  <div className="h-px bg-foreground/5" />
+                        {active && (
+                          <Input
+                            value={active.message}
+                            onChange={e => updateActive({ message: e.target.value })}
+                            placeholder="Message (optional)"
+                            className="font-light mb-4"
+                            maxLength={80}
+                          />
+                        )}
 
-                  {/* How it works */}
-                  <div>
-                    <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                      How it works
-                    </div>
-                    <p className="text-sm font-light text-foreground/70 leading-relaxed">
-                      Pick a shape and color, add your name, then tap an open spot on the board.
-                      Each hold is ${HOLD_PRICE} — Venmo @baobenlove.
-                    </p>
-                  </div>
+                        {drafts.length > 1 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {drafts.map(d => (
+                              <button
+                                key={d.id}
+                                type="button"
+                                onClick={() => setActiveId(d.id)}
+                                className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+                                  d.id === active?.id ? 'ring-2 ring-offset-2 ring-primary/50' : 'opacity-70 hover:opacity-100'
+                                }`}
+                                style={{ background: '#1a1a2e' }}
+                                title={d.position ? 'Placed' : 'Not placed yet'}
+                              >
+                                <HoldSVG shape={d.shape} color={d.color} size={26} />
+                                {!d.position && (
+                                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-accent border border-white" />
+                                )}
+                                <span
+                                  role="button"
+                                  onClick={(e) => { e.stopPropagation(); removeDraft(d.id); }}
+                                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white text-foreground/50 hover:text-destructive border border-foreground/10 flex items-center justify-center text-[10px] leading-none"
+                                  title="Remove this hold"
+                                >
+                                  ×
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
 
-                  <div className="h-px bg-foreground/5" />
-
-                  {/* Contributor list */}
-                  {holds.length > 0 ? (
-                    <div>
-                      <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                        Holds placed ({holds.length})
-                      </div>
-                      <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                        {[...holds].reverse().map(hold => (
-                          <motion.button
-                            key={hold.id}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            onClick={() => setViewingHold(hold)}
-                            className="flex items-center gap-3 w-full text-left group"
-                          >
-                            <div className="flex-shrink-0 group-hover:scale-110 transition-transform duration-150">
-                              <HoldSVG shape={hold.shape} color={hold.color} size={22} />
+                        {active && (
+                          <>
+                            <div className="grid grid-cols-5 gap-1.5 mb-4">
+                              {SHAPES.map(s => (
+                                <ShapeButton
+                                  key={s.id}
+                                  shape={s.id}
+                                  selected={active.shape === s.id}
+                                  color={active.color}
+                                  onSelect={() => updateActive({ shape: s.id })}
+                                />
+                              ))}
                             </div>
-                            <div className="min-w-0">
-                              <div className="text-sm font-light text-foreground/80 truncate">
-                                {hold.guestName}
-                              </div>
-                              {hold.message && (
-                                <div className="text-xs font-light text-foreground/50 truncate italic">
-                                  "{hold.message}"
-                                </div>
-                              )}
+
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {COLORS.map(c => (
+                                <button
+                                  key={c.hex}
+                                  type="button"
+                                  title={c.name}
+                                  onClick={() => updateActive({ color: c.hex })}
+                                  style={{ backgroundColor: c.hex }}
+                                  className={`w-7 h-7 rounded-full transition-all duration-150 ${
+                                    active.color === c.hex
+                                      ? 'ring-2 ring-offset-2 ring-foreground/40 scale-110'
+                                      : 'hover:scale-105'
+                                  }`}
+                                />
+                              ))}
                             </div>
-                          </motion.button>
-                        ))}
+                          </>
+                        )}
+
+                        <p className="text-xs font-light text-foreground/40 mt-2">
+                          Tap the board to place — or move — this hold.
+                        </p>
+
+                        {submitError && (
+                          <p className="text-xs text-destructive font-light mt-2">{submitError}</p>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          disabled={!allPlaced || !name.trim() || submitting}
+                          className="w-full mt-4 py-3 rounded-full bg-foreground/90 hover:bg-foreground disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                        >
+                          {submitting
+                            ? 'Submitting…'
+                            : allPlaced
+                              ? `Lock In ${drafts.length} Hold${drafts.length > 1 ? 's' : ''}`
+                              : 'Place every hold to continue'}
+                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm font-light text-foreground/40 italic">
-                      {loading ? 'Loading…' : 'No holds placed yet — be the first!'}
-                    </p>
+                    </>
                   )}
                 </div>
               </Reveal>
