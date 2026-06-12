@@ -1,5 +1,5 @@
-import { Gift, ExternalLink } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { Mountain, Sprout, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router';
 import { useLang } from '../context/LanguageContext';
 
 export function Registry() {
@@ -39,67 +39,37 @@ export function Registry() {
               </p>
             </div>
 
-            {/* Registry Links */}
-            <div className="space-y-8 mb-32">
-              <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-3">
-                <div>
-                  <h3 className="text-xl font-light text-foreground mb-1">Crate & Barrel</h3>
-                  <p className="text-sm font-light text-foreground/70">{t.registryHomeKitchen}</p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  className="text-primary hover:text-primary/80 font-light"
-                >
-                  {t.registryView}
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-4">
-                <div>
-                  <h3 className="text-xl font-light text-foreground mb-1">Williams Sonoma</h3>
-                  <p className="text-sm font-light text-foreground/70">{t.registryGourmet}</p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  className="text-primary hover:text-primary/80 font-light"
-                >
-                  {t.registryView}
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between border-b border-foreground/5 pb-6 animate-slide-up-delayed-5">
-                <div>
-                  <h3 className="text-xl font-light text-foreground mb-1">Zola</h3>
-                  <p className="text-sm font-light text-foreground/70">{t.registryUniversal}</p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  className="text-primary hover:text-primary/80 font-light"
-                >
-                  {t.registryView}
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="h-px w-24 bg-gradient-to-r from-transparent via-secondary/30 to-transparent mx-auto my-24 animate-elegant-fade-in" style={{ animationDelay: '0.8s' }} />
-
-            {/* Honeymoon Fund */}
-            <div className="text-center">
-              <Gift className="w-12 h-12 text-primary/30 mx-auto mb-8 animate-slide-up-scale" style={{ animationDelay: '0.9s' }} />
-              <h2 className="text-3xl font-light text-foreground mb-6 animate-slide-up-delayed" style={{ animationDelay: '1s' }}>{t.registryHoneymoon}</h2>
-              <p className="text-sm font-light text-foreground/80 mb-3 animate-slide-up-delayed" style={{ animationDelay: '1.1s' }}>{t.registryHoneymoonDest}</p>
-              <p className="text-base font-light text-foreground/80 leading-relaxed mb-12 max-w-2xl mx-auto animate-slide-up-delayed" style={{ animationDelay: '1.2s' }}>
-                {t.registryHoneymoonDesc}
-              </p>
-              <Button
-                className="bg-primary hover:bg-primary/90 text-white px-12 py-6 font-light tracking-wider uppercase transition-all duration-300 animate-slide-up-scale"
-                style={{ animationDelay: '1.3s' }}
+            {/* Fund Pages */}
+            <div className="grid sm:grid-cols-2 gap-6 mb-12">
+              <Link
+                to="/moonboard"
+                className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-3"
               >
-                {t.registryContribute}
-              </Button>
+                <Mountain className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />
+                <h3 className="text-xl font-light text-foreground mb-2">Climbing Board Fund</h3>
+                <p className="text-sm font-light text-foreground/60 leading-relaxed mb-5">
+                  Fund a hold on our future climbing wall — pick a shape, color, and spot, and leave us a note.
+                </p>
+                <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
+                  Visit the Moonboard
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Link>
+
+              <Link
+                to="/garden"
+                className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-4"
+              >
+                <Sprout className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />
+                <h3 className="text-xl font-light text-foreground mb-2">Grow Our Garden</h3>
+                <p className="text-sm font-light text-foreground/60 leading-relaxed mb-5">
+                  Plant grass, flowers, shrubs, and trees in your own little garden for our first home.
+                </p>
+                <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
+                  Visit the Garden
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Link>
             </div>
 
             {/* Footer Note */}

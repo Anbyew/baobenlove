@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/
 import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { fetchMoonboardHolds, placeMoonboardHold, type MoonboardHold } from '../lib/moonboard';
+import { openVenmo } from '../lib/venmo';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -112,31 +113,6 @@ function ShapeButton({ shape, selected, color, onSelect }: {
       <span className="text-[10px] font-light text-foreground/60">{label}</span>
     </button>
   );
-}
-
-function openVenmo(amount: number, note: string) {
-  const params = new URLSearchParams({
-    txn: 'pay',
-    recipients: 'baobenlove',
-    amount: amount.toString(),
-    note,
-  });
-  const fallback = 'https://venmo.com/baobenlove';
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  if (!isMobile) {
-    window.open(fallback, '_blank');
-    return;
-  }
-
-  const deepLink = `venmo://paycharge?${params.toString()}`;
-  const start = Date.now();
-  window.location.href = deepLink;
-  setTimeout(() => {
-    if (Date.now() - start < 2000 && document.hasFocus()) {
-      window.open(fallback, '_blank');
-    }
-  }, 800);
 }
 
 let nextDraftId = 1;
@@ -566,7 +542,7 @@ export function Moonboard() {
                           />
                         )}
 
-                        {drafts.length > 1 && (
+                        {drafts.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-4">
                             {drafts.map(d => (
                               <button

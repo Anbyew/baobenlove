@@ -3,6 +3,12 @@ import { Calendar, Clock, MapPin } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
 
+// Sum of the couple illustration widths below (840) plus their gaps (6 × 4px)
+const COUPLES_ROW_WIDTH = 864;
+function coupleImgWidth(w: number) {
+  return `min(${w}px, calc((100vw - 64px) * ${(w / COUPLES_ROW_WIDTH).toFixed(4)}))`;
+}
+
 export function Details() {
   const { t } = useLang();
   return (
@@ -139,7 +145,7 @@ export function Details() {
                     alt=""
                     className="drop-shadow-lg shrink-0 cursor-default"
                     style={{
-                      width: w,
+                      width: coupleImgWidth(w),
                       transform: `rotate(${rot}deg) translateY(${y}px)`,
                       transition: 'transform 0.35s ease, filter 0.35s ease',
                     }}
@@ -158,7 +164,7 @@ export function Details() {
                   alt=""
                   className="drop-shadow-lg shrink-0 cursor-default"
                   style={{
-                    width: 124,
+                    width: coupleImgWidth(124),
                     transform: 'rotate(6deg) translateY(20px)',
                     transition: 'transform 0.35s ease, filter 0.35s ease',
                   }}

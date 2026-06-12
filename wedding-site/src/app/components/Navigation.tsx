@@ -34,7 +34,6 @@ export function Navigation() {
     { label: t.rsvp, path: '/rsvp' },
     { label: t.travel, path: '/travel' },
     { label: t.registry, path: '/registry' },
-    { label: 'Moonboard', path: '/moonboard' },
     { label: t.faq, path: '/faq' },
   ];
 
@@ -45,10 +44,10 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-20">
           {/* Logo — left */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <Link
               to="/"
-              className="text-xl font-light tracking-wider text-foreground hover:text-primary transition-colors duration-300"
+              className="text-xl font-light tracking-wider text-foreground hover:text-primary transition-colors duration-300 whitespace-nowrap"
             >
               {t.navLogo}
             </Link>

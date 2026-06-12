@@ -81,8 +81,8 @@ export const t = {
     scheduleEvents: [
       { time: '2:45 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
       { time: '3:00 PM', title: 'Ceremony', description: 'Join us at Hartefeld National as we exchange our vows under the autumn sky' },
-      { time: '4:15 PM', title: 'Travel to Longwood Gardens', description: 'Head to Longwood Gardens for the evening — about a 15-minute drive' },
-      { time: '4:30 PM', title: 'Explore Longwood Gardens', description: 'Wander the outdoor gardens and enjoy the autumn beauty while we take wedding photos' },
+      { time: '3:45 PM', title: 'Travel to Longwood Gardens', description: 'Head to Longwood Gardens for the evening — about a 15-minute drive' },
+      { time: '4:00 PM', title: 'Explore Longwood Gardens', description: 'Wander the outdoor gardens and enjoy the autumn beauty while we take wedding photos' },
       { time: '6:00 PM', title: 'Cocktail Hour', description: "Enjoy signature cocktails and hors d'oeuvres at Longwood Gardens" },
       { time: '7:00 PM', title: 'Reception & Dinner', description: 'A seated dinner featuring seasonal, locally-sourced cuisine' },
       { time: '11:00 PM', title: 'Sparkler Send-Off', description: 'A magical farewell under the stars with sparklers' },
@@ -350,8 +350,8 @@ export const t = {
     scheduleEvents: [
       { time: '下午2:45', title: '宾客抵达', description: '请于仪式开始前抵达哈特菲尔德，入座等候' },
       { time: '下午3:00', title: '婚礼仪式', description: '在秋日天空下，见证我们于哈特菲尔德互诉誓言' },
-      { time: '下午4:15', title: '前往长木花园', description: '驱车约15分钟，前往长木花园开启美好夜晚' },
-      { time: '下午4:30', title: '游览长木花园', description: '漫步秋日花园，欣赏美景，我们将在此拍摄婚纱照' },
+      { time: '下午3:45', title: '前往长木花园', description: '驱车约15分钟，前往长木花园开启美好夜晚' },
+      { time: '下午4:00', title: '游览长木花园', description: '漫步秋日花园，欣赏美景，我们将在此拍摄婚纱照' },
       { time: '下午6:00', title: '鸡尾酒时间', description: '在长木花园享用精选鸡尾酒与开胃小食' },
       { time: '晚上7:00', title: '晚宴', description: '品尝精心准备的时令本地美食' },
       { time: '晚上11:00', title: '烟花送别', description: '在漫天星光下，挥舞烟花，温馨道别' },
