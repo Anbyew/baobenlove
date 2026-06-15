@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, QrCode } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
 
@@ -127,6 +127,39 @@ export function Details() {
                   </div>
                 </Reveal>
               ))}
+            </div>
+
+            <Reveal>
+              <div className="h-px w-24 bg-gradient-to-r from-transparent via-secondary/30 to-transparent mx-auto my-12" />
+            </Reveal>
+
+            {/* Sunday Bonus */}
+            <div className="mb-16">
+              <div className="text-center mb-16">
+                <Reveal>
+                  <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-6 font-light">{t.sundayBonusLabel}</div>
+                </Reveal>
+              </div>
+              <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
+                {[
+                  { icon: Calendar, label: t.dateLabel, value: t.sundayDate, sub: t.sundayDateSub, href: null },
+                  { icon: QrCode, label: t.sundayAdmissionLabel, value: t.sundayAdmissionValue, sub: t.sundayAdmissionSub, href: null },
+                  { icon: MapPin, label: t.locationLabel, value: t.sundayParkingValue, sub: t.sundayAccessAddress, href: 'https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348' },
+                ].map((item, i) => (
+                  <Reveal key={item.label} delay={i * 0.12} direction="up">
+                    <div className="text-center group">
+                      <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
+                      <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
+                      {item.href ? (
+                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                      ) : (
+                        <div className="text-lg font-light text-foreground">{item.value}</div>
+                      )}
+                      {item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
             </div>
 
             <Reveal delay={0.15}>

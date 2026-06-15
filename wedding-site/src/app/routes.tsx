@@ -9,6 +9,8 @@ import { Travel } from "./pages/Travel";
 import { Registry } from "./pages/Registry";
 import { Moonboard } from "./pages/Moonboard";
 import { Garden } from "./pages/Garden";
+import { Escape } from "./pages/Escape";
+import { Climb } from "./pages/Climb";
 import { FAQ } from "./pages/FAQ";
 import { ProfilePage } from "./pages/ProfilePage";
 
@@ -26,6 +28,8 @@ export const router = createBrowserRouter([
       { path: "registry", Component: Registry },
       { path: "moonboard", Component: Moonboard },
       { path: "garden", Component: Garden },
+      { path: "escape", Component: Escape },
+      { path: "climb", Component: Climb },
       { path: "faq", Component: FAQ },
       { path: "profile", Component: ProfilePage },
     ],

@@ -13,6 +13,12 @@ import {
   logEvent,
   getMoonboardHolds,
   placeMoonboardHold,
+  getGardenItems,
+  setGardenItems,
+  getEscapeCleared,
+  clearEscapeObstacle,
+  getClimbCleared,
+  clearClimbBoost,
 } from './db.js';
 
 const app = express();
@@ -248,6 +254,15 @@ app.post('/session/create', (req, res) => {
     if (!invite) return res.status(404).json({ error: 'No household found for this email.' });
 
     const token = createSession(parseInt(invite.id), email, name, language);
+
+    logEvent({
+      sessionToken: token,
+      inviteId: parseInt(invite.id),
+      eventType: 'login',
+      userAgent: req.headers['user-agent'] || null,
+      metadata: { email, name, language },
+    });
+
     res.json({ token, invite });
   } catch (err) {
     console.error('session/create error:', err);
@@ -342,6 +357,112 @@ app.post('/moonboard', (req, res) => {
   } catch (err) {
     console.error('moonboard POST error:', err);
     res.status(500).json({ error: 'Could not place your hold. Please try again.' });
+  }
+});
+
+// --- Garden ---
+
+const GARDEN_PLANT_TYPES = ['grass', 'bush', 'sunflower', 'cherryTree'];
+const GARDEN_MAX_ITEMS = 500;
+
+function isValidGardenItem(item) {
+  return item && typeof item === 'object'
+    && typeof item.id === 'string' && item.id.length <= 60
+    && GARDEN_PLANT_TYPES.includes(item.plantType)
+    && Number.isInteger(item.stage) && item.stage >= 0 && item.stage <= 3
+    && /^#[0-9A-Fa-f]{6}$/.test(String(item.color ?? ''))
+    && Number.isFinite(item.x) && Number.isFinite(item.y)
+    && Number.isFinite(item.rotation) && Number.isFinite(item.scale);
+}
+
+app.get('/garden', (req, res) => {
+  try {
+    const token = String(req.query.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+
+    res.json({ items: getGardenItems(parseInt(session.invite.id)) });
+  } catch (err) {
+    console.error('garden GET error:', err);
+    res.status(500).json({ error: 'Could not load your garden.' });
+  }
+});
+
+app.post('/garden', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+
+    const items = req.body?.items;
+    if (!Array.isArray(items) || items.length > GARDEN_MAX_ITEMS || !items.every(isValidGardenItem))
+      return res.status(400).json({ error: 'Invalid garden data.' });
+
+    setGardenItems(parseInt(session.invite.id), items);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('garden POST error:', err);
+    res.status(500).json({ error: 'Could not save your garden.' });
+  }
+});
+
+// --- Escape the Reception ---
+
+const ESCAPE_OBSTACLE_IDS = ['uber', 'inlaws', 'passport', 'dj', 'tire', 'photographer', 'toast', 'bouquet'];
+
+app.get('/escape', (req, res) => {
+  try {
+    res.json({ cleared: getEscapeCleared() });
+  } catch (err) {
+    console.error('escape GET error:', err);
+    res.status(500).json({ error: 'Could not load the road.' });
+  }
+});
+
+app.post('/escape', (req, res) => {
+  try {
+    const { obstacleId, note } = req.body ?? {};
+    if (!ESCAPE_OBSTACLE_IDS.includes(obstacleId))
+      return res.status(400).json({ error: 'Invalid obstacle.' });
+
+    const n = String(note ?? '').trim().slice(0, 120);
+    const result = clearEscapeObstacle({ obstacleId, note: n });
+    if (!result) return res.status(409).json({ error: 'Someone already cleared that one.', cleared: getEscapeCleared() });
+
+    res.json({ ok: true, cleared: getEscapeCleared() });
+  } catch (err) {
+    console.error('escape POST error:', err);
+    res.status(500).json({ error: 'Could not clear that obstacle.' });
+  }
+});
+
+// --- Drag Ben Up the Mountain ---
+
+const CLIMB_BOOST_IDS = ['energybar', 'poles', 'coffee', 'boots', 'yell', 'donut', 'sherpa', 'selfiestick'];
+
+app.get('/climb', (req, res) => {
+  try {
+    res.json({ cleared: getClimbCleared() });
+  } catch (err) {
+    console.error('climb GET error:', err);
+    res.status(500).json({ error: 'Could not load the mountain.' });
+  }
+});
+
+app.post('/climb', (req, res) => {
+  try {
+    const { boostId, note } = req.body ?? {};
+    if (!CLIMB_BOOST_IDS.includes(boostId))
+      return res.status(400).json({ error: 'Invalid boost.' });
+
+    const n = String(note ?? '').trim().slice(0, 120);
+    const result = clearClimbBoost({ boostId, note: n });
+    if (!result) return res.status(409).json({ error: 'Someone already sent that boost.', cleared: getClimbCleared() });
+
+    res.json({ ok: true, cleared: getClimbCleared() });
+  } catch (err) {
+    console.error('climb POST error:', err);
+    res.status(500).json({ error: 'Could not send that boost.' });
   }
 });
 

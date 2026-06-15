@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { useGuestSession } from '../context/GuestSessionContext';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 import { saveInviteRsvp, type AttendanceStatus } from '../lib/invite';
+import { trackClick } from '../lib/auth';
 import { useLang } from '../context/LanguageContext';
 
 type FormField = 'attendance' | 'guestCount' | 'dietaryRestrictions' | 'songRequest';
@@ -67,6 +68,11 @@ export function RSVPPage() {
       });
       await refreshInvite();
       setSubmitted(true);
+      trackClick({
+        sessionToken: identity?.sessionToken,
+        label: 'rsvp_submit',
+        metadata: { attendance: formData.attendance, guestCount },
+      });
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : t.rsvpSaveError,

@@ -99,6 +99,19 @@ export async function logEvent(payload: {
   }
 }
 
+export async function trackClick(payload: {
+  sessionToken?: string;
+  label: string;
+  metadata?: Record<string, unknown>;
+}): Promise<void> {
+  return logEvent({
+    sessionToken: payload.sessionToken,
+    eventType: 'click',
+    page: `${window.location.pathname}${window.location.search}`,
+    metadata: { label: payload.label, ...payload.metadata },
+  });
+}
+
 export async function lookupByEmail(email: string): Promise<{
   found: boolean;
   partyName?: string;
@@ -110,4 +123,29 @@ export async function lookupByEmail(email: string): Promise<{
     body: JSON.stringify({ email }),
   });
   return parseJson(response);
+}
+
+export interface GardenItem {
+  id: string;
+  plantType: 'grass' | 'bush' | 'sunflower' | 'cherryTree';
+  stage: number;
+  color: string;
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+}
+
+export async function getGarden(token: string): Promise<{ items: GardenItem[] }> {
+  const response = await fetch(`${API_BASE}/garden?token=${encodeURIComponent(token)}`);
+  return parseJson(response);
+}
+
+export async function saveGarden(token: string, items: GardenItem[]): Promise<void> {
+  const response = await fetch(`${API_BASE}/garden`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, items }),
+  });
+  await parseJson(response);
 }

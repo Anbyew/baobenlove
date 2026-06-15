@@ -6,6 +6,8 @@ import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { fetchMoonboardHolds, placeMoonboardHold, type MoonboardHold } from '../lib/moonboard';
 import { openVenmo } from '../lib/venmo';
+import { trackClick } from '../lib/auth';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -129,6 +131,7 @@ function makeDraft(colorIndex: number): DraftHold {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function Moonboard() {
+  const { identity } = useGuestIdentity();
   const [holds, setHolds] = useState<MoonboardHold[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -494,10 +497,17 @@ export function Moonboard() {
 
                     <button
                       type="button"
-                      onClick={() => openVenmo(
-                        qty * HOLD_PRICE,
-                        `Krakoff Wedding -- Climbing Board Fund: $${qty * HOLD_PRICE}`
-                      )}
+                      onClick={() => {
+                        trackClick({
+                          sessionToken: identity?.sessionToken,
+                          label: 'moonboard_pay_venmo',
+                          metadata: { qty, amount: qty * HOLD_PRICE },
+                        });
+                        openVenmo(
+                          qty * HOLD_PRICE,
+                          `Krakoff Wedding -- Climbing Board Fund: $${qty * HOLD_PRICE}`
+                        );
+                      }}
                       className="w-full py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
                     >
                       Pay ${qty * HOLD_PRICE} with Venmo

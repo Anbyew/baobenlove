@@ -74,6 +74,13 @@ export const t = {
     weatherValue: '60–70°F · Outdoor + Indoor',
     parkingLabel: 'Parking',
     parkingValue: 'Complimentary',
+    sundayBonusLabel: 'An Extra Day in the Gardens',
+    sundayDate: 'Sunday, October 4',
+    sundayDateSub: 'Wander the gardens at your leisure',
+    sundayAdmissionLabel: 'Admission',
+    sundayAdmissionValue: 'Complimentary',
+    sundayAdmissionSub: 'QR code to follow',
+    sundayParkingValue: 'Longwood Gardens',
 
     // Schedule
     scheduleTitle: 'Schedule',
@@ -90,6 +97,8 @@ export const t = {
 
     // Travel
     travelTitle: 'Travel',
+    longwoodSundayNote: "With 1,000 acres to explore, one day may not be enough — so beyond your complimentary wedding-day access, Longwood is offering guests an additional day of entry on Sunday, Oct 4 via QR code (details to follow). Park at the Visitor Center,",
+    sundayAccessAddress: '1001 Longwood Road, Kennett Square, PA 19348',
     gettingHereTitle: 'Getting Here',
     phlAirport: 'Philadelphia International Airport (PHL)',
     phlDistance: '~45 minutes from venues',
@@ -257,7 +266,8 @@ export const t = {
 
     // Registry
     registryTitle: 'Registry',
-    registryIntro: "Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a gift, we've registered at the following stores.",
+    registryIntro: "We are very fortunate to not need many material goods (and they wouldn't fit in our Jersey City apartment anyway). In lieu of a gift, please consider donating to one of the charities below in our name.",
+    registryGamesIntro: 'If you wish to give us a gift, play one of the games below to contribute to our honeymoon fund and help us build our lives together.',
     registryHomeKitchen: 'Home & Kitchen',
     registryGourmet: 'Gourmet Kitchen',
     registryUniversal: 'Universal Registry',
@@ -343,6 +353,13 @@ export const t = {
     weatherValue: '约15–21°C · 户外+室内',
     parkingLabel: '停车',
     parkingValue: '免费停车',
+    sundayBonusLabel: '婚礼次日，畅游花园',
+    sundayDate: '10月4日，周日',
+    sundayDateSub: '悠然漫步，细品花园',
+    sundayAdmissionLabel: '入园',
+    sundayAdmissionValue: '免费',
+    sundayAdmissionSub: '二维码稍后发送',
+    sundayParkingValue: '长木花园',
 
     // Schedule
     scheduleTitle: '婚礼流程',
@@ -359,6 +376,8 @@ export const t = {
 
     // Travel
     travelTitle: '交通与住宿',
+    longwoodSundayNote: '长木花园占地千亩，一日恐难尽览——因此除婚礼当天的免费入园外，特别为宾客提供10月4日（周日）的额外入园机会，凭二维码入场（详情稍后发送）。停车请前往游客中心，',
+    sundayAccessAddress: '1001 Longwood Road, Kennett Square, PA 19348',
     gettingHereTitle: '如何抵达',
     phlAirport: '费城国际机场（PHL）',
     phlDistance: '距婚礼场地约45分钟',
@@ -526,7 +545,8 @@ export const t = {
 
     // Registry
     registryTitle: '心愿单',
-    registryIntro: '您的到来是我们最珍贵的礼物。若您希望赠礼以表心意，以下是我们的礼品注册清单。',
+    registryIntro: '我们很幸运，并不需要太多物质礼物（而且泽西市的小公寓也放不下）。若您想表达心意，欢迎以我们的名字向下方的慈善机构捐赠。',
+    registryGamesIntro: '若您希望送我们一份礼物，可以玩玩下面的小游戏，为我们的蜜月基金出一份力，帮助我们一起建立新生活。',
     registryHomeKitchen: '家居厨房',
     registryGourmet: '精品厨具',
     registryUniversal: '通用礼品单',

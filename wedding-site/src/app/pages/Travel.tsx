@@ -35,7 +35,7 @@ export function Travel() {
 
   const attractions = [
     { region: t.nearVenueRegion, items: [
-      { name: t.longwoodName, description: t.longwoodDesc, mapUrl: 'https://maps.google.com/?q=Longwood+Gardens,+Kennett+Square,+PA' },
+      { name: t.longwoodName, description: t.longwoodDesc, mapUrl: 'https://maps.google.com/?q=Longwood+Gardens,+Kennett+Square,+PA', sundayNote: true },
     ]},
     { region: t.phillyRegion, items: [
       { name: t.phillyMuseumName, description: t.phillyMuseumDesc, mapUrl: 'https://maps.google.com/?q=Philadelphia+Museum+of+Art' },
@@ -164,6 +164,19 @@ export function Travel() {
                           <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                         </a>
                           <p className="text-sm font-light text-foreground/65 mt-1">{group.region} · {item.description}</p>
+                          {item.sundayNote && (
+                            <p className="text-sm font-light text-foreground/75 bg-secondary/15 border-l-2 border-secondary rounded-sm pl-3 pr-3 py-2 mt-3 inline-block">
+                              {t.longwoodSundayNote}{' '}
+                              <a
+                                href="https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium underline underline-offset-2 decoration-secondary/50 hover:text-primary transition-colors duration-300"
+                              >
+                                {t.sundayAccessAddress}
+                              </a>
+                            </p>
+                          )}
                         </div>
                       </Reveal>
                     ))

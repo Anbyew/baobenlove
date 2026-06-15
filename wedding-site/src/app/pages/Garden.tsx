@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useId, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toPng } from 'html-to-image';
 import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { openVenmo } from '../lib/venmo';
+import { trackClick, getGarden, saveGarden as saveGardenToServer } from '../lib/auth';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,7 +36,7 @@ interface PlantedItem extends Omit<DraftPlant, 'position'> {
 
 const VB_W = 1000;
 const VB_H = 600;
-const MAX_QTY = 10;
+const QTY_OPTIONS = [1, 2, 4, 8, 16, 32, 64];
 const PICKUP_RADIUS = 28;
 const STORAGE_KEY = 'wedding-garden-plots-v2';
 
@@ -42,36 +44,26 @@ const STORAGE_KEY = 'wedding-garden-plots-v2';
 const POND = { cx: 800, cy: 470, rx: 150, ry: 78 };
 const STATUE = { cx: 130, cy: 130, r: 75 };
 
-const PLANT_CATALOG: Record<PlantId, { label: string; stages: StageDef[] }> = {
+const PLANT_CATALOG: Record<PlantId, { label: string; svgStage: number; stage: StageDef }> = {
   grass: {
     label: 'Grass',
-    stages: [
-      { label: 'Tuft', price: 5, colorable: false },
-    ],
+    svgStage: 0,
+    stage: { label: 'Tuft', price: 5, colorable: false },
   },
   bush: {
     label: 'Bush',
-    stages: [
-      { label: 'Sapling', price: 12, colorable: false },
-      { label: 'Full Bush', price: 22, colorable: false },
-    ],
+    svgStage: 1,
+    stage: { label: 'Full Bush', price: 22, colorable: false },
   },
   sunflower: {
     label: 'Sunflower',
-    stages: [
-      { label: 'Sprout', price: 10, colorable: false },
-      { label: 'Growing', price: 18, colorable: false },
-      { label: 'In Bloom', price: 28, colorable: true },
-    ],
+    svgStage: 2,
+    stage: { label: 'In Bloom', price: 28, colorable: true },
   },
   cherryTree: {
     label: 'Cherry Tree',
-    stages: [
-      { label: 'Sapling', price: 15, colorable: false },
-      { label: 'Young Tree', price: 25, colorable: false },
-      { label: 'Flowering', price: 40, colorable: false },
-      { label: 'Harvest', price: 60, colorable: true },
-    ],
+    svgStage: 3,
+    stage: { label: 'Harvest', price: 60, colorable: true },
   },
 };
 
@@ -86,113 +78,211 @@ const COLORS = [
   { name: 'Cream',    hex: '#FFF6E0' },
 ];
 
-const LEAF = '#7BAE6F';
+const LEAF = '#7FBF6A';
 const LEAF_DARK = '#4F7E4C';
-const TRUNK = '#9C7148';
-const TRUNK_DARK = '#7A5736';
+const LEAF_LIGHT = '#B6E29A';
+const TRUNK = '#B98655';
+const TRUNK_DARK = '#8C6239';
+const SHADOW = 'rgba(40,30,10,0.14)';
+const BLOSSOM = '#FBD3E0';
+const BLOSSOM_LIGHT = '#FFFFFF';
+const SEED_LIGHT = '#A9744F';
+const SEED_DARK = '#6B4A2A';
+const FLOWER_CENTER = '#FFDC7F';
+
+// Lighten a hex color towards white by `amt` (0-1)
+function lighten(hex: string, amt: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(((n >> 16) & 0xff) + (255 - ((n >> 16) & 0xff)) * amt);
+  const g = Math.round(((n >> 8) & 0xff) + (255 - ((n >> 8) & 0xff)) * amt);
+  const b = Math.round((n & 0xff) + (255 - (n & 0xff)) * amt);
+  return `#${[r, g, b].map(v => Math.min(255, v).toString(16).padStart(2, '0')).join('')}`;
+}
 
 // ─── SVG Plants ───────────────────────────────────────────────────────────────
 
+// A gently-curved, pointed leaf/blade shape from (cx,baseY) up to (tipX,tipY)
+function leafPath(cx: number, baseY: number, tipX: number, tipY: number, width: number) {
+  const mx = (cx + tipX) / 2;
+  const my = (baseY + tipY) / 2;
+  return `M ${cx - width} ${baseY} Q ${mx - width * 1.3} ${my} ${tipX} ${tipY} Q ${mx + width * 1.3} ${my} ${cx + width} ${baseY} Z`;
+}
+
 function PlantSVG({ type, stage, color, size = 32 }: { type: PlantId; stage: number; color: string; size?: number }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const leafGrad = `leafGrad-${uid}`;
+  const leafGradDark = `leafGradDark-${uid}`;
+  const trunkGrad = `trunkGrad-${uid}`;
+  const bladeGrad = `bladeGrad-${uid}`;
+  const petalGrad = `petalGrad-${uid}`;
+  const seedGrad = `seedGrad-${uid}`;
+  const blossomGrad = `blossomGrad-${uid}`;
+
   return (
     <svg width={size} height={size * 1.1} viewBox="0 0 32 36" style={{ display: 'block', overflow: 'visible' }}>
+      <defs>
+        <radialGradient id={leafGrad} cx="35%" cy="28%" r="75%">
+          <stop offset="0%" stopColor={LEAF_LIGHT} />
+          <stop offset="55%" stopColor={LEAF} />
+          <stop offset="100%" stopColor={LEAF_DARK} />
+        </radialGradient>
+        <radialGradient id={leafGradDark} cx="35%" cy="28%" r="75%">
+          <stop offset="0%" stopColor={LEAF} />
+          <stop offset="100%" stopColor={LEAF_DARK} />
+        </radialGradient>
+        <linearGradient id={trunkGrad} x1="0" y1="0" x2="1" y2="0.2">
+          <stop offset="0%" stopColor={TRUNK} />
+          <stop offset="100%" stopColor={TRUNK_DARK} />
+        </linearGradient>
+        <linearGradient id={bladeGrad} x1="0" y1="1" x2="0.3" y2="0">
+          <stop offset="0%" stopColor={LEAF_DARK} />
+          <stop offset="100%" stopColor={LEAF_LIGHT} />
+        </linearGradient>
+        <radialGradient id={petalGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={lighten(color, 0.55)} />
+          <stop offset="100%" stopColor={color} />
+        </radialGradient>
+        <radialGradient id={seedGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={SEED_LIGHT} />
+          <stop offset="100%" stopColor={SEED_DARK} />
+        </radialGradient>
+        <radialGradient id={blossomGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={BLOSSOM_LIGHT} />
+          <stop offset="100%" stopColor={BLOSSOM} />
+        </radialGradient>
+      </defs>
+
       {type === 'grass' && (
-        <g strokeLinecap="round" fill="none">
-          <ellipse cx="16" cy="34" rx="9" ry="2" fill="rgba(0,0,0,0.12)" />
-          <path d="M10 33 C9 24 10 19 12 33" stroke={LEAF} strokeWidth="2.2" />
-          <path d="M16 33 C16 22 19 16 20 33" stroke={LEAF_DARK} strokeWidth="2.2" />
-          <path d="M21 33 C21 25 24 21 25 33" stroke={LEAF} strokeWidth="2.2" />
-          <path d="M13 33 C13 27 15 24 16 33" stroke={LEAF_DARK} strokeWidth="2" />
+        <g>
+          <ellipse cx="16" cy="34" rx="10" ry="2.2" fill={SHADOW} />
+          <path d={leafPath(11, 33, 9.5, 17, 1.7)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(20, 33, 22.5, 16.5, 1.7)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(15, 33, 17, 12.5, 1.9)} fill={LEAF_DARK} />
+          <path d={leafPath(13, 33, 14, 21.5, 1.5)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(18.5, 33, 19.5, 23, 1.4)} fill={LEAF} />
+          <g transform="translate(22 26)">
+            {[0, 72, 144, 216, 288].map(a => (
+              <ellipse key={a} cx="0" cy="-1.4" rx="1" ry="1.6" fill={`url(#${blossomGrad})`} transform={`rotate(${a})`} />
+            ))}
+            <circle cx="0" cy="0" r="1" fill={FLOWER_CENTER} />
+          </g>
         </g>
       )}
 
       {type === 'bush' && stage === 0 && (
         <g>
-          <ellipse cx="16" cy="34" rx="8" ry="2" fill="rgba(0,0,0,0.12)" />
-          <rect x="15" y="22" width="2" height="11" fill={TRUNK} />
-          <circle cx="16" cy="19" r="6" fill={LEAF} stroke={LEAF_DARK} strokeWidth="1" />
+          <ellipse cx="16" cy="34" rx="8" ry="2" fill={SHADOW} />
+          <rect x="15" y="23" width="2" height="10" rx="1" fill={`url(#${trunkGrad})`} />
+          <circle cx="17" cy="21.5" r="6.8" fill={`url(#${leafGradDark})`} opacity="0.5" />
+          <circle cx="16" cy="20" r="6.5" fill={`url(#${leafGrad})`} />
+          <circle cx="13.2" cy="17" r="2.4" fill={LEAF_LIGHT} opacity="0.55" />
+          {[[12.5, 22], [19, 18.5]].map(([cx, cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="1.1" fill={`url(#${blossomGrad})`} stroke="rgba(0,0,0,0.06)" strokeWidth="0.3" />
+          ))}
         </g>
       )}
       {type === 'bush' && stage === 1 && (
         <g>
-          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill="rgba(0,0,0,0.12)" />
-          <rect x="15" y="26" width="2.5" height="8" fill={TRUNK} />
-          <circle cx="10" cy="22" r="7" fill={LEAF} />
-          <circle cx="22" cy="22" r="7" fill={LEAF} />
-          <circle cx="16" cy="17" r="8" fill={LEAF_DARK} stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
+          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill={SHADOW} />
+          <rect x="15" y="27" width="2.5" height="8" rx="1" fill={`url(#${trunkGrad})`} />
+          <circle cx="10.5" cy="22.5" r="7.2" fill={`url(#${leafGradDark})`} opacity="0.6" />
+          <circle cx="10" cy="22" r="7" fill={`url(#${leafGrad})`} />
+          <circle cx="22.5" cy="22.5" r="7.2" fill={`url(#${leafGradDark})`} opacity="0.6" />
+          <circle cx="22" cy="22" r="7" fill={`url(#${leafGrad})`} />
+          <circle cx="16.5" cy="16.5" r="8.2" fill={`url(#${leafGradDark})`} />
+          <circle cx="16" cy="16" r="8" fill={`url(#${leafGrad})`} />
+          <circle cx="12.5" cy="13" r="3" fill={LEAF_LIGHT} opacity="0.5" />
+          {[[9, 21], [22.5, 19], [16, 11], [12, 25], [19, 24]].map(([cx, cy], i) => (
+            <g key={i}>
+              <circle cx={cx} cy={cy} r="1.4" fill={`url(#${blossomGrad})`} stroke="rgba(0,0,0,0.08)" strokeWidth="0.3" />
+              <circle cx={cx - 0.4} cy={cy - 0.4} r="0.5" fill="#FFFFFF" opacity="0.8" />
+            </g>
+          ))}
         </g>
       )}
 
       {type === 'sunflower' && stage === 0 && (
         <g>
-          <ellipse cx="16" cy="34" rx="6" ry="1.6" fill="rgba(0,0,0,0.12)" />
-          <line x1="16" y1="33" x2="16" y2="24" stroke={LEAF} strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 28 C12 26 11 30 16 30" fill={LEAF} />
-          <circle cx="16" cy="22" r="2.5" fill={LEAF_DARK} />
+          <ellipse cx="16" cy="34" rx="6" ry="1.6" fill={SHADOW} />
+          <path d={leafPath(16, 33, 16, 25.5, 1.4)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(16, 29, 11.5, 25, 3)} fill={`url(#${leafGrad})`} />
+          <path d={leafPath(16, 28, 20.5, 24, 3)} fill={`url(#${leafGradDark})`} />
+          <circle cx="16" cy="24" r="2.2" fill={`url(#${leafGrad})`} />
+          <circle cx="15.2" cy="23.2" r="0.8" fill={LEAF_LIGHT} opacity="0.7" />
         </g>
       )}
       {type === 'sunflower' && stage === 1 && (
         <g>
-          <ellipse cx="16" cy="34" rx="7" ry="1.8" fill="rgba(0,0,0,0.12)" />
-          <line x1="16" y1="33" x2="16" y2="14" stroke={LEAF} strokeWidth="2.2" strokeLinecap="round" />
-          <path d="M16 24 C11 22 10 27 16 26" fill={LEAF} />
-          <path d="M16 19 C21 17 22 22 16 21" fill={LEAF} />
-          <circle cx="16" cy="12" r="3" fill={LEAF_DARK} />
+          <ellipse cx="16" cy="34" rx="7" ry="1.8" fill={SHADOW} />
+          <path d={leafPath(16, 33, 16, 14.5, 1.6)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(16, 26, 9, 21, 3.4)} fill={`url(#${leafGrad})`} />
+          <path d={leafPath(16, 21, 23, 17, 3.4)} fill={`url(#${leafGradDark})`} />
+          <ellipse cx="16" cy="13" rx="3.3" ry="4.2" fill={`url(#${leafGradDark})`} />
+          <ellipse cx="15" cy="11.5" rx="1.4" ry="1.8" fill={LEAF_LIGHT} opacity="0.5" />
+          <ellipse cx="16" cy="13" rx="3.3" ry="4.2" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="0.4" />
         </g>
       )}
       {type === 'sunflower' && stage === 2 && (
         <g>
-          <ellipse cx="16" cy="35" rx="7" ry="1.8" fill="rgba(0,0,0,0.12)" />
-          <line x1="16" y1="34" x2="16" y2="14" stroke={LEAF} strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M16 26 C10 24 9 29 16 28" fill={LEAF} />
-          <path d="M16 21 C22 19 23 24 16 23" fill={LEAF} />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map(angle => (
-            <ellipse key={angle} cx="16" cy="5" rx="3.2" ry="5.5" fill={color}
-              stroke="rgba(0,0,0,0.12)" strokeWidth="0.5"
-              transform={`rotate(${angle} 16 10)`} />
+          <ellipse cx="16" cy="35" rx="7.5" ry="1.8" fill={SHADOW} />
+          <path d={leafPath(16, 34, 16, 16, 1.8)} fill={`url(#${bladeGrad})`} />
+          <path d={leafPath(16, 27, 8.5, 22, 3.4)} fill={`url(#${leafGrad})`} />
+          <path d={leafPath(16, 22, 23.5, 18, 3.4)} fill={`url(#${leafGradDark})`} />
+          {/* back ring of petals */}
+          {[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(angle => (
+            <ellipse key={`b${angle}`} cx="16" cy="6" rx="2.6" ry="5" fill={color} opacity="0.55"
+              transform={`rotate(${angle} 16 11)`} />
           ))}
-          <circle cx="16" cy="10" r="4.5" fill="#7A5736" />
-          <circle cx="16" cy="10" r="4.5" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="0.5" />
+          {/* front ring of petals */}
+          {[0, 45, 90, 135, 180, 225, 270, 315].map(angle => (
+            <ellipse key={`f${angle}`} cx="16" cy="5" rx="3.2" ry="5.5" fill={`url(#${petalGrad})`}
+              stroke="rgba(0,0,0,0.1)" strokeWidth="0.4"
+              transform={`rotate(${angle} 16 11)`} />
+          ))}
+          {/* seed head */}
+          <circle cx="16" cy="11" r="4.6" fill={`url(#${seedGrad})`} />
+          <circle cx="16" cy="11" r="4.6" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="0.5" />
+          {[[14.5, 9.5], [17.8, 10], [15.5, 12.5], [18, 13], [13.5, 12], [16.5, 9], [14, 11.5]].map(([cx, cy], i) => (
+            <circle key={i} cx={cx} cy={cy} r="0.55" fill={SEED_DARK} opacity="0.8" />
+          ))}
+          <ellipse cx="14.5" cy="9.5" rx="1.6" ry="1" fill="#FFFFFF" opacity="0.18" />
         </g>
       )}
 
       {type === 'cherryTree' && stage === 0 && (
         <g>
-          <ellipse cx="16" cy="34" rx="8" ry="2" fill="rgba(0,0,0,0.12)" />
-          <rect x="15" y="22" width="2" height="11" fill={TRUNK} />
-          <circle cx="16" cy="19" r="6" fill={LEAF} stroke={LEAF_DARK} strokeWidth="1" />
+          <ellipse cx="16" cy="34" rx="8" ry="2" fill={SHADOW} />
+          <rect x="15" y="22" width="2" height="11" rx="1" fill={`url(#${trunkGrad})`} />
+          <circle cx="16.8" cy="19.8" r="6.2" fill={`url(#${leafGradDark})`} />
+          <circle cx="16" cy="19" r="6" fill={`url(#${leafGrad})`} />
+          <circle cx="13.5" cy="16.5" r="2.6" fill={LEAF_LIGHT} opacity="0.5" />
         </g>
       )}
-      {type === 'cherryTree' && stage === 1 && (
+      {type === 'cherryTree' && (stage === 1 || stage === 2 || stage === 3) && (
         <g>
-          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill="rgba(0,0,0,0.12)" />
-          <rect x="14.5" y="22" width="3" height="12" fill={TRUNK_DARK} />
-          <circle cx="10" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="22" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="16" cy="11" r="8.5" fill={LEAF_DARK} stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
-        </g>
-      )}
-      {type === 'cherryTree' && stage === 2 && (
-        <g>
-          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill="rgba(0,0,0,0.12)" />
-          <rect x="14.5" y="22" width="3" height="12" fill={TRUNK_DARK} />
-          <circle cx="10" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="22" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="16" cy="11" r="8.5" fill={LEAF_DARK} stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
-          {[[8, 10], [22, 9], [16, 5], [12, 16], [21, 17], [16, 13]].map(([cx, cy], i) => (
-            <circle key={i} cx={cx} cy={cy} r="1.6" fill="#FBD3E0" stroke="rgba(0,0,0,0.08)" strokeWidth="0.4" />
+          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill={SHADOW} />
+          <path d="M16 34 L16 22 M16 26 L12 22 M16 25 L20 21" stroke={`url(#${trunkGrad})`} strokeWidth="2" strokeLinecap="round" fill="none" />
+          <circle cx="10.4" cy="16.4" r="7.7" fill={`url(#${leafGradDark})`} />
+          <circle cx="10" cy="16" r="7.5" fill={`url(#${leafGrad})`} />
+          <circle cx="22.4" cy="16.4" r="7.7" fill={`url(#${leafGradDark})`} />
+          <circle cx="22" cy="16" r="7.5" fill={`url(#${leafGrad})`} />
+          <circle cx="16.5" cy="11.5" r="8.7" fill={`url(#${leafGradDark})`} />
+          <circle cx="16" cy="11" r="8.5" fill={`url(#${leafGrad})`} />
+          <circle cx="12" cy="8" r="3.4" fill={LEAF_LIGHT} opacity="0.45" />
+
+          {stage === 2 && [[8, 10], [22, 9], [16, 5], [12, 16], [21, 17], [16, 13], [9.5, 19], [20.5, 13.5], [13, 9.5], [19, 6.5]].map(([cx, cy], i) => (
+            <g key={i}>
+              <circle cx={cx} cy={cy} r="1.7" fill={`url(#${blossomGrad})`} stroke="rgba(0,0,0,0.06)" strokeWidth="0.3" />
+              <circle cx={cx - 0.5} cy={cy - 0.5} r="0.6" fill="#FFFFFF" opacity="0.85" />
+            </g>
           ))}
-        </g>
-      )}
-      {type === 'cherryTree' && stage === 3 && (
-        <g>
-          <ellipse cx="16" cy="35" rx="12" ry="2.5" fill="rgba(0,0,0,0.12)" />
-          <rect x="14.5" y="22" width="3" height="12" fill={TRUNK_DARK} />
-          <circle cx="10" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="22" cy="16" r="7.5" fill={LEAF} />
-          <circle cx="16" cy="11" r="8.5" fill={LEAF_DARK} stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
-          {[[8, 10], [22, 9], [16, 5], [12, 16], [21, 17], [16, 13], [10, 19], [20, 13]].map(([cx, cy], i) => (
-            <circle key={i} cx={cx} cy={cy} r="2" fill={color} stroke="rgba(0,0,0,0.15)" strokeWidth="0.5" />
+
+          {stage === 3 && [[8, 11], [22, 10], [16, 5.5], [12, 17], [21, 18], [16, 14], [10, 20], [20, 14.5], [13.5, 9], [19, 7]].map(([cx, cy], i) => (
+            <g key={i}>
+              <line x1={cx} y1={cy - 2.2} x2={cx} y2={cy - 0.8} stroke={TRUNK_DARK} strokeWidth="0.5" />
+              <circle cx={cx} cy={cy} r="2.1" fill={`url(#${petalGrad})`} stroke="rgba(0,0,0,0.15)" strokeWidth="0.5" />
+              <circle cx={cx - 0.6} cy={cy - 0.6} r="0.7" fill="#FFFFFF" opacity="0.55" />
+            </g>
           ))}
         </g>
       )}
@@ -202,21 +292,55 @@ function PlantSVG({ type, stage, color, size = 32 }: { type: PlantId; stage: num
 
 // ─── Scene Background ────────────────────────────────────────────────────────
 
+const FLOWER_SPOTS: [number, number, number][] = [
+  [60, 70, 0], [150, 120, 1], [880, 70, 2], [950, 170, 0],
+  [780, 490, 1], [110, 480, 2], [55, 300, 0], [930, 380, 1],
+];
+const FLOWER_COLORS = ['#FFDC7F', '#FBD3E0', '#FFFFFF'];
+const STEPPING_STONES: [number, number][] = [
+  [120, 525], [260, 478], [400, 452], [470, 365], [500, 280],
+];
+const LILY_PADS: [number, number, number][] = [
+  [-46, 12, 15], [54, -16, 11], [10, 28, 9],
+];
+
 function GardenScene() {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const grassGrad = `grassGrad-${uid}`;
+  const pondGrad = `pondGrad-${uid}`;
+  const lilyGrad = `lilyGrad-${uid}`;
+  const stoneGrad = `stoneGrad-${uid}`;
+  const sunGlow = `sunGlow-${uid}`;
+
   return (
     <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full">
       <defs>
-        <linearGradient id="grass-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#A9D08A" />
-          <stop offset="100%" stopColor="#8FBE73" />
+        <linearGradient id={grassGrad} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#B7DD9C" />
+          <stop offset="55%" stopColor="#9ACB7E" />
+          <stop offset="100%" stopColor="#82B968" />
         </linearGradient>
-        <linearGradient id="pond-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#9FD3E0" />
-          <stop offset="100%" stopColor="#6FB3C9" />
+        <linearGradient id={pondGrad} x1="0" y1="0" x2="0.3" y2="1">
+          <stop offset="0%" stopColor="#BFE8F0" />
+          <stop offset="55%" stopColor="#8FCBDA" />
+          <stop offset="100%" stopColor="#5C9FB6" />
         </linearGradient>
+        <radialGradient id={lilyGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#9FD89A" />
+          <stop offset="100%" stopColor="#5FA463" />
+        </radialGradient>
+        <radialGradient id={stoneGrad} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#F2EADC" />
+          <stop offset="100%" stopColor="#C9BFAE" />
+        </radialGradient>
+        <radialGradient id={sunGlow} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FFF6D8" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#FFF6D8" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#grass-grad)" />
+      <rect x="0" y="0" width={VB_W} height={VB_H} fill={`url(#${grassGrad})`} />
+      <circle cx={VB_W * 0.82} cy={VB_H * 0.12} r={VB_W * 0.32} fill={`url(#${sunGlow})`} />
 
       {/* texture patches */}
       <ellipse cx="250" cy="380" rx="160" ry="70" fill="rgba(255,255,255,0.06)" />
@@ -241,22 +365,48 @@ function GardenScene() {
         strokeLinecap="round"
         opacity="0.6"
       />
+      {/* stepping stones */}
+      {STEPPING_STONES.map(([cx, cy], i) => (
+        <ellipse key={i} cx={cx} cy={cy} rx="20" ry="9" fill={`url(#${stoneGrad})`} stroke="#B7AC98" strokeWidth="1.5" opacity="0.9" />
+      ))}
 
       {/* pond */}
-      <ellipse cx={POND.cx} cy={POND.cy} rx={POND.rx} ry={POND.ry} fill="url(#pond-grad)" stroke="#5C95A8" strokeWidth="3" />
-      <ellipse cx={POND.cx - 40} cy={POND.cy + 10} rx="22" ry="9" fill="#7FBE83" opacity="0.9" />
-      <ellipse cx={POND.cx + 50} cy={POND.cy - 15} rx="16" ry="7" fill="#7FBE83" opacity="0.85" />
+      <ellipse cx={POND.cx} cy={POND.cy} rx={POND.rx} ry={POND.ry} fill={`url(#${pondGrad})`} stroke="#5C95A8" strokeWidth="3" />
+      <ellipse cx={POND.cx + 6} cy={POND.cy + POND.ry * 0.5} rx={POND.rx * 0.7} ry={POND.ry * 0.35} fill="rgba(255,255,255,0.18)" />
       <path d={`M ${POND.cx - 60} ${POND.cy} q 20 -8 40 0`} stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
       <path d={`M ${POND.cx - 20} ${POND.cy + 25} q 25 -6 50 0`} stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" />
+      <path d={`M ${POND.cx + 30} ${POND.cy - 18} q 22 -6 44 0`} stroke="rgba(255,255,255,0.35)" strokeWidth="2" fill="none" />
+      {/* lily pads */}
+      {LILY_PADS.map(([dx, dy, r], i) => (
+        <g key={i}>
+          <ellipse cx={POND.cx + dx} cy={POND.cy + dy} rx={r} ry={r * 0.65} fill={`url(#${lilyGrad})`} stroke="#4F8C56" strokeWidth="0.8" />
+          <path d={`M ${POND.cx + dx} ${POND.cy + dy} l ${r * 0.8} 0`} stroke="#4F8C56" strokeWidth="0.8" />
+        </g>
+      ))}
 
-      {/* statue / birdbath */}
+      {/* statue / fountain */}
       <g>
         <ellipse cx={STATUE.cx} cy={STATUE.cy + 38} rx="34" ry="8" fill="rgba(0,0,0,0.1)" />
-        <rect x={STATUE.cx - 6} y={STATUE.cy + 5} width="12" height="30" fill="#C9C4BC" />
-        <ellipse cx={STATUE.cx} cy={STATUE.cy + 4} rx="26" ry="9" fill="#D9D5CD" stroke="#B7B2A9" strokeWidth="1.5" />
-        <ellipse cx={STATUE.cx} cy={STATUE.cy - 8} rx="16" ry="6" fill="#CFCAC1" />
+        <ellipse cx={STATUE.cx} cy={STATUE.cy + 4} rx="26" ry="9" fill={`url(#${stoneGrad})`} stroke="#B7B2A9" strokeWidth="1.5" />
+        <rect x={STATUE.cx - 6} y={STATUE.cy + 5} width="12" height="30" fill="#D4CFC5" />
+        <rect x={STATUE.cx - 6} y={STATUE.cy + 5} width="6" height="30" fill="#C9C4BC" opacity="0.6" />
+        <ellipse cx={STATUE.cx} cy={STATUE.cy - 8} rx="16" ry="6" fill="#E1DCD2" />
+        <ellipse cx={STATUE.cx - 4} cy={STATUE.cy - 9} rx="8" ry="3" fill="#FFFFFF" opacity="0.4" />
         <path d={`M ${STATUE.cx} ${STATUE.cy - 8} q -10 -22 10 -28`} stroke="#B7B2A9" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <ellipse cx={STATUE.cx + 9} cy={STATUE.cy - 36} rx="5" ry="4" fill="rgba(159,216,240,0.5)" />
       </g>
+
+      {/* decorative flower borders */}
+      {FLOWER_SPOTS.map(([x, y, ci], i) => (
+        <g key={i} transform={`translate(${x} ${y})`}>
+          {[0, 72, 144, 216, 288].map(a => (
+            <ellipse key={a} cx="0" cy="-4" rx="3" ry="5" fill={FLOWER_COLORS[ci]} opacity="0.9" transform={`rotate(${a})`} />
+          ))}
+          <circle cx="0" cy="0" r="3" fill="#FFDC7F" />
+          <path d="M0 6 L0 18" stroke="#6F9E5C" strokeWidth="2" strokeLinecap="round" />
+          <path d="M0 12 q -6 -2 -8 4" stroke="#6F9E5C" strokeWidth="1.5" fill="none" />
+        </g>
+      ))}
     </svg>
   );
 }
@@ -264,11 +414,11 @@ function GardenScene() {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 let nextDraftId = 1;
-function makeDraft(plantType: PlantId, stage: number, color: string): DraftPlant {
-  return { id: `garden-draft-${nextDraftId++}`, plantType, stage, color, position: null };
+function makeDraft(plantType: PlantId, color: string): DraftPlant {
+  return { id: `garden-draft-${nextDraftId++}`, plantType, stage: PLANT_CATALOG[plantType].svgStage, color, position: null };
 }
 
-function loadGarden(): PlantedItem[] {
+function loadGardenLocal(): PlantedItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) as PlantedItem[] : [];
@@ -277,7 +427,7 @@ function loadGarden(): PlantedItem[] {
   }
 }
 
-function saveGarden(items: PlantedItem[]) {
+function saveGardenLocal(items: PlantedItem[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
@@ -296,33 +446,64 @@ function inStatue(x: number, y: number) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function Garden() {
-  const [items, setItems] = useState<PlantedItem[]>(loadGarden);
+  const { identity } = useGuestIdentity();
+  const [items, setItems] = useState<PlantedItem[]>(loadGardenLocal);
   const [drafts, setDrafts] = useState<DraftPlant[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [poofs, setPoofs] = useState<{ id: string; x: number; y: number }[]>([]);
 
   const [plantType, setPlantType] = useState<PlantId>('sunflower');
-  const [stage, setStage] = useState(0);
-  const [color, setColor] = useState(COLORS[0].hex);
   const [qty, setQty] = useState(1);
+  const [plantColor, setPlantColor] = useState(COLORS[0].hex);
 
   const [gardenerName, setGardenerName] = useState('');
   const [downloading, setDownloading] = useState(false);
   const sceneRef = useRef<HTMLDivElement>(null);
 
+  // Load the household's garden from the server once logged in. If the
+  // server has nothing yet but this browser has a local garden, migrate it.
+  useEffect(() => {
+    const token = identity?.sessionToken;
+    if (!token) return;
+    getGarden(token).then(({ items: serverItems }) => {
+      if (serverItems.length === 0) {
+        const local = loadGardenLocal();
+        if (local.length > 0) {
+          setItems(local);
+          saveGardenToServer(token, local).catch(() => {});
+          return;
+        }
+      }
+      setItems(serverItems as PlantedItem[]);
+    }).catch(() => {});
+  }, [identity?.sessionToken]);
+
+  const persistGarden = (next: PlantedItem[]) => {
+    setItems(next);
+    if (identity?.sessionToken) {
+      saveGardenToServer(identity.sessionToken, next).catch(() => {});
+    } else {
+      saveGardenLocal(next);
+    }
+  };
+
   const unplacedDrafts = drafts.filter(d => !d.position);
   const active = drafts.find(d => d.id === activeId && !d.position) ?? unplacedDrafts[0] ?? null;
 
-  const stages = PLANT_CATALOG[plantType].stages;
-  const stageDef = stages[stage] ?? stages[0];
-  const unitPrice = stageDef.price;
+  const unitPrice = PLANT_CATALOG[plantType].stage.price;
+  const plantColorable = PLANT_CATALOG[plantType].stage.colorable;
 
   const handlePay = () => {
+    trackClick({
+      sessionToken: identity?.sessionToken,
+      label: 'garden_pay_venmo',
+      metadata: { qty, plantType, amount: qty * unitPrice },
+    });
     openVenmo(qty * unitPrice, `Krakoff Wedding -- Garden Fund: $${qty * unitPrice}`);
   };
 
   const handleAddDrafts = () => {
-    const fresh = Array.from({ length: qty }, () => makeDraft(plantType, stage, color));
+    const fresh = Array.from({ length: qty }, () => makeDraft(plantType, plantColorable ? plantColor : COLORS[0].hex));
     setDrafts(prev => [...prev, ...fresh]);
     setActiveId(fresh[0].id);
     setQty(1);
@@ -373,8 +554,7 @@ export function Garden() {
       scale: 0.9 + Math.random() * 0.3,
     }));
     const merged = [...items, ...newItems];
-    setItems(merged);
-    saveGarden(merged);
+    persistGarden(merged);
 
     setPoofs(prev => [...prev, ...newItems.map(it => ({ id: it.id, x: it.x, y: it.y }))]);
     newItems.forEach(it => {
@@ -387,10 +567,9 @@ export function Garden() {
 
   const handleReset = () => {
     if (!confirm('Clear your whole garden? This cannot be undone.')) return;
-    setItems([]);
     setDrafts([]);
     setActiveId(null);
-    saveGarden([]);
+    persistGarden([]);
   };
 
   const handleDownload = async () => {
@@ -409,7 +588,7 @@ export function Garden() {
     }
   };
 
-  const gardenValue = items.reduce((sum, it) => sum + PLANT_CATALOG[it.plantType].stages[it.stage].price, 0);
+  const gardenValue = items.reduce((sum, it) => sum + PLANT_CATALOG[it.plantType].stage.price, 0);
 
   return (
     <div className="min-h-screen relative">
@@ -509,7 +688,7 @@ export function Garden() {
                           top: `${(it.y / VB_H) * 100}%`,
                           transform: `translate(-50%, -92%) rotate(${it.rotation}deg) scale(${it.scale})`,
                         }}
-                        title={`${PLANT_CATALOG[it.plantType].label} — ${PLANT_CATALOG[it.plantType].stages[it.stage].label}`}
+                        title={`${PLANT_CATALOG[it.plantType].label} — ${PLANT_CATALOG[it.plantType].stage.label}`}
                       >
                         <PlantSVG type={it.plantType} stage={it.stage} color={it.color} size={42} />
                       </div>
@@ -558,124 +737,104 @@ export function Garden() {
                     </AnimatePresence>
                   </div>
 
-                  <p className="text-xs text-center text-foreground/30 mt-3 font-light">
-                    {active
-                      ? 'Tap anywhere on the grass to plant — avoid the pond and statue'
-                      : 'Your garden, just for you — grow it as much as you like'}
-                  </p>
+                  {active && (
+                    <p className="text-xs text-center text-foreground/30 mt-3 font-light">
+                      Tap anywhere on the grass to plant — avoid the pond and statue
+                    </p>
+                  )}
                 </div>
               </Reveal>
 
               {/* Sidebar */}
               <Reveal direction="right" className="w-full lg:w-[22rem] lg:flex-shrink-0">
-                <div className="space-y-8">
+                <div className="space-y-5">
 
-                  {/* How it works */}
-                  <div>
-                    <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                      How It Works
-                    </div>
-                    <ol className="text-sm font-light text-foreground/60 leading-relaxed space-y-1 list-decimal list-inside">
-                      <li>Pick a plant and how grown you want it</li>
-                      <li>Tap "Pay with Venmo" for that amount</li>
-                      <li>Add it, then tap a spot in the garden</li>
-                      <li>Keep going — grow your whole garden!</li>
-                      <li>Download it to keep as a memory</li>
-                    </ol>
+                  {/* Step indicator */}
+                  <div className="flex items-center text-[10px] tracking-[0.25em] uppercase font-light text-foreground/35">
+                    <span className={!active ? 'text-primary' : ''}>Shop</span>
+                    <div className="flex-1 h-px bg-foreground/10 mx-3" />
+                    <span className={active ? 'text-primary' : ''}>Plant</span>
                   </div>
 
-                  <div className="h-px bg-foreground/5" />
-
                   {/* Choose a plant */}
-                  <div>
-                    <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                      Choose a Plant
+                  <div className="bg-foreground/[0.03] rounded-2xl p-5">
+                    <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-1 font-light">
+                      Plant Something
                     </div>
+                    <p className="text-xs font-light text-foreground/40 mb-4 leading-relaxed">
+                      Choose a plant, then pick how many to add to your garden.
+                    </p>
 
-                    <div className="grid grid-cols-4 gap-1.5 mb-4">
+                    <div className="grid grid-cols-2 gap-2 mb-4">
                       {PLANT_ORDER.map(id => (
                         <button
                           key={id}
                           type="button"
-                          onClick={() => { setPlantType(id); setStage(0); }}
-                          className={`p-2 rounded flex flex-col items-center gap-1 border transition-all ${
+                          onClick={() => setPlantType(id)}
+                          className={`relative flex flex-col items-center gap-1 p-3 rounded-xl border transition-all ${
                             plantType === id
-                              ? 'border-primary/40 bg-primary/5'
-                              : 'border-foreground/10 hover:border-foreground/20'
+                              ? 'border-primary/40 bg-white shadow-sm'
+                              : 'border-foreground/10 hover:border-foreground/20 bg-white/40'
                           }`}
                         >
                           <PlantSVG
                             type={id}
-                            stage={PLANT_CATALOG[id].stages.length - 1}
-                            color={plantType === id ? color : '#9ca3af'}
-                            size={28}
+                            stage={PLANT_CATALOG[id].svgStage}
+                            color={PLANT_CATALOG[id].stage.colorable ? plantColor : '#9ca3af'}
+                            size={36}
                           />
-                          <span className="text-[10px] font-light text-foreground/60">{PLANT_CATALOG[id].label}</span>
+                          <span className="text-xs font-light text-foreground/70">{PLANT_CATALOG[id].label}</span>
+                          <span className="text-[10px] font-light text-foreground/40">${PLANT_CATALOG[id].stage.price} each</span>
                         </button>
                       ))}
                     </div>
 
-                    {/* Growth stage / price */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {stages.map((s, i) => (
+                    {plantColorable && (
+                      <div className="mb-4">
+                        <div className="text-[10px] tracking-[0.2em] uppercase text-foreground/35 mb-2 font-light">
+                          Pick a color
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {COLORS.map(c => (
+                            <button
+                              key={c.hex}
+                              type="button"
+                              title={c.name}
+                              onClick={() => setPlantColor(c.hex)}
+                              style={{ backgroundColor: c.hex }}
+                              className={`w-7 h-7 rounded-full transition-all duration-150 ${
+                                plantColor === c.hex
+                                  ? 'ring-2 ring-offset-2 ring-foreground/40 scale-110'
+                                  : 'hover:scale-105'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="text-[10px] tracking-[0.2em] uppercase text-foreground/35 mb-2 font-light">
+                      How many?
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {QTY_OPTIONS.map(n => (
                         <button
-                          key={s.label}
+                          key={n}
                           type="button"
-                          onClick={() => setStage(i)}
-                          className={`px-3 py-2 rounded-full border text-xs font-light transition-all ${
-                            stage === i
+                          onClick={() => setQty(n)}
+                          className={`w-9 h-9 rounded-full border text-xs font-light transition-all ${
+                            qty === n
                               ? 'border-primary/50 bg-primary/10 text-foreground'
                               : 'border-foreground/15 text-foreground/60 hover:border-foreground/30'
                           }`}
                         >
-                          {s.label} · ${s.price}
+                          {n}
                         </button>
                       ))}
                     </div>
-
-                    {/* Color picker */}
-                    {stageDef.colorable && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {COLORS.map(c => (
-                          <button
-                            key={c.hex}
-                            type="button"
-                            title={c.name}
-                            onClick={() => setColor(c.hex)}
-                            style={{ backgroundColor: c.hex }}
-                            className={`w-7 h-7 rounded-full transition-all duration-150 ${
-                              color === c.hex
-                                ? 'ring-2 ring-offset-2 ring-foreground/40 scale-110'
-                                : 'hover:scale-105'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Quantity */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center border border-foreground/15 rounded-full overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => setQty(q => Math.max(1, q - 1))}
-                          className="w-8 h-8 flex items-center justify-center text-foreground/60 hover:bg-foreground/5 transition-colors"
-                        >
-                          −
-                        </button>
-                        <span className="w-8 text-center text-sm font-light">{qty}</span>
-                        <button
-                          type="button"
-                          onClick={() => setQty(q => Math.min(MAX_QTY, q + 1))}
-                          className="w-8 h-8 flex items-center justify-center text-foreground/60 hover:bg-foreground/5 transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                      <span className="text-sm font-light text-foreground/60">
-                        × ${unitPrice} = ${qty * unitPrice}
-                      </span>
-                    </div>
+                    <p className="text-sm font-light text-foreground/60 mb-4">
+                      {qty} {PLANT_CATALOG[plantType].label}{qty > 1 ? 's' : ''} × ${unitPrice} = <span className="text-foreground">${qty * unitPrice}</span>
+                    </p>
 
                     <button
                       type="button"
@@ -690,71 +849,82 @@ export function Garden() {
                       onClick={handleAddDrafts}
                       className="w-full mt-2 py-2 text-foreground/40 hover:text-foreground/60 text-[11px] tracking-[0.15em] uppercase font-light transition-colors underline underline-offset-2"
                     >
-                      Already paid? Add {qty}
+                      Already paid? Add {qty} to plant
                     </button>
                   </div>
 
+                  {/* Place your plants */}
                   {drafts.length > 0 && (
-                    <>
-                      <div className="h-px bg-foreground/5" />
-
-                      <div>
-                        <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                          Plant Them
-                        </div>
-
-                        {drafts.length > 1 && (
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {drafts.map(d => (
-                              <button
-                                key={d.id}
-                                type="button"
-                                onClick={() => !d.position && setActiveId(d.id)}
-                                className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-                                  d.id === active?.id ? 'ring-2 ring-offset-2 ring-primary/50' : 'opacity-70 hover:opacity-100'
-                                }`}
-                                style={{ background: '#E8DCC4' }}
-                                title={d.position ? 'Placed' : 'Not placed yet'}
-                              >
-                                <PlantSVG type={d.plantType} stage={d.stage} color={d.color} size={28} />
-                                {!d.position && (
-                                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-accent border border-white" />
-                                )}
-                                <span
-                                  role="button"
-                                  onClick={(e) => { e.stopPropagation(); removeDraft(d.id); }}
-                                  className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white text-foreground/50 hover:text-destructive border border-foreground/10 flex items-center justify-center text-[10px] leading-none"
-                                  title="Remove"
-                                >
-                                  ×
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        <p className="text-xs font-light text-foreground/40 mb-4">
-                          Tap a spot in the garden to plant — or tap a planted item to move it.
-                        </p>
-
-                        <button
-                          type="button"
-                          onClick={handlePlant}
-                          disabled={!allPlaced}
-                          className="w-full py-3 rounded-full bg-foreground/90 hover:bg-foreground disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                        >
-                          {allPlaced
-                            ? `Plant ${drafts.length} Item${drafts.length > 1 ? 's' : ''}`
-                            : 'Place every plant to continue'}
-                        </button>
+                    <div className="bg-accent/[0.07] ring-1 ring-accent/25 rounded-2xl p-5">
+                      <div className="text-xs tracking-[0.3em] uppercase text-accent/80 mb-1 font-light">
+                        Place Your Plants
                       </div>
-                    </>
+                      <p className="text-xs font-light text-foreground/50 mb-4 leading-relaxed">
+                        {drafts.filter(d => d.position).length} of {drafts.length} placed — tap a spot on the grass to plant, avoiding the pond and statue.
+                      </p>
+
+                      {drafts.length > 1 && (
+                        <div className="space-y-3 mb-4">
+                          {PLANT_ORDER.filter(id => drafts.some(d => d.plantType === id)).map(id => {
+                            const group = drafts.filter(d => d.plantType === id);
+                            return (
+                              <div key={id}>
+                                <div className="text-[10px] tracking-[0.2em] uppercase text-foreground/35 mb-1.5 font-light">
+                                  {PLANT_CATALOG[id].label} · {group.filter(d => d.position).length}/{group.length} placed
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {group.map(d => (
+                                    <button
+                                      key={d.id}
+                                      type="button"
+                                      onClick={() => !d.position && setActiveId(d.id)}
+                                      className={`relative w-11 h-11 rounded-full flex items-center justify-center transition-all bg-white ${
+                                        d.id === active?.id ? 'ring-2 ring-offset-2 ring-primary/50' : 'opacity-70 hover:opacity-100'
+                                      }`}
+                                      title={d.position ? 'Placed' : 'Not placed yet'}
+                                    >
+                                      <PlantSVG type={d.plantType} stage={d.stage} color={d.color} size={28} />
+                                      {!d.position && (
+                                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-accent border border-white" />
+                                      )}
+                                      <span
+                                        role="button"
+                                        onClick={(e) => { e.stopPropagation(); removeDraft(d.id); }}
+                                        className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white text-foreground/50 hover:text-destructive border border-foreground/10 flex items-center justify-center text-[10px] leading-none"
+                                        title="Remove"
+                                      >
+                                        ×
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {active && (
+                        <p className="text-xs font-light text-foreground/40 mb-4">
+                          Already placed a plant by mistake? Tap it in the garden to pick it back up.
+                        </p>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handlePlant}
+                        disabled={!allPlaced}
+                        className="w-full py-3 rounded-full bg-foreground/90 hover:bg-foreground disabled:opacity-30 disabled:cursor-not-allowed text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                      >
+                        {allPlaced
+                          ? `Plant ${drafts.length} Item${drafts.length > 1 ? 's' : ''}`
+                          : 'Place every plant to continue'}
+                      </button>
+                    </div>
                   )}
 
-                  <div className="h-px bg-foreground/5" />
-
                   {/* Keep / download */}
-                  <div>
+                  <div className="bg-foreground/[0.03] rounded-2xl p-5">
                     <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
                       Keep Your Garden
                     </div>
@@ -762,7 +932,7 @@ export function Garden() {
                       value={gardenerName}
                       onChange={e => setGardenerName(e.target.value)}
                       placeholder="Label your garden (optional)"
-                      className="font-light mb-3"
+                      className="font-light mb-3 bg-white"
                       maxLength={40}
                     />
                     <div className="flex gap-2">
@@ -770,7 +940,7 @@ export function Garden() {
                         type="button"
                         onClick={handleDownload}
                         disabled={downloading || items.length === 0}
-                        className="flex-1 py-3 rounded-full border border-foreground/15 hover:border-foreground/30 disabled:opacity-30 disabled:cursor-not-allowed text-foreground/70 text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                        className="flex-1 py-3 rounded-full border border-foreground/15 hover:border-foreground/30 disabled:opacity-30 disabled:cursor-not-allowed text-foreground/70 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                       >
                         {downloading ? 'Saving…' : 'Download'}
                       </button>
@@ -778,7 +948,7 @@ export function Garden() {
                         type="button"
                         onClick={handleReset}
                         disabled={items.length === 0}
-                        className="py-3 px-4 rounded-full border border-foreground/10 hover:border-destructive/40 hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed text-foreground/40 text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                        className="py-3 px-4 rounded-full border border-foreground/10 hover:border-destructive/40 hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed text-foreground/40 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                       >
                         Reset
                       </button>

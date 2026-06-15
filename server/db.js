@@ -54,6 +54,24 @@ db.exec(`
     created_at    TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS garden_state (
+    invite_id  INTEGER PRIMARY KEY REFERENCES invites(id),
+    items      TEXT NOT NULL DEFAULT '[]',
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS escape_state (
+    obstacle_id TEXT PRIMARY KEY,
+    note        TEXT DEFAULT '',
+    cleared_at  TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS climb_state (
+    boost_id   TEXT PRIMARY KEY,
+    note       TEXT DEFAULT '',
+    cleared_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS moonboard_holds (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     row        INTEGER NOT NULL,
@@ -322,6 +340,70 @@ export function placeMoonboardHold({ row, col, guestName, message, shape, color 
       id: result.lastInsertRowid, row, col,
       guest_name: guestName, message, shape, color, placed_at: placedAt,
     });
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
+    throw err;
+  }
+}
+
+// --- Garden ---
+
+export function getGardenItems(inviteId) {
+  const row = db.prepare('SELECT items FROM garden_state WHERE invite_id = ?').get(inviteId);
+  return row ? parseJson(row.items, []) : [];
+}
+
+export function setGardenItems(inviteId, items) {
+  db.prepare(`
+    INSERT INTO garden_state (invite_id, items, updated_at) VALUES (?, ?, ?)
+    ON CONFLICT(invite_id) DO UPDATE SET items = excluded.items, updated_at = excluded.updated_at
+  `).run(inviteId, JSON.stringify(items), new Date().toISOString());
+}
+
+// --- Escape the Reception ---
+
+export function getEscapeCleared() {
+  const rows = db.prepare('SELECT obstacle_id, note, cleared_at FROM escape_state').all();
+  const cleared = {};
+  for (const row of rows) {
+    cleared[row.obstacle_id] = { note: row.note || '', clearedAt: row.cleared_at };
+  }
+  return cleared;
+}
+
+// Returns the cleared entry, or null if this obstacle was already cleared (first clear wins).
+export function clearEscapeObstacle({ obstacleId, note }) {
+  const clearedAt = new Date().toISOString();
+  try {
+    db.prepare(`
+      INSERT INTO escape_state (obstacle_id, note, cleared_at) VALUES (?, ?, ?)
+    `).run(obstacleId, note, clearedAt);
+    return { note, clearedAt };
+  } catch (err) {
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
+    throw err;
+  }
+}
+
+// --- Drag Ben Up the Mountain ---
+
+export function getClimbCleared() {
+  const rows = db.prepare('SELECT boost_id, note, cleared_at FROM climb_state').all();
+  const cleared = {};
+  for (const row of rows) {
+    cleared[row.boost_id] = { note: row.note || '', clearedAt: row.cleared_at };
+  }
+  return cleared;
+}
+
+// Returns the cleared entry, or null if this boost was already cleared (first clear wins).
+export function clearClimbBoost({ boostId, note }) {
+  const clearedAt = new Date().toISOString();
+  try {
+    db.prepare(`
+      INSERT INTO climb_state (boost_id, note, cleared_at) VALUES (?, ?, ?)
+    `).run(boostId, note, clearedAt);
+    return { note, clearedAt };
   } catch (err) {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
     throw err;
