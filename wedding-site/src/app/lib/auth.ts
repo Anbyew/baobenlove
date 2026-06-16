@@ -34,7 +34,7 @@ export async function verifyOtp(payload: {
   code: string;
   token: string;
   expiresAt: number;
-}): Promise<{ verified: boolean }> {
+}): Promise<{ verified: boolean; ticket: string; ticketExpiresAt: number }> {
   const response = await fetch(`${API_BASE}/verify-otp`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -47,11 +47,13 @@ export async function createSession(
   email: string,
   name: string,
   language: 'en' | 'zh',
+  ticket: string,
+  ticketExpiresAt: number,
 ): Promise<SessionPayload> {
   const response = await fetch(`${API_BASE}/session/create`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, name, language }),
+    body: JSON.stringify({ email, name, language, ticket, ticketExpiresAt }),
   });
   return parseJson(response);
 }
@@ -96,6 +98,22 @@ export async function logEvent(payload: {
     });
   } catch {
     // best-effort, never throw
+  }
+}
+
+export async function reportIssue(payload: {
+  email?: string;
+  name?: string;
+  issue?: string;
+}): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/report-issue`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    // best-effort
   }
 }
 

@@ -10,6 +10,10 @@ emails/credentials.json
 emails/token.json
 emails/__pycache__/
 
+# Guest list — contains real emails, never commit
+guests.tsv
+server/data/
+
 # Local Netlify folder
 .netlify
 

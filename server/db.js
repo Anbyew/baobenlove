@@ -84,13 +84,25 @@ db.exec(`
     UNIQUE(row, col)
   );
 
-  CREATE INDEX IF NOT EXISTS idx_invites_token   ON invites(token);
-  CREATE INDEX IF NOT EXISTS idx_sessions_token  ON sessions(token);
-  CREATE INDEX IF NOT EXISTS idx_sessions_invite ON sessions(invite_id);
-  CREATE INDEX IF NOT EXISTS idx_events_invite   ON events(invite_id);
-  CREATE INDEX IF NOT EXISTS idx_events_session  ON events(session_token);
-  CREATE INDEX IF NOT EXISTS idx_events_type     ON events(event_type);
-  CREATE INDEX IF NOT EXISTS idx_events_created  ON events(created_at);
+  CREATE TABLE IF NOT EXISTS unmatched_guests (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    token        TEXT UNIQUE NOT NULL,
+    email        TEXT NOT NULL,
+    name         TEXT,
+    language     TEXT DEFAULT 'en',
+    created_at   TEXT NOT NULL,
+    expires_at   TEXT NOT NULL,
+    last_seen_at TEXT
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_invites_token      ON invites(token);
+  CREATE INDEX IF NOT EXISTS idx_sessions_token     ON sessions(token);
+  CREATE INDEX IF NOT EXISTS idx_sessions_invite    ON sessions(invite_id);
+  CREATE INDEX IF NOT EXISTS idx_unmatched_token    ON unmatched_guests(token);
+  CREATE INDEX IF NOT EXISTS idx_events_invite      ON events(invite_id);
+  CREATE INDEX IF NOT EXISTS idx_events_session     ON events(session_token);
+  CREATE INDEX IF NOT EXISTS idx_events_type        ON events(event_type);
+  CREATE INDEX IF NOT EXISTS idx_events_created     ON events(created_at);
 `);
 
 // --- Seeding ---
@@ -231,6 +243,20 @@ export function getInviteByToken(token) {
   return row ? toInviteSession(row) : null;
 }
 
+export function lookupInviteByName(name) {
+  const normName = normalizeCompare(name);
+  if (!normName) return null;
+  const rows = db.prepare('SELECT * FROM invites').all();
+  const match = rows.find(row => {
+    const candidates = [row.party_name, row.informal_name, ...parseJson(row.guest_names, [])].filter(Boolean);
+    return candidates.some(c => {
+      const n = normalizeCompare(c);
+      return n === normName || n.includes(normName) || normName.includes(n);
+    });
+  });
+  return match ? toInviteSession(match) : null;
+}
+
 export function lookupInviteByEmailAndName(email, name) {
   const e = normalizeEmail(email);
   const rows = db.prepare(`
@@ -276,22 +302,48 @@ export function createSession(inviteId, email, name, language = 'en') {
   return token;
 }
 
+export function createUnmatchedSession(email, name, language = 'en') {
+  const token = randomBytes(32).toString('hex');
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + SESSION_TTL_MS);
+  db.prepare(`
+    INSERT INTO unmatched_guests (token, email, name, language, created_at, expires_at, last_seen_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(token, normalizeEmail(email), name, language, now.toISOString(), expiresAt.toISOString(), now.toISOString());
+  return token;
+}
+
+export function getUnmatchedGuests() {
+  return db.prepare('SELECT * FROM unmatched_guests ORDER BY created_at DESC').all();
+}
+
 export function validateSession(token) {
   if (!token) return null;
+
   const row = db.prepare('SELECT * FROM sessions WHERE token = ? LIMIT 1').get(token);
-  if (!row) return null;
-  if (new Date() > new Date(row.expires_at)) return null;
+  if (row) {
+    if (new Date() > new Date(row.expires_at)) return null;
+    db.prepare('UPDATE sessions SET last_seen_at = ? WHERE token = ?').run(new Date().toISOString(), token);
+    const inviteRow = db.prepare('SELECT * FROM invites WHERE id = ? LIMIT 1').get(row.invite_id);
+    return {
+      sessionToken: token,
+      email: row.email,
+      name: row.name,
+      language: row.language,
+      invite: inviteRow ? toInviteSession(inviteRow) : null,
+    };
+  }
 
-  db.prepare('UPDATE sessions SET last_seen_at = ? WHERE token = ?')
-    .run(new Date().toISOString(), token);
-
-  const inviteRow = db.prepare('SELECT * FROM invites WHERE id = ? LIMIT 1').get(row.invite_id);
+  const umRow = db.prepare('SELECT * FROM unmatched_guests WHERE token = ? LIMIT 1').get(token);
+  if (!umRow) return null;
+  if (new Date() > new Date(umRow.expires_at)) return null;
+  db.prepare('UPDATE unmatched_guests SET last_seen_at = ? WHERE token = ?').run(new Date().toISOString(), token);
   return {
     sessionToken: token,
-    email: row.email,
-    name: row.name,
-    language: row.language,
-    invite: inviteRow ? toInviteSession(inviteRow) : null,
+    email: umRow.email,
+    name: umRow.name,
+    language: umRow.language,
+    invite: null,
   };
 }
 

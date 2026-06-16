@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mountain, Sprout, Car, PawPrint, ArrowRight, Flag } from 'lucide-react';
+import { Sprout, Car, PawPrint, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { useLang } from '../context/LanguageContext';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
@@ -101,22 +101,6 @@ export function Registry() {
             {/* Fund Games */}
             <div className="grid sm:grid-cols-2 gap-6 mb-12">
               <Link
-                to="/moonboard"
-                onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_visit_moonboard' })}
-                className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-3"
-              >
-                <Mountain className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />
-                <h3 className="text-xl font-light text-foreground mb-2">Climbing Board Fund</h3>
-                <p className="text-sm font-light text-foreground/60 leading-relaxed mb-5">
-                  Fund a hold on our future climbing wall — pick a shape, color, and spot, and leave us a note.
-                </p>
-                <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
-                  Visit the Moonboard
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Link>
-
-              <Link
                 to="/garden"
                 onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_visit_garden' })}
                 className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-4"
@@ -144,22 +128,6 @@ export function Registry() {
                 </p>
                 <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
                   Clear the Road
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Link>
-
-              <Link
-                to="/climb"
-                onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_visit_climb' })}
-                className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-4"
-              >
-                <Flag className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />
-                <h3 className="text-xl font-light text-foreground mb-2">Drag Ben Up the Mountain</h3>
-                <p className="text-sm font-light text-foreground/60 leading-relaxed mb-5">
-                  Fund a boost to push Ben up the slope toward the summit — and our honeymoon.
-                </p>
-                <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
-                  Send a Boost
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Zap, Compass, Coffee, Footprints, Megaphone, Cookie, Users, Camera, Flag, Sparkles, Cloud, Sun, Tent, X, Check } from 'lucide-react';
+import { Zap, Compass, Coffee, Footprints, Megaphone, Cookie, Users, Camera, Flag, Sparkles, Cloud, Sun, Tent, X, Check, PersonStanding } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
+import { JumpGame, MODES } from '../components/JumpGame';
 import { Textarea } from '../components/ui/textarea';
 import { openVenmo } from '../lib/venmo';
 import { trackClick } from '../lib/auth';
@@ -35,108 +36,6 @@ function boostPosition(i: number) {
   return { x: 8 + t * 80, y: 85 - t * 68 };
 }
 
-// ─── Push Mini-Game ─────────────────────────────────────────────────────────
-// Mash the button to fill the meter before time runs out.
-// Pricier boosts need more pushes in the same window — harder to clear.
-
-function PushGame({ boost, onSuccess }: { boost: Boost; onSuccess: () => void }) {
-  const pushesNeeded = Math.min(14, Math.max(8, Math.round(boost.price / 4)));
-  const timeLimit = 4.5;
-  const decayPerTick = 0.12;
-  const [hits, setHits] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(timeLimit);
-  const [status, setStatus] = useState<'playing' | 'success' | 'fail'>('playing');
-
-  useEffect(() => {
-    if (status !== 'playing') return;
-    const id = setInterval(() => {
-      setTimeLeft(t => {
-        const next = t - 0.1;
-        if (next <= 0) {
-          setStatus('fail');
-          return 0;
-        }
-        return next;
-      });
-      // The meter slips back a little each tick — you have to keep pushing to net gains.
-      setHits(h => Math.max(0, h - decayPerTick));
-    }, 100);
-    return () => clearInterval(id);
-  }, [status]);
-
-  useEffect(() => {
-    if (status === 'playing' && hits >= pushesNeeded) setStatus('success');
-  }, [hits, status, pushesNeeded]);
-
-  useEffect(() => {
-    if (status !== 'success') return;
-    const t = setTimeout(onSuccess, 500);
-    return () => clearTimeout(t);
-  }, [status, onSuccess]);
-
-  const retry = () => {
-    setHits(0);
-    setTimeLeft(timeLimit);
-    setStatus('playing');
-  };
-
-  if (status === 'fail') {
-    return (
-      <div className="text-center py-3">
-        <p className="text-sm font-light text-foreground/60 mb-3">Not quite enough push — Ben slid back down a bit!</p>
-        <button
-          type="button"
-          onClick={retry}
-          className="px-5 py-2 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="flex items-center justify-between mb-2 text-xs font-light text-foreground/50 tracking-wider">
-        <span>Keep pushing to boost Ben up</span>
-        <span>{Math.min(pushesNeeded, Math.round(hits))} / {pushesNeeded}</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden mb-3">
-        <motion.div
-          className="h-full bg-secondary/70 rounded-full"
-          animate={{ width: `${(timeLeft / timeLimit) * 100}%` }}
-          transition={{ duration: 0.1, ease: 'linear' }}
-        />
-      </div>
-      <div className="relative h-28 rounded-xl bg-foreground/5 overflow-hidden mb-3 flex items-end justify-center p-3 gap-3">
-        {status === 'success' ? (
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-light text-primary">
-            On your way! 🧗
-          </div>
-        ) : (
-          <>
-            <div className="relative w-6 h-full rounded-full bg-foreground/10 overflow-hidden">
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 bg-primary/70 rounded-full"
-                animate={{ height: `${(hits / pushesNeeded) * 100}%` }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              />
-            </div>
-            <motion.button
-              type="button"
-              onClick={() => setHits(h => h + 1)}
-              whileTap={{ scale: 0.9 }}
-              className="px-6 py-3 rounded-full bg-secondary/90 hover:bg-secondary text-foreground text-xs tracking-[0.2em] uppercase font-light shadow-md"
-            >
-              Push!
-            </motion.button>
-          </>
-        )}
-      </div>
-    </>
-  );
-}
-
 // ─── Main Page ────────────────────────────────────────────────────────────
 
 export function Climb() {
@@ -156,7 +55,8 @@ export function Climb() {
   const summit = clearedCount === BOOSTS.length;
 
   const benPos = { x: 8 + progress * 80, y: 85 - progress * 68 };
-  const selected = BOOSTS.find(b => b.id === selectedId) ?? null;
+  const selectedIndex = BOOSTS.findIndex(b => b.id === selectedId);
+  const selected = selectedIndex >= 0 ? BOOSTS[selectedIndex] : null;
 
   const closePopover = () => { setSelectedId(null); setPlayingId(null); };
 
@@ -402,79 +302,88 @@ export function Climb() {
                   </motion.div>
                 </motion.div>
 
-                {/* Selected boost popover */}
-                <AnimatePresence>
-                  {selected && (
-                    <motion.div
-                      className="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center p-4"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={closePopover}
-                    >
-                      <motion.div
-                        className="relative bg-white rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-sm"
-                        initial={{ scale: 0.85, opacity: 0, y: 10 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={closePopover}
-                          className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-secondary/60 bg-white shrink-0">
-                            <selected.icon className="w-5 h-5 text-secondary" />
-                          </div>
-                          <div>
-                            <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
-                            <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
-                          </div>
-                        </div>
-
-                        {playingId === selected.id ? (
-                          <PushGame boost={selected} onSuccess={() => handleClear(selected)} />
-                        ) : (
-                          <>
-                            <Textarea
-                              value={noteDraft}
-                              onChange={e => setNoteDraft(e.target.value)}
-                              placeholder="Leave an encouraging (or roasting) note (optional)"
-                              className="text-sm font-light bg-white resize-none mb-3"
-                              rows={2}
-                              maxLength={120}
-                            />
-
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handlePay(selected)}
-                                className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                              >
-                                Pay ${selected.price} with Venmo
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setPlayingId(selected.id)}
-                                className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
-                              >
-                                Push to Help
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </Reveal>
+
+            {/* Selected boost popover — rendered outside the mountain scene so it
+                isn't clipped by the scene's overflow-hidden/aspect-ratio box */}
+            <AnimatePresence>
+              {selected && (
+                <motion.div
+                  className="fixed inset-0 z-50 bg-black/10 backdrop-blur-[2px] flex items-center justify-center p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={closePopover}
+                >
+                  <motion.div
+                    className="relative bg-white rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-sm data-[playing=true]:max-w-xl transition-[max-width]"
+                    data-playing={playingId === selected.id}
+                    initial={{ scale: 0.85, opacity: 0, y: 10 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={closePopover}
+                      className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-secondary/60 bg-white shrink-0">
+                        <selected.icon className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
+                        <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
+                      </div>
+                    </div>
+
+                    {playingId === selected.id ? (
+                      <JumpGame
+                        mode={MODES[selectedIndex % MODES.length]}
+                        playerIcon={PersonStanding}
+                        obstacleIcon={selected.icon}
+                        goal={Math.min(8, Math.max(4, Math.round(selected.price / 8)))}
+                        onSuccess={() => handleClear(selected)}
+                      />
+                    ) : (
+                      <>
+                        <Textarea
+                          value={noteDraft}
+                          onChange={e => setNoteDraft(e.target.value)}
+                          placeholder="Leave an encouraging (or roasting) note (optional)"
+                          className="text-sm font-light bg-white resize-none mb-3"
+                          rows={2}
+                          maxLength={120}
+                        />
+
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handlePay(selected)}
+                            className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                          >
+                            Pay ${selected.price} with Venmo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPlayingId(selected.id)}
+                            className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
+                          >
+                            Push to Help
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Progress */}
             <Reveal delay={0.15}>

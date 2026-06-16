@@ -48,22 +48,22 @@ const PLANT_CATALOG: Record<PlantId, { label: string; svgStage: number; stage: S
   grass: {
     label: 'Grass',
     svgStage: 0,
-    stage: { label: 'Tuft', price: 5, colorable: false },
+    stage: { label: 'Tuft', price: 2, colorable: false },
   },
   bush: {
     label: 'Bush',
     svgStage: 1,
-    stage: { label: 'Full Bush', price: 22, colorable: false },
+    stage: { label: 'Full Bush', price: 8, colorable: false },
   },
   sunflower: {
     label: 'Sunflower',
     svgStage: 2,
-    stage: { label: 'In Bloom', price: 28, colorable: true },
+    stage: { label: 'In Bloom', price: 16, colorable: true },
   },
   cherryTree: {
     label: 'Cherry Tree',
     svgStage: 3,
-    stage: { label: 'Harvest', price: 60, colorable: true },
+    stage: { label: 'Harvest', price: 32, colorable: true },
   },
 };
 

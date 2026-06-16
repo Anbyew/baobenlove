@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Car, PartyPopper, Luggage, Music, Disc, Camera, Mic2, Flower2, Flag, Sparkles, Cloud, Sun, Tent, Palmtree, X, Check } from 'lucide-react';
+import { Car, PartyPopper, Luggage, Music, Disc, Camera, Mic2, Flower2, Flag, Sparkles, Cloud, Sun, Tent, Palmtree, X, Check, TreePine, Signpost, Bird, Milestone } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
+import { JumpGame, MODES } from '../components/JumpGame';
 import { Textarea } from '../components/ui/textarea';
 import { openVenmo } from '../lib/venmo';
 import { trackClick } from '../lib/auth';
@@ -36,117 +37,21 @@ function obstaclePosition(i: number) {
   return start + (i / (OBSTACLES.length - 1)) * (end - start);
 }
 
-// ─── Dodge Mini-Game ────────────────────────────────────────────────────────
-// Tap the obstacle icon as it darts around before time runs out.
-// Pricier obstacles need more taps in the same window — harder to clear.
+// A theme per obstacle so each marker, badge, and popover gets its own personality.
+// Classes are written out in full (not built from a variable) so Tailwind picks them up.
+const OBSTACLE_THEMES = [
+  { ring: 'border-sky-300', icon: 'text-sky-500', bg: 'bg-sky-50', dot: 'bg-sky-400' },
+  { ring: 'border-rose-300', icon: 'text-rose-500', bg: 'bg-rose-50', dot: 'bg-rose-400' },
+  { ring: 'border-amber-300', icon: 'text-amber-500', bg: 'bg-amber-50', dot: 'bg-amber-400' },
+  { ring: 'border-emerald-300', icon: 'text-emerald-500', bg: 'bg-emerald-50', dot: 'bg-emerald-400' },
+  { ring: 'border-violet-300', icon: 'text-violet-500', bg: 'bg-violet-50', dot: 'bg-violet-400' },
+  { ring: 'border-orange-300', icon: 'text-orange-500', bg: 'bg-orange-50', dot: 'bg-orange-400' },
+  { ring: 'border-pink-300', icon: 'text-pink-500', bg: 'bg-pink-50', dot: 'bg-pink-400' },
+  { ring: 'border-teal-300', icon: 'text-teal-500', bg: 'bg-teal-50', dot: 'bg-teal-400' },
+];
 
-function DodgeGame({ obstacle, onSuccess }: { obstacle: Obstacle; onSuccess: () => void }) {
-  const tapsNeeded = Math.min(10, Math.max(6, Math.round(obstacle.price / 6)));
-  const timeLimit = 4;
-  const minSize = 28;
-  const maxSize = 44;
-  const [hits, setHits] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(timeLimit);
-  const [pos, setPos] = useState({ x: 50, y: 40 });
-  const [status, setStatus] = useState<'playing' | 'success' | 'fail'>('playing');
-
-  const randomPos = () => ({ x: 8 + Math.random() * 76, y: 6 + Math.random() * 60 });
-  const size = Math.max(minSize, maxSize - hits * 2);
-
-  useEffect(() => {
-    if (status !== 'playing') return;
-    const id = setInterval(() => {
-      setTimeLeft(t => {
-        const next = t - 0.1;
-        if (next <= 0) {
-          setStatus('fail');
-          return 0;
-        }
-        return next;
-      });
-    }, 100);
-    return () => clearInterval(id);
-  }, [status]);
-
-  // The target darts to a new spot on its own every so often — not just on tap.
-  useEffect(() => {
-    if (status !== 'playing') return;
-    const id = setInterval(() => setPos(randomPos()), 550);
-    return () => clearInterval(id);
-  }, [status]);
-
-  useEffect(() => {
-    if (status === 'playing' && hits >= tapsNeeded) setStatus('success');
-  }, [hits, status, tapsNeeded]);
-
-  useEffect(() => {
-    if (status !== 'success') return;
-    const t = setTimeout(onSuccess, 500);
-    return () => clearTimeout(t);
-  }, [status, onSuccess]);
-
-  const handleTap = () => {
-    setHits(h => h + 1);
-    setPos(randomPos());
-  };
-
-  const retry = () => {
-    setHits(0);
-    setTimeLeft(timeLimit);
-    setStatus('playing');
-    setPos(randomPos());
-  };
-
-  if (status === 'fail') {
-    return (
-      <div className="text-center py-3">
-        <p className="text-sm font-light text-foreground/60 mb-3">Not fast enough — the road's still blocked!</p>
-        <button
-          type="button"
-          onClick={retry}
-          className="px-5 py-2 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="flex items-center justify-between mb-2 text-xs font-light text-foreground/50 tracking-wider">
-        <span>Tap {tapsNeeded}x to clear the road</span>
-        <span>{hits} / {tapsNeeded}</span>
-      </div>
-      <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden mb-3">
-        <motion.div
-          className="h-full bg-secondary/70 rounded-full"
-          animate={{ width: `${(timeLeft / timeLimit) * 100}%` }}
-          transition={{ duration: 0.1, ease: 'linear' }}
-        />
-      </div>
-      <div className="relative h-28 rounded-xl bg-foreground/5 overflow-hidden mb-3">
-        {status === 'success' ? (
-          <div className="absolute inset-0 flex items-center justify-center text-sm font-light text-primary">
-            Cleared! 🎉
-          </div>
-        ) : (
-          <motion.button
-            type="button"
-            onClick={handleTap}
-            className="absolute rounded-full flex items-center justify-center border-2 border-secondary/60 bg-white shadow-md"
-            style={{ width: size, height: size }}
-            animate={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-            transition={{ type: 'spring', stiffness: 600, damping: 18 }}
-            whileTap={{ scale: 0.85 }}
-          >
-            <obstacle.icon className="w-4 h-4 text-secondary" />
-          </motion.button>
-        )}
-      </div>
-    </>
-  );
-}
+// Confetti burst directions for the "cleared!" effect
+const CONFETTI_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
 // ─── Main Page ────────────────────────────────────────────────────────────
 
@@ -167,7 +72,8 @@ export function Escape() {
   const allClear = clearedCount === OBSTACLES.length;
 
   const carLeft = 5 + progress * 84; // %
-  const selected = OBSTACLES.find(o => o.id === selectedId) ?? null;
+  const selectedIndex = OBSTACLES.findIndex(o => o.id === selectedId);
+  const selected = selectedIndex >= 0 ? OBSTACLES[selectedIndex] : null;
 
   const handlePay = (ob: Obstacle) => {
     trackClick({
@@ -255,6 +161,14 @@ export function Escape() {
                 {/* Sky */}
                 <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-amber-50" />
 
+                {/* Golden-hour wash that warms up as the road clears — the closer to
+                    the honeymoon, the closer to sunset. */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-t from-orange-300/40 via-pink-200/15 to-transparent pointer-events-none"
+                  animate={{ opacity: progress }}
+                  transition={{ type: 'spring', stiffness: 40, damping: 16 }}
+                />
+
                 {/* Sun */}
                 <motion.div
                   className="absolute top-[8%] right-[8%]"
@@ -280,21 +194,67 @@ export function Escape() {
                   <Cloud className="w-8 h-8 md:w-10 md:h-10 text-white/70 fill-white/50" />
                 </motion.div>
 
+                {/* Birds */}
+                <motion.div
+                  className="absolute top-[16%] left-0"
+                  animate={{ x: ['0%', '420%'] }}
+                  transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                >
+                  <Bird className="w-4 h-4 md:w-5 md:h-5 text-foreground/30" />
+                </motion.div>
+                <motion.div
+                  className="absolute top-[28%] left-0"
+                  animate={{ x: ['0%', '420%'] }}
+                  transition={{ duration: 28, repeat: Infinity, ease: 'linear', delay: 6 }}
+                >
+                  <Bird className="w-3 h-3 md:w-4 md:h-4 text-foreground/20" />
+                </motion.div>
+
                 {/* Grass */}
                 <div className="absolute left-0 right-0 bottom-0 h-[40%] bg-gradient-to-b from-emerald-300 to-emerald-400" />
 
-                {/* Road */}
-                <div className="absolute left-0 right-0 bottom-[14%] h-[18%] bg-stone-400/90">
-                  <div className="absolute inset-0 flex items-center overflow-hidden">
-                    <motion.div
-                      className="flex gap-8 whitespace-nowrap pl-4"
-                      animate={allClear ? {} : { x: ['0%', '-20%'] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                {/* Trees along the roadside */}
+                <TreePine className="absolute bottom-[36%] left-[7%] w-5 h-5 md:w-7 md:h-7 text-emerald-700/60" />
+                <TreePine className="absolute bottom-[37%] left-[32%] w-4 h-4 md:w-6 md:h-6 text-emerald-700/50" />
+                <TreePine className="absolute bottom-[35%] left-[58%] w-5 h-5 md:w-7 md:h-7 text-emerald-700/60" />
+                <TreePine className="absolute bottom-[37%] left-[78%] w-4 h-4 md:w-6 md:h-6 text-emerald-700/50" />
+
+                {/* "Just Married" sign near the start */}
+                <div className="absolute left-[2%] bottom-[40%] flex flex-col items-center text-foreground/50">
+                  <Signpost className="w-5 h-5 md:w-7 md:h-7" />
+                  <span className="text-[7px] md:text-[9px] tracking-[0.1em] uppercase font-light whitespace-nowrap -mt-1">Just Married</span>
+                </div>
+
+                {/* Mile-marker countdown sign */}
+                <div className="absolute right-[18%] bottom-[40%] flex flex-col items-center text-foreground/50">
+                  <Milestone className="w-5 h-5 md:w-7 md:h-7" />
+                  <span className="text-[7px] md:text-[9px] tracking-[0.1em] uppercase font-light whitespace-nowrap -mt-1">
+                    {OBSTACLES.length - clearedCount} to go
+                  </span>
+                </div>
+
+                {/* Road — a winding dashed line gives it a cartoon "road trip" feel */}
+                <div className="absolute left-0 right-0 bottom-[14%] h-[18%] bg-gradient-to-b from-stone-400 to-stone-500 rounded-full shadow-[inset_0_-4px_8px_rgba(0,0,0,0.15)]">
+                  <div className="absolute inset-0 overflow-hidden rounded-full">
+                    <motion.svg
+                      className="absolute inset-y-0 left-0 h-full"
+                      style={{ width: '200%' }}
+                      viewBox="0 0 200 20"
+                      preserveAspectRatio="none"
+                      animate={allClear ? {} : { x: ['0%', '-50%'] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                     >
-                      {Array.from({ length: 24 }).map((_, i) => (
-                        <div key={i} className="w-10 h-1 rounded-full bg-white/60 shrink-0" />
-                      ))}
-                    </motion.div>
+                      <path
+                        d="M0,10 Q12.5,2 25,10 T50,10 T75,10 T100,10 T125,10 T150,10 T175,10 T200,10"
+                        fill="none"
+                        stroke="white"
+                        strokeOpacity="0.6"
+                        strokeWidth="2"
+                        strokeDasharray="10 8"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </motion.svg>
                   </div>
                 </div>
 
@@ -317,6 +277,7 @@ export function Escape() {
                 {OBSTACLES.map((ob, i) => {
                   const isCleared = !!cleared[ob.id];
                   const pos = obstaclePosition(i);
+                  const theme = OBSTACLE_THEMES[i % OBSTACLE_THEMES.length];
                   if (isCleared) {
                     return (
                       <motion.div
@@ -353,34 +314,53 @@ export function Escape() {
                       transition={{ duration: 2 + (i % 3) * 0.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <div className="w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 border-secondary/60 bg-white shadow-md">
-                        <ob.icon className="w-4 h-4 md:w-6 md:h-6 text-secondary" />
+                      <div className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 ${theme.ring} ${theme.bg} shadow-md`}>
+                        <ob.icon className={`w-4 h-4 md:w-6 md:h-6 ${theme.icon}`} />
                       </div>
-                      <span className="mt-1 text-sm md:text-base leading-none">${ob.price}</span>
+                      <span className="mt-1 text-[10px] md:text-xs leading-none px-1.5 py-0.5 rounded-full bg-white/85 border border-foreground/10 shadow-sm">${ob.price}</span>
                     </motion.button>
                   );
                 })}
 
-                {/* Poof bursts */}
+                {/* Confetti bursts */}
                 <AnimatePresence>
                   {poofs.map(id => {
                     const i = OBSTACLES.findIndex(o => o.id === id);
                     const pos = obstaclePosition(i);
+                    const theme = OBSTACLE_THEMES[i % OBSTACLE_THEMES.length];
                     return (
-                      <motion.div
-                        key={id}
-                        className="absolute bottom-[34%] rounded-full pointer-events-none"
-                        style={{
-                          left: `${pos}%`,
-                          width: 70, height: 70,
-                          marginLeft: -35, marginBottom: -16,
-                          background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%)',
-                        }}
-                        initial={{ scale: 0.3, opacity: 0.9 }}
-                        animate={{ scale: 2, opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
-                      />
+                      <div key={id} className="absolute bottom-[34%] pointer-events-none" style={{ left: `${pos}%` }}>
+                        {/* soft glow */}
+                        <motion.div
+                          className="absolute rounded-full"
+                          style={{
+                            width: 70, height: 70,
+                            marginLeft: -35, marginBottom: -16,
+                            background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%)',
+                          }}
+                          initial={{ scale: 0.3, opacity: 0.9 }}
+                          animate={{ scale: 2, opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                        />
+                        {/* flying confetti dots */}
+                        {CONFETTI_ANGLES.map(angle => {
+                          const rad = (angle * Math.PI) / 180;
+                          const dx = Math.cos(rad) * 46;
+                          const dy = Math.sin(rad) * 46;
+                          return (
+                            <motion.div
+                              key={angle}
+                              className={`absolute w-2 h-2 rounded-full ${theme.dot}`}
+                              style={{ marginLeft: -4, marginBottom: -4 }}
+                              initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+                              animate={{ x: dx, y: dy, scale: 0.3, opacity: 0 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.7, ease: 'easeOut' }}
+                            />
+                          );
+                        })}
+                      </div>
                     );
                   })}
                 </AnimatePresence>
@@ -411,86 +391,96 @@ export function Escape() {
                   </motion.div>
                 </motion.div>
 
-                {/* Selected obstacle popover */}
-                <AnimatePresence>
-                  {selected && (
-                    <motion.div
-                      className="absolute inset-0 bg-black/10 backdrop-blur-[2px] flex items-center justify-center p-4"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      onClick={() => { setSelectedId(null); setPlayingId(null); }}
-                    >
-                      <motion.div
-                        className="relative bg-white rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-sm"
-                        initial={{ scale: 0.85, opacity: 0, y: 10 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => { setSelectedId(null); setPlayingId(null); }}
-                          className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center border-2 border-secondary/60 bg-white shrink-0">
-                            <selected.icon className="w-5 h-5 text-secondary" />
-                          </div>
-                          <div>
-                            <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
-                            <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
-                          </div>
-                        </div>
-
-                        {playingId === selected.id ? (
-                          <DodgeGame obstacle={selected} onSuccess={() => handleClear(selected)} />
-                        ) : (
-                          <>
-                            <Textarea
-                              value={noteDraft}
-                              onChange={e => setNoteDraft(e.target.value)}
-                              placeholder="Leave a snarky note (optional)"
-                              className="text-sm font-light bg-white resize-none mb-3"
-                              rows={2}
-                              maxLength={120}
-                            />
-
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handlePay(selected)}
-                                className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                              >
-                                Pay ${selected.price} with Venmo
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setPlayingId(selected.id);
-                                  trackClick({
-                                    sessionToken: identity?.sessionToken,
-                                    label: 'escape_play_game',
-                                    metadata: { obstacle: selected.id, amount: selected.price },
-                                  });
-                                }}
-                                className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
-                              >
-                                Play to Clear
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </Reveal>
+
+            {/* Selected obstacle popover — rendered outside the road scene so it
+                isn't clipped by the scene's overflow-hidden/aspect-ratio box */}
+            <AnimatePresence>
+              {selected && (
+                <motion.div
+                  className="fixed inset-0 z-50 bg-black/10 backdrop-blur-[2px] flex items-center justify-center p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => { setSelectedId(null); setPlayingId(null); }}
+                >
+                  <motion.div
+                    className="relative bg-white rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-sm data-[playing=true]:max-w-xl transition-[max-width]"
+                    data-playing={playingId === selected.id}
+                    initial={{ scale: 0.85, opacity: 0, y: 10 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedId(null); setPlayingId(null); }}
+                      className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].ring} ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].bg} shrink-0`}>
+                        <selected.icon className={`w-5 h-5 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].icon}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
+                        <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
+                      </div>
+                    </div>
+                    <div className="h-px bg-foreground/10 my-3" />
+
+                    {playingId === selected.id ? (
+                      <JumpGame
+                        mode={MODES[selectedIndex % MODES.length]}
+                        playerIcon={Car}
+                        obstacleIcon={selected.icon}
+                        goal={Math.min(8, Math.max(4, Math.round(selected.price / 8)))}
+                        onSuccess={() => handleClear(selected)}
+                      />
+                    ) : (
+                      <>
+                        <Textarea
+                          value={noteDraft}
+                          onChange={e => setNoteDraft(e.target.value)}
+                          placeholder="Leave a snarky note (optional)"
+                          className="text-sm font-light bg-white resize-none mb-3"
+                          rows={2}
+                          maxLength={120}
+                        />
+
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handlePay(selected)}
+                            className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                          >
+                            Pay ${selected.price} with Venmo
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPlayingId(selected.id);
+                              trackClick({
+                                sessionToken: identity?.sessionToken,
+                                label: 'escape_play_game',
+                                metadata: { obstacle: selected.id, amount: selected.price },
+                              });
+                            }}
+                            className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
+                          >
+                            Play to Clear
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Progress */}
             <Reveal delay={0.15}>

@@ -3,7 +3,9 @@ import { Label } from './ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 import { useGuestIdentity, parseName, type GuestIdentity } from '../context/GuestIdentityContext';
 import { useLang } from '../context/LanguageContext';
-import { sendOtp, verifyOtp, lookupByEmail, createSession } from '../lib/auth';
+import { sendOtp, verifyOtp, lookupByEmail, createSession, reportIssue } from '../lib/auth';
+
+const SUPPORT_EMAIL = 'bellabenbao@gmail.com';
 
 type Step = 'email' | 'code' | 'profile';
 
@@ -27,12 +29,14 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
   const [otpState, setOtpState] = useState<OtpState | null>(null);
+  const [verifyTicket, setVerifyTicket] = useState<{ ticket: string; ticketExpiresAt: number } | null>(null);
   const [code, setCode] = useState('');
   const [lookup, setLookup] = useState<LookupResult | null>(null);
   const [selectedName, setSelectedName] = useState('');
   const [customName, setCustomName] = useState({ title: '', firstName: '', lastName: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [helpSent, setHelpSent] = useState(false);
 
   if (isValidating) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -61,7 +65,8 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
-      await verifyOtp({ email: email.trim().toLowerCase(), code, token: otpState.token, expiresAt: otpState.expiresAt });
+      const verification = await verifyOtp({ email: email.trim().toLowerCase(), code, token: otpState.token, expiresAt: otpState.expiresAt });
+      setVerifyTicket({ ticket: verification.ticket, ticketExpiresAt: verification.ticketExpiresAt });
       const result = await lookupByEmail(email.trim().toLowerCase());
       setLookup(result);
       if (result.found) {
@@ -95,6 +100,11 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
+      if (!verifyTicket) throw new Error('Verification expired. Please request a new code.');
+
+      if (!lookup?.found && (!customName.title || !customName.firstName || !customName.lastName))
+        throw new Error('Please fill in your title, first name, and last name.');
+
       const fullName = lookup?.found
         ? selectedName
         : [customName.title, customName.firstName, customName.lastName].filter(Boolean).join(' ');
@@ -103,7 +113,13 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
         ? parseName(fullName)
         : { title: customName.title, firstName: customName.firstName, lastName: customName.lastName };
 
-      const session = await createSession(email.trim().toLowerCase(), fullName, lang);
+      const session = await createSession(
+        email.trim().toLowerCase(),
+        fullName,
+        lang,
+        verifyTicket.ticket,
+        verifyTicket.ticketExpiresAt,
+      );
       setIdentity({
         email: email.trim().toLowerCase(),
         name: fullName,
@@ -243,15 +259,16 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
                 <div className="space-y-4">
                   <div>
                     <Label className="text-xs tracking-wider uppercase font-light text-foreground/60">
-                      {t.title}
+                      {t.title} *
                     </Label>
                     <select
+                      required
                       value={customName.title}
                       onChange={(e) => setCustomName((p) => ({ ...p, title: e.target.value }))}
                       className="w-full border-b border-foreground/20 focus:border-primary bg-transparent py-2 font-light text-foreground outline-none mt-1"
                     >
                       {TITLES.map((t) => (
-                        <option key={t} value={t}>{t || '—'}</option>
+                        <option key={t} value={t} disabled={t === ''}>{t || '—'}</option>
                       ))}
                     </select>
                   </div>
@@ -268,9 +285,10 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
                   </div>
                   <div>
                     <Label className="text-xs tracking-wider uppercase font-light text-foreground/60">
-                      {t.lastName}
+                      {t.lastName} *
                     </Label>
                     <input
+                      required
                       value={customName.lastName}
                       onChange={(e) => setCustomName((p) => ({ ...p, lastName: e.target.value }))}
                       className="w-full border-b border-foreground/20 focus:border-primary bg-transparent py-2 font-light text-foreground outline-none mt-1"
@@ -322,7 +340,33 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
           </button>
         )}
 
-        <div className="h-px w-16 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto mt-12" />
+        {/* Help section — always visible */}
+        <div className="mt-10 space-y-3">
+          {error && !helpSent && (
+            <button
+              onClick={async () => {
+                await reportIssue({ email, name: selectedName || customName.firstName, issue: error });
+                setHelpSent(true);
+              }}
+              className="w-full text-xs font-light text-foreground/50 hover:text-foreground/80 border border-foreground/10 hover:border-foreground/25 py-2 transition-colors duration-300"
+            >
+              {lang === 'zh' ? '发送帮助请求给我们' : 'Send us a help request'}
+            </button>
+          )}
+          {helpSent && (
+            <p className="text-xs font-light text-foreground/50">
+              {lang === 'zh' ? '已发送！我们会尽快与您联系。' : "We'll be in touch shortly — help request sent."}
+            </p>
+          )}
+          <p className="text-xs font-light text-foreground/30">
+            {lang === 'zh' ? '需要帮助？' : 'Need help?'}{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="underline hover:text-foreground/60 transition-colors">
+              {SUPPORT_EMAIL}
+            </a>
+          </p>
+        </div>
+
+        <div className="h-px w-16 bg-gradient-to-r from-transparent via-secondary to-transparent mx-auto mt-8" />
       </div>
     </div>
   );

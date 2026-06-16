@@ -4,10 +4,13 @@ import cors from 'cors';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import {
   lookupInviteByEmail,
+  lookupInviteByName,
   getInviteByToken,
   lookupInviteByEmailAndName,
   updateInviteRsvp,
   createSession,
+  createUnmatchedSession,
+  getUnmatchedGuests,
   validateSession,
   updateSession,
   logEvent,
@@ -26,6 +29,7 @@ app.use(cors());
 app.use(express.json());
 
 const OTP_TTL_MS = 10 * 60 * 1000;
+const VERIFY_TICKET_TTL_MS = 10 * 60 * 1000;
 const PORT = process.env.PORT || 3000;
 
 // --- Gmail helpers ---
@@ -47,8 +51,9 @@ async function getGmailAccessToken() {
 }
 
 async function sendGmail(accessToken, to, subject, html) {
+  const encodedSubject = `=?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`;
   const raw = Buffer.from(
-    [`To: ${to}`, `From: Yuwei & Ben <bellabenbao@gmail.com>`, `Subject: ${subject}`,
+    [`To: ${to}`, `From: Yuwei & Ben <bellabenbao@gmail.com>`, `Subject: ${encodedSubject}`,
      'MIME-Version: 1.0', 'Content-Type: text/html; charset=UTF-8', '', html].join('\r\n')
   ).toString('base64url');
   const resp = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
@@ -132,7 +137,12 @@ app.post('/verify-otp', (req, res) => {
     if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf))
       return res.status(400).json({ error: 'Incorrect code. Please try again.' });
 
-    res.json({ verified: true });
+    const ticketExpiresAt = Date.now() + VERIFY_TICKET_TTL_MS;
+    const ticket = createHmac('sha256', OTP_SECRET)
+      .update(`verified:${e}:${ticketExpiresAt}`)
+      .digest('hex');
+
+    res.json({ verified: true, ticket, ticketExpiresAt });
   } catch {
     res.status(500).json({ error: 'Verification failed. Please try again.' });
   }
@@ -247,23 +257,49 @@ app.post('/session/create', (req, res) => {
     const email = String(req.body?.email ?? '').trim().toLowerCase();
     const name = String(req.body?.name ?? '').trim();
     const language = req.body?.language === 'zh' ? 'zh' : 'en';
+    const ticket = String(req.body?.ticket ?? '').trim();
+    const ticketExpiresAt = Number(req.body?.ticketExpiresAt);
 
     if (!email) return res.status(400).json({ error: 'Email required.' });
+    if (!ticket || !ticketExpiresAt) return res.status(401).json({ error: 'Verification required.' });
 
-    const invite = lookupInviteByEmail(email);
-    if (!invite) return res.status(404).json({ error: 'No household found for this email.' });
+    const { OTP_SECRET } = process.env;
+    if (!OTP_SECRET) return res.status(500).json({ error: 'Verification service not configured.' });
 
-    const token = createSession(parseInt(invite.id), email, name, language);
+    if (Date.now() > ticketExpiresAt)
+      return res.status(401).json({ error: 'Verification expired. Please request a new code.' });
+
+    const expected = createHmac('sha256', OTP_SECRET).update(`verified:${email}:${ticketExpiresAt}`).digest('hex');
+    const expectedBuf = Buffer.from(expected, 'hex');
+    let actualBuf;
+    try { actualBuf = Buffer.from(ticket, 'hex'); }
+    catch { return res.status(401).json({ error: 'Verification required.' }); }
+
+    if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf))
+      return res.status(401).json({ error: 'Verification required.' });
+
+    let invite = lookupInviteByEmail(email);
+    if (!invite && name) invite = lookupInviteByName(name);
+
+    let token;
+    let eventType;
+    if (invite) {
+      token = createSession(parseInt(invite.id), email, name, language);
+      eventType = 'login';
+    } else {
+      token = createUnmatchedSession(email, name, language);
+      eventType = 'login_unmatched';
+    }
 
     logEvent({
       sessionToken: token,
-      inviteId: parseInt(invite.id),
-      eventType: 'login',
+      inviteId: invite ? parseInt(invite.id) : null,
+      eventType,
       userAgent: req.headers['user-agent'] || null,
-      metadata: { email, name, language },
+      metadata: { email, name, language, matched: !!invite },
     });
 
-    res.json({ token, invite });
+    res.json({ token, invite: invite ?? null });
   } catch (err) {
     console.error('session/create error:', err);
     res.status(500).json({ error: 'Could not create session.' });
@@ -283,6 +319,34 @@ app.get('/session/validate', (req, res) => {
   } catch (err) {
     console.error('session/validate error:', err);
     res.status(500).json({ error: 'Could not validate session.' });
+  }
+});
+
+// POST /report-issue — guest sends a help request; notifies Yuwei & Ben via email
+app.post('/report-issue', async (req, res) => {
+  try {
+    const email = String(req.body?.email ?? '').trim();
+    const name = String(req.body?.name ?? '').trim();
+    const issue = String(req.body?.issue ?? '').trim().slice(0, 500);
+    const { GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN } = process.env;
+    if (GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET && GMAIL_REFRESH_TOKEN) {
+      const accessToken = await getGmailAccessToken();
+      const html = `
+<html><body style="font-family: Georgia, serif; font-size: 15px; color: #2a2a2a; max-width: 480px; margin: auto; padding: 32px 24px;">
+  <h2 style="font-weight: 400; font-size: 18px;">Login help request — baoben.love</h2>
+  <table style="border-collapse: collapse; width: 100%; margin-top: 16px;">
+    <tr><td style="padding: 8px 0; color: #888; width: 100px;">Email</td><td style="padding: 8px 0;">${email || '(not provided)'}</td></tr>
+    <tr><td style="padding: 8px 0; color: #888;">Name</td><td style="padding: 8px 0;">${name || '(not provided)'}</td></tr>
+    <tr><td style="padding: 8px 0; color: #888;">Issue</td><td style="padding: 8px 0;">${issue || '(not specified)'}</td></tr>
+    <tr><td style="padding: 8px 0; color: #888;">Time</td><td style="padding: 8px 0;">${new Date().toISOString()}</td></tr>
+  </table>
+</body></html>`;
+      await sendGmail(accessToken, 'bellabenbao@gmail.com', `Login help — ${name || email || 'guest'}`, html);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('report-issue error:', err);
+    res.json({ ok: true }); // always succeed from guest's perspective
   }
 });
 
@@ -316,6 +380,18 @@ app.post('/events', (req, res) => {
 });
 
 // --- Moonboard ---
+
+// Admin: review guests who logged in but couldn't be matched to a household
+app.get('/admin/unmatched-guests', (req, res) => {
+  try {
+    const secret = req.headers['x-admin-secret'];
+    if (!secret || secret !== process.env.ADMIN_SECRET)
+      return res.status(401).json({ error: 'Unauthorized.' });
+    res.json({ guests: getUnmatchedGuests() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 const MOONBOARD_COLS = 11;
 const MOONBOARD_ROWS = 18;
