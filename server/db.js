@@ -462,6 +462,32 @@ export function clearClimbBoost({ boostId, note }) {
   }
 }
 
+// --- Admin queries ---
+
+export function getAdminStats() {
+  return {
+    households: db.prepare('SELECT COUNT(*) as n FROM invites').get().n,
+    totalGuests: db.prepare('SELECT COALESCE(SUM(max_guests),0) as n FROM invites').get().n,
+    sessions: db.prepare('SELECT COUNT(*) as n FROM sessions').get().n,
+    unmatched: db.prepare('SELECT COUNT(*) as n FROM unmatched_guests').get().n,
+    rsvpYes: db.prepare("SELECT COUNT(*) as n FROM invites WHERE attendance='yes'").get().n,
+    rsvpNo: db.prepare("SELECT COUNT(*) as n FROM invites WHERE attendance='no'").get().n,
+  };
+}
+
+export function getAdminSessions() {
+  return db.prepare('SELECT email, name, language, created_at, last_seen_at FROM sessions ORDER BY created_at DESC').all();
+}
+
+export function getAdminEvents(limit = 100) {
+  return db.prepare('SELECT session_token, event_type, page, metadata, created_at FROM events ORDER BY created_at DESC LIMIT ?').all(limit)
+    .map(r => ({ ...r, metadata: parseJson(r.metadata, {}) }));
+}
+
+export function getAdminRsvps() {
+  return db.prepare("SELECT party_name, attendance, guest_count, dietary_restrictions, song_request, submitted_at FROM invites WHERE attendance != '' ORDER BY submitted_at DESC").all();
+}
+
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {
   db.prepare(`
     INSERT INTO events (session_token, invite_id, event_type, page, referrer, user_agent, metadata, created_at)

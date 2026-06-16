@@ -13,6 +13,7 @@ import { Escape } from "./pages/Escape";
 import { Climb } from "./pages/Climb";
 import { FAQ } from "./pages/FAQ";
 import { ProfilePage } from "./pages/ProfilePage";
+import { AdminDashboard } from "./pages/AdminDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -34,4 +35,5 @@ export const router = createBrowserRouter([
       { path: "profile", Component: ProfilePage },
     ],
   },
+  { path: "/yb-dashboard", Component: AdminDashboard },
 ]);

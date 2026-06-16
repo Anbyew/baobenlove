@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
+import nodemailer from 'nodemailer';
 import {
   lookupInviteByEmail,
   lookupInviteByName,
@@ -11,6 +12,10 @@ import {
   createSession,
   createUnmatchedSession,
   getUnmatchedGuests,
+  getAdminStats,
+  getAdminSessions,
+  getAdminEvents,
+  getAdminRsvps,
   validateSession,
   updateSession,
   logEvent,
@@ -32,39 +37,26 @@ const OTP_TTL_MS = 10 * 60 * 1000;
 const VERIFY_TICKET_TTL_MS = 10 * 60 * 1000;
 const PORT = process.env.PORT || 3000;
 
-// --- Gmail helpers ---
+// --- Email helpers ---
 
-async function getGmailAccessToken() {
-  const resp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.GMAIL_CLIENT_ID,
-      client_secret: process.env.GMAIL_CLIENT_SECRET,
-      refresh_token: process.env.GMAIL_REFRESH_TOKEN,
-      grant_type: 'refresh_token',
-    }),
+function getMailTransport() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER || 'bellabenbao@gmail.com',
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
   });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error_description || 'Token refresh failed');
-  return data.access_token;
 }
 
-async function sendGmail(accessToken, to, subject, html) {
-  const encodedSubject = `=?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`;
-  const raw = Buffer.from(
-    [`To: ${to}`, `From: Yuwei & Ben <bellabenbao@gmail.com>`, `Subject: ${encodedSubject}`,
-     'MIME-Version: 1.0', 'Content-Type: text/html; charset=UTF-8', '', html].join('\r\n')
-  ).toString('base64url');
-  const resp = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ raw }),
+async function sendGmail(to, subject, html) {
+  const transporter = getMailTransport();
+  await transporter.sendMail({
+    from: `"Yuwei & Ben" <${process.env.GMAIL_USER || 'bellabenbao@gmail.com'}>`,
+    to,
+    subject,
+    html,
   });
-  if (!resp.ok) {
-    const err = await resp.json();
-    throw new Error(err.error?.message || 'Failed to send email');
-  }
 }
 
 function buildEmailHtml(code) {
@@ -92,8 +84,8 @@ app.post('/send-otp', async (req, res) => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Please enter a valid email address.' });
 
-    const { GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN, OTP_SECRET } = process.env;
-    if (!GMAIL_CLIENT_ID || !GMAIL_CLIENT_SECRET || !GMAIL_REFRESH_TOKEN || !OTP_SECRET)
+    const { GMAIL_APP_PASSWORD, OTP_SECRET } = process.env;
+    if (!GMAIL_APP_PASSWORD || !OTP_SECRET)
       return res.status(500).json({ error: 'Email service is not configured.' });
 
     const code = String(randomInt(100000, 1000000));
@@ -102,8 +94,7 @@ app.post('/send-otp', async (req, res) => {
       .update(`${email}:${code}:${expiresAt}`)
       .digest('hex');
 
-    const accessToken = await getGmailAccessToken();
-    await sendGmail(accessToken, email, 'Your verification code — baoben.love', buildEmailHtml(code));
+    await sendGmail(email, 'Your verification code — baoben.love', buildEmailHtml(code));
 
     res.json({ token, expiresAt });
   } catch (err) {
@@ -328,9 +319,8 @@ app.post('/report-issue', async (req, res) => {
     const email = String(req.body?.email ?? '').trim();
     const name = String(req.body?.name ?? '').trim();
     const issue = String(req.body?.issue ?? '').trim().slice(0, 500);
-    const { GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN } = process.env;
-    if (GMAIL_CLIENT_ID && GMAIL_CLIENT_SECRET && GMAIL_REFRESH_TOKEN) {
-      const accessToken = await getGmailAccessToken();
+    const { GMAIL_APP_PASSWORD } = process.env;
+    if (GMAIL_APP_PASSWORD) {
       const html = `
 <html><body style="font-family: Georgia, serif; font-size: 15px; color: #2a2a2a; max-width: 480px; margin: auto; padding: 32px 24px;">
   <h2 style="font-weight: 400; font-size: 18px;">Login help request — baoben.love</h2>
@@ -341,7 +331,7 @@ app.post('/report-issue', async (req, res) => {
     <tr><td style="padding: 8px 0; color: #888;">Time</td><td style="padding: 8px 0;">${new Date().toISOString()}</td></tr>
   </table>
 </body></html>`;
-      await sendGmail(accessToken, 'bellabenbao@gmail.com', `Login help — ${name || email || 'guest'}`, html);
+      await sendGmail('bellabenbao@gmail.com', `Login help — ${name || email || 'guest'}`, html);
     }
     res.json({ ok: true });
   } catch (err) {
@@ -381,16 +371,51 @@ app.post('/events', (req, res) => {
 
 // --- Moonboard ---
 
-// Admin: review guests who logged in but couldn't be matched to a household
+// --- Admin endpoints (all require x-admin-secret header) ---
+
+function requireAdmin(req, res) {
+  const secret = req.headers['x-admin-secret'];
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
+    res.status(401).json({ error: 'Unauthorized.' });
+    return false;
+  }
+  return true;
+}
+
+app.get('/admin/stats', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    res.json(getAdminStats());
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/admin/sessions', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    res.json({ sessions: getAdminSessions() });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/admin/unmatched-guests', (req, res) => {
   try {
-    const secret = req.headers['x-admin-secret'];
-    if (!secret || secret !== process.env.ADMIN_SECRET)
-      return res.status(401).json({ error: 'Unauthorized.' });
+    if (!requireAdmin(req, res)) return;
     res.json({ guests: getUnmatchedGuests() });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/admin/events', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    const limit = Math.min(parseInt(req.query.limit || '100'), 500);
+    res.json({ events: getAdminEvents(limit) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/admin/rsvps', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    res.json({ rsvps: getAdminRsvps() });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 const MOONBOARD_COLS = 11;
