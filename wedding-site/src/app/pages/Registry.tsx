@@ -122,12 +122,12 @@ export function Registry() {
                 className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-4"
               >
                 <Car className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />
-                <h3 className="text-xl font-light text-foreground mb-2">Escape the Reception</h3>
+                <h3 className="text-xl font-light text-foreground mb-2">SOS: Ben Can't Dance</h3>
                 <p className="text-sm font-light text-foreground/60 leading-relaxed mb-5">
-                  Help us clear the road to our honeymoon — fund the removal of comedic obstacles, one by one.
+                  The first dance is coming. Send Ben a boost — one comedic disaster at a time.
                 </p>
                 <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary/70 group-hover:text-primary font-light">
-                  Clear the Road
+                  Send a Boost
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>

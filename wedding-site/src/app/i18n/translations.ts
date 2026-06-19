@@ -67,13 +67,13 @@ export const t = {
     receptionTime: '6:00 PM – 11:00 PM',
     receptionDinner: 'Dinner at 7:00 PM',
     receptionVenue: 'Longwood Gardens',
-    receptionAddress: '1001 Longwood Rd, Kennett Square, PA',
+    receptionAddress: '409 Conservatory Road, Kennett Square, PA 19348',
     dressCodeLabel: 'Dress Code',
     dressCodeValue: 'Expressive Garden Formal',
     weatherLabel: 'Weather',
     weatherValue: '60–70°F · Outdoor + Indoor',
     parkingLabel: 'Parking',
-    parkingValue: 'Complimentary',
+    parkingValue: 'West Lot',
     sundayBonusLabel: 'An Extra Day in the Gardens',
     sundayDate: 'Sunday, October 4',
     sundayDateSub: 'Wander the gardens at your leisure',
@@ -125,7 +125,7 @@ export const t = {
     riverfrontDesc: 'Waterfront restaurants, shops, and the lively Christina riverbank',
 
     // RSVP
-    rsvpDeadline: 'Please respond by September 1, 2026',
+    rsvpDeadline: 'Please respond by September 1, 2026 at 11:59 PM AOE (Anywhere on Earth)',
     rsvpThankYou: 'Thank you',
     rsvpReceivedPre: 'Your RSVP for',
     rsvpReceivedPost: "has been received. We can't wait to celebrate with you.",
@@ -158,6 +158,8 @@ export const t = {
     rsvpSaveError: 'We could not save your RSVP. Please try again.',
     rsvpQuestions: 'Questions?',
     rsvpEmailUs: 'Email us',
+    rsvpComingSoonTitle: 'RSVP opens very soon',
+    rsvpComingSoonBody: 'We\'re putting the finishing touches together. You\'ll be able to RSVP right here — we\'ll let you know the moment it\'s ready.',
 
     // Story
     storyTitle: 'Our Story',
@@ -242,7 +244,7 @@ export const t = {
         items: [
           {
             q: 'When is the RSVP deadline?',
-            a: 'Please RSVP by August 1, 2026 so we can finalize our headcount with the venue and caterers.',
+            a: 'Please RSVP by September 1, 2026 at 11:59 PM AOE (Anywhere on Earth) so we can finalize our headcount with the venue and caterers.',
           },
           {
             q: 'Can I bring a plus-one?',
@@ -345,13 +347,13 @@ export const t = {
     receptionTime: '下午6:00 – 晚上11:00',
     receptionDinner: '晚宴于晚上7:00开始',
     receptionVenue: '长木花园',
-    receptionAddress: '1001 Longwood Rd, Kennett Square, PA',
+    receptionAddress: '409 Conservatory Road, Kennett Square, PA 19348',
     dressCodeLabel: '着装要求',
     dressCodeValue: '园林正式礼服',
     weatherLabel: '天气',
     weatherValue: '约15–21°C · 户外+室内',
     parkingLabel: '停车',
-    parkingValue: '免费停车',
+    parkingValue: 'West Lot',
     sundayBonusLabel: '婚礼次日，畅游花园',
     sundayDate: '10月4日，周日',
     sundayDateSub: '悠然漫步，细品花园',
@@ -403,7 +405,7 @@ export const t = {
     riverfrontDesc: '沿河餐厅、商店与热闹的克里斯蒂娜河畔',
 
     // RSVP
-    rsvpDeadline: '请于2026年9月1日前回复',
+    rsvpDeadline: '请于2026年9月1日（AOE国际日期变更线时间，即世界任何地方的11:59 PM）前回复',
     rsvpThankYou: '感谢您的回复',
     rsvpReceivedPre: '已收到',
     rsvpReceivedPost: '的回复。我们迫不及待与您共同庆祝。',
@@ -436,6 +438,8 @@ export const t = {
     rsvpSaveError: '保存回复时出现错误，请重试。',
     rsvpQuestions: '有问题？',
     rsvpEmailUs: '发送邮件联系我们',
+    rsvpComingSoonTitle: '回复通道即将开放',
+    rsvpComingSoonBody: '我们正在做最后的准备。届时您可以直接在这里回复出席情况——一切就绪后我们会第一时间通知您。',
 
     // Story
     storyTitle: '我们的故事',
@@ -520,7 +524,7 @@ export const t = {
         items: [
           {
             q: '回复截止日期是什么时候？',
-            a: '请于2026年8月1日前回复，以便我们与场地及餐饮团队确认最终人数。',
+            a: '请于2026年9月1日（AOE国际日期变更线时间，11:59 PM）前回复，以便我们与场地及餐饮团队确认最终人数。',
           },
           {
             q: '可以携带同伴吗？',

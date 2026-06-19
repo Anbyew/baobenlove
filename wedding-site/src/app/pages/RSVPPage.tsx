@@ -107,199 +107,24 @@ export function RSVPPage() {
         </div>
 
         <div className="max-w-2xl mx-auto px-4 pb-32">
-          <div className="bg-white/85 backdrop-blur-md shadow-2xl shadow-black/5 p-8 md:p-16 rounded-sm">
-            <div className="text-center mb-16 animate-slide-up-delayed-2">
-              <p className="text-sm tracking-wider uppercase text-secondary/70 font-light">
-                {t.rsvpDeadline}
-              </p>
-            </div>
-
-            {submitted && invite ? (
-              <div className="text-center py-16 animate-elegant-fade-in">
-                <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
-                <h3 className="text-3xl font-light text-foreground mb-6">{t.rsvpThankYou}</h3>
-                <p className="text-base font-light text-foreground/80">
-                  {lang === 'zh'
-                    ? <>{t.rsvpReceivedPre} {invite.partyName} {t.rsvpReceivedPost}</>
-                    : <>{t.rsvpReceivedPre} {invite.partyName} {t.rsvpReceivedPost}</>}
-                </p>
-              </div>
-            ) : isLoading ? (
-              <div className="text-center py-16 animate-elegant-fade-in">
-                <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
-                <h3 className="text-2xl font-light text-foreground mb-4">{t.rsvpLoading}</h3>
-                <p className="text-base font-light text-foreground/80">
-                  {t.rsvpLoadingMsg}
-                </p>
-              </div>
-            ) : !invite ? (
-              <div className="text-center py-16 animate-elegant-fade-in">
-                <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
-                <h3 className="text-2xl font-light text-foreground mb-4">
-                  {t.rsvpNotFound}
-                </h3>
-                <p className="text-base font-light text-foreground/80 mb-8">
-                  {error ? error : t.rsvpNotFoundMsg}
-                </p>
-                <p className="text-sm font-light text-foreground/70">
-                  {t.rsvpContactPre}{' '}
-                  <a
-                    href={`mailto:${contactEmail}`}
-                    className="text-primary hover:text-primary/80 transition-colors"
-                  >
-                    {contactEmail}
-                  </a>{' '}
-                  {t.rsvpContactPost}
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-8 animate-slide-up-delayed-3">
-                <div className="space-y-5 border border-foreground/10 bg-white/40 px-5 py-6">
-                  <div>
-                    <p className="text-sm tracking-wider uppercase text-secondary/70 font-light">
-                      {t.rsvpHousehold}
-                    </p>
-                    <h3 className="mt-2 text-2xl font-light text-foreground">{invite.partyName}</h3>
-                  </div>
-                  <div className="grid gap-3 text-sm font-light text-foreground/75 md:grid-cols-2">
-                    <p>
-                      {t.rsvpReservedSeats}: <span className="text-foreground">{invite.maxGuests}</span>
-                    </p>
-                    <p>
-                      {t.rsvpGuests}:{' '}
-                      <span className="text-foreground">
-                        {invite.guestNames.join(', ') || invite.partyName}
-                      </span>
-                    </p>
-                    {invite.primaryEmail && (
-                      <p className="md:col-span-2">
-                        {t.rsvpInvitationEmail}:{' '}
-                        <span className="text-foreground">{invite.primaryEmail}</span>
-                      </p>
-                    )}
-                    {invite.rsvp.submittedAt && (
-                      <p className="md:col-span-2 text-foreground/60">
-                        {t.rsvpLastUpdated} {new Date(invite.rsvp.submittedAt).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <Label className="text-sm tracking-wider uppercase font-light text-foreground/80">
-                    {t.rsvpAttending}
-                  </Label>
-                  <RadioGroup
-                    value={formData.attendance}
-                    onValueChange={(value) => handleChange('attendance', value)}
-                  >
-                    <div className="flex items-center space-x-3 p-5 border border-foreground/10 hover:border-primary/30 transition-colors">
-                      <RadioGroupItem value="yes" id="yes" />
-                      <Label htmlFor="yes" className="font-light flex-1 cursor-pointer">
-                        {t.rsvpAccepts}
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3 p-5 border border-foreground/10 hover:border-primary/30 transition-colors">
-                      <RadioGroupItem value="no" id="no" />
-                      <Label htmlFor="no" className="font-light flex-1 cursor-pointer">
-                        {t.rsvpDeclines}
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {formData.attendance === 'yes' && (
-                  <>
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="guestCount"
-                        className="text-sm tracking-wider uppercase font-light text-foreground/80"
-                      >
-                        {t.rsvpGuestCount}
-                      </Label>
-                      <Input
-                        id="guestCount"
-                        type="number"
-                        min="1"
-                        max={String(invite.maxGuests)}
-                        value={formData.guestCount}
-                        onChange={(e) => handleChange('guestCount', e.target.value)}
-                        className="border-foreground/10 focus:border-primary bg-transparent py-6 font-light"
-                      />
-                      <p className="text-xs font-light text-foreground/70">
-                        {t.rsvpSeatHintPre} {invite.maxGuests}{' '}
-                        {lang === 'zh'
-                          ? t.rsvpSeatHintPost
-                          : invite.maxGuests === 1 ? t.rsvpSeatHintPost : t.rsvpSeatHintPostPlural}.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="dietary"
-                        className="text-sm tracking-wider uppercase font-light text-foreground/80"
-                      >
-                        {t.rsvpDietary}
-                      </Label>
-                      <Textarea
-                        id="dietary"
-                        value={formData.dietaryRestrictions}
-                        onChange={(e) => handleChange('dietaryRestrictions', e.target.value)}
-                        placeholder={t.rsvpDietaryPlaceholder}
-                        rows={4}
-                        className="border-foreground/10 focus:border-primary bg-transparent font-light resize-none"
-                      />
-                    </div>
-
-                    <div className="space-y-3">
-                      <Label
-                        htmlFor="songRequest"
-                        className="text-sm tracking-wider uppercase font-light text-foreground/80"
-                      >
-                        {t.rsvpSongRequest}
-                      </Label>
-                      <Input
-                        id="songRequest"
-                        value={formData.songRequest}
-                        onChange={(e) => handleChange('songRequest', e.target.value)}
-                        placeholder={t.rsvpSongPlaceholder}
-                        className="border-foreground/10 focus:border-primary bg-transparent py-6 font-light"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {submitError && (
-                  <p className="text-sm text-destructive font-light">{submitError}</p>
-                )}
-
-                <div className="pt-8">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-primary hover:bg-primary/90 text-white py-6 text-sm tracking-widest uppercase font-light transition-all duration-300"
-                  >
-                    {isSubmitting
-                      ? t.rsvpSaving
-                      : invite.rsvp.submittedAt
-                        ? t.rsvpUpdate
-                        : t.rsvpSubmit}
-                  </Button>
-                </div>
-              </form>
-            )}
-
-            <div className="mt-16 text-center">
-              <p className="text-sm font-light text-foreground/70">
-                {t.rsvpQuestions}{' '}
-                <a
-                  href={`mailto:${contactEmail}`}
-                  className="text-primary hover:text-primary/80 transition-colors"
-                >
-                  {t.rsvpEmailUs}
-                </a>
-              </p>
-            </div>
+          <div className="bg-white/85 backdrop-blur-md shadow-2xl shadow-black/5 p-8 md:p-16 rounded-sm text-center animate-elegant-fade-in">
+            <div className="h-px w-12 bg-primary/30 mx-auto mb-12" />
+            <h3 className="text-2xl font-light text-foreground mb-6 tracking-wide">
+              {t.rsvpComingSoonTitle}
+            </h3>
+            <p className="text-base font-light text-foreground/70 leading-relaxed max-w-sm mx-auto mb-12">
+              {t.rsvpComingSoonBody}
+            </p>
+            <div className="h-px w-12 bg-secondary/40 mx-auto mb-12" />
+            <p className="text-sm font-light text-foreground/50">
+              {t.rsvpQuestions}{' '}
+              <a
+                href={`mailto:${contactEmail}`}
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                {t.rsvpEmailUs}
+              </a>
+            </p>
           </div>
         </div>
       </div>

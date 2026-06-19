@@ -167,3 +167,51 @@ export async function saveGarden(token: string, items: GardenItem[]): Promise<vo
   });
   await parseJson(response);
 }
+
+export interface GardenSession {
+  id: number;
+  session_number: number;
+  items: GardenItem[];
+  started_at: string;
+  archived_at: string;
+}
+
+export async function getGardenSessions(token: string): Promise<GardenSession[]> {
+  const response = await fetch(`${API_BASE}/garden/sessions?token=${encodeURIComponent(token)}`);
+  const data = await parseJson(response);
+  return data.sessions ?? [];
+}
+
+export async function resetGarden(token: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/garden/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  await parseJson(response);
+}
+
+export interface EscapeObstacleRecord { id: string; note: string; clearedAt: string; amount: number; }
+export interface EscapeSession {
+  id: number;
+  session_number: number;
+  obstacles: EscapeObstacleRecord[];
+  started_at: string;
+  archived_at: string;
+  total_raised: number;
+}
+
+export async function getEscapeSessions(): Promise<EscapeSession[]> {
+  const response = await fetch(`${API_BASE}/escape/sessions`);
+  const data = await parseJson(response);
+  return data.sessions ?? [];
+}
+
+export async function resetEscape(token: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/escape/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  await parseJson(response);
+}

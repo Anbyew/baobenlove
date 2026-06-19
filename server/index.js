@@ -16,6 +16,7 @@ import {
   getAdminSessions,
   getAdminEvents,
   getAdminRsvps,
+  getAdminHouseholds,
   validateSession,
   updateSession,
   logEvent,
@@ -23,8 +24,12 @@ import {
   placeMoonboardHold,
   getGardenItems,
   setGardenItems,
+  archiveGarden,
+  getGardenSessions,
   getEscapeCleared,
   clearEscapeObstacle,
+  archiveEscape,
+  getEscapeSessions,
   getClimbCleared,
   clearClimbBoost,
 } from './db.js';
@@ -418,6 +423,13 @@ app.get('/admin/rsvps', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/admin/households', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    res.json({ households: getAdminHouseholds() });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const MOONBOARD_COLS = 11;
 const MOONBOARD_ROWS = 18;
 const MOONBOARD_SHAPES = ['jug', 'crimp', 'sloper', 'pinch', 'pocket'];
@@ -507,9 +519,53 @@ app.post('/garden', (req, res) => {
   }
 });
 
+app.get('/garden/sessions', (req, res) => {
+  try {
+    const token = String(req.query.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+    res.json({ sessions: getGardenSessions(parseInt(session.invite.id)) });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load garden sessions.' });
+  }
+});
+
+app.post('/garden/reset', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+    const sessionNumber = archiveGarden(parseInt(session.invite.id));
+    res.json({ ok: true, archivedSession: sessionNumber });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not reset garden.' });
+  }
+});
+
 // --- Escape the Reception ---
 
-const ESCAPE_OBSTACLE_IDS = ['uber', 'inlaws', 'passport', 'dj', 'tire', 'photographer', 'toast', 'bouquet'];
+const ESCAPE_OBSTACLE_IDS = ['tutorial', 'toes', 'warmup', 'crowd', 'dip', 'mom', 'spin', 'encore'];
+
+app.get('/escape/sessions', (req, res) => {
+  try {
+    res.json({ sessions: getEscapeSessions() });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load escape sessions.' });
+  }
+});
+
+app.post('/escape/reset', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session) return res.status(401).json({ error: 'Please log in first.' });
+    const sessionNumber = archiveEscape();
+    logEvent({ sessionToken: token, inviteId: session.invite?.id || null, eventType: 'click', page: '/escape', metadata: JSON.stringify({ label: 'escape_reset', newSession: (sessionNumber || 0) + 1 }) });
+    res.json({ ok: true, archivedSession: sessionNumber });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not reset escape.' });
+  }
+});
 
 app.get('/escape', (req, res) => {
   try {

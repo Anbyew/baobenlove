@@ -66,6 +66,24 @@ db.exec(`
     cleared_at  TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS garden_sessions (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    invite_id      INTEGER NOT NULL REFERENCES invites(id),
+    session_number INTEGER NOT NULL,
+    items          TEXT NOT NULL DEFAULT '[]',
+    started_at     TEXT NOT NULL,
+    archived_at    TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS escape_sessions (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_number INTEGER NOT NULL,
+    obstacles      TEXT NOT NULL DEFAULT '[]',
+    started_at     TEXT NOT NULL,
+    archived_at    TEXT NOT NULL,
+    total_raised   INTEGER NOT NULL DEFAULT 0
+  );
+
   CREATE TABLE IF NOT EXISTS climb_state (
     boost_id   TEXT PRIMARY KEY,
     note       TEXT DEFAULT '',
@@ -314,7 +332,15 @@ export function createUnmatchedSession(email, name, language = 'en') {
 }
 
 export function getUnmatchedGuests() {
-  return db.prepare('SELECT * FROM unmatched_guests ORDER BY created_at DESC').all();
+  // Exclude emails that have since been added to the invite list
+  return db.prepare(`
+    SELECT ug.* FROM unmatched_guests ug
+    WHERE NOT EXISTS (
+      SELECT 1 FROM invites i, json_each(i.emails) je
+      WHERE LOWER(je.value) = LOWER(ug.email)
+    )
+    ORDER BY ug.created_at DESC
+  `).all();
 }
 
 export function validateSession(token) {
@@ -412,6 +438,28 @@ export function setGardenItems(inviteId, items) {
   `).run(inviteId, JSON.stringify(items), new Date().toISOString());
 }
 
+// --- Garden sessions ---
+
+export function archiveGarden(inviteId) {
+  const now = new Date().toISOString();
+  const current = db.prepare('SELECT items, updated_at FROM garden_state WHERE invite_id = ?').get(inviteId);
+  if (!current) return null;
+  const items = parseJson(current.items, []);
+  if (!items.length) return null;
+  const sessionNumber = (db.prepare('SELECT COUNT(*) as n FROM garden_sessions WHERE invite_id = ?').get(inviteId).n) + 1;
+  db.prepare(`
+    INSERT INTO garden_sessions (invite_id, session_number, items, started_at, archived_at)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(inviteId, sessionNumber, current.items, current.updated_at, now);
+  db.prepare('DELETE FROM garden_state WHERE invite_id = ?').run(inviteId);
+  return sessionNumber;
+}
+
+export function getGardenSessions(inviteId) {
+  return db.prepare('SELECT id, session_number, items, started_at, archived_at FROM garden_sessions WHERE invite_id = ? ORDER BY session_number DESC').all(inviteId)
+    .map(r => ({ ...r, items: parseJson(r.items, []) }));
+}
+
 // --- Escape the Reception ---
 
 export function getEscapeCleared() {
@@ -435,6 +483,36 @@ export function clearEscapeObstacle({ obstacleId, note }) {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
     throw err;
   }
+}
+
+// --- Escape sessions ---
+
+const ESCAPE_PRICES = { tutorial: 20, toes: 25, warmup: 30, crowd: 25, dip: 40, mom: 30, spin: 35, encore: 50 };
+
+export function archiveEscape() {
+  const now = new Date().toISOString();
+  const rows = db.prepare('SELECT obstacle_id, note, cleared_at FROM escape_state ORDER BY cleared_at ASC').all();
+  if (!rows.length) return null;
+  const obstacles = rows.map(r => ({
+    id: r.obstacle_id,
+    note: r.note || '',
+    clearedAt: r.cleared_at,
+    amount: ESCAPE_PRICES[r.obstacle_id] || 0,
+  }));
+  const totalRaised = obstacles.reduce((sum, o) => sum + o.amount, 0);
+  const startedAt = rows[0].cleared_at;
+  const sessionNumber = (db.prepare('SELECT COUNT(*) as n FROM escape_sessions').get().n) + 1;
+  db.prepare(`
+    INSERT INTO escape_sessions (session_number, obstacles, started_at, archived_at, total_raised)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(sessionNumber, JSON.stringify(obstacles), startedAt, now, totalRaised);
+  db.prepare('DELETE FROM escape_state').run();
+  return sessionNumber;
+}
+
+export function getEscapeSessions() {
+  return db.prepare('SELECT id, session_number, obstacles, started_at, archived_at, total_raised FROM escape_sessions ORDER BY session_number DESC').all()
+    .map(r => ({ ...r, obstacles: parseJson(r.obstacles, []) }));
 }
 
 // --- Drag Ben Up the Mountain ---
@@ -469,7 +547,7 @@ export function getAdminStats() {
     households: db.prepare('SELECT COUNT(*) as n FROM invites').get().n,
     totalGuests: db.prepare('SELECT COALESCE(SUM(max_guests),0) as n FROM invites').get().n,
     sessions: db.prepare('SELECT COUNT(*) as n FROM sessions').get().n,
-    unmatched: db.prepare('SELECT COUNT(*) as n FROM unmatched_guests').get().n,
+    unmatched: db.prepare(`SELECT COUNT(*) as n FROM unmatched_guests ug WHERE NOT EXISTS (SELECT 1 FROM invites i, json_each(i.emails) je WHERE LOWER(je.value) = LOWER(ug.email))`).get().n,
     rsvpYes: db.prepare("SELECT COUNT(*) as n FROM invites WHERE attendance='yes'").get().n,
     rsvpNo: db.prepare("SELECT COUNT(*) as n FROM invites WHERE attendance='no'").get().n,
   };
@@ -486,6 +564,44 @@ export function getAdminEvents(limit = 100) {
 
 export function getAdminRsvps() {
   return db.prepare("SELECT party_name, attendance, guest_count, dietary_restrictions, song_request, submitted_at FROM invites WHERE attendance != '' ORDER BY submitted_at DESC").all();
+}
+
+export function getAdminHouseholds() {
+  const invites = db.prepare('SELECT * FROM invites ORDER BY party_name ASC').all();
+  const sessions = db.prepare('SELECT invite_id, email, name, language, created_at, last_seen_at FROM sessions ORDER BY created_at DESC').all();
+  const gardens = db.prepare('SELECT invite_id, items, updated_at FROM garden_state').all();
+  const events = db.prepare(
+    "SELECT invite_id, event_type, page, metadata, created_at FROM events WHERE event_type IN ('click','login','login_unmatched') ORDER BY created_at DESC"
+  ).all().map(r => ({ ...r, metadata: parseJson(r.metadata, {}) }));
+
+  return invites.map(inv => {
+    const invSessions = sessions.filter(s => s.invite_id === inv.id);
+    const garden = gardens.find(g => g.invite_id === inv.id);
+    const invEvents = events.filter(e => e.invite_id === inv.id);
+    const gardenItems = parseJson(garden?.items, []);
+    const gardenValue = gardenItems.reduce((sum, it) => {
+      const prices = { sunflower: 15, rose: 20, tulip: 10, daisy: 8, lavender: 12, fern: 10, orchid: 25 };
+      return sum + (prices[it.plantType] || 10);
+    }, 0);
+    return {
+      id: inv.id,
+      party_name: inv.party_name,
+      informal_name: inv.informal_name,
+      affiliation: inv.affiliation,
+      max_guests: inv.max_guests,
+      attendance: inv.attendance,
+      guest_count: inv.guest_count,
+      dietary_restrictions: inv.dietary_restrictions,
+      song_request: inv.song_request,
+      submitted_at: inv.submitted_at,
+      emails: parseJson(inv.emails, []),
+      sessions: invSessions,
+      garden: { items: gardenItems, value: gardenValue, updatedAt: garden?.updated_at || null },
+      recentEvents: invEvents.slice(0, 20),
+      lastSeen: invSessions[0]?.last_seen_at || invSessions[0]?.created_at || null,
+      hasLoggedIn: invSessions.length > 0,
+    };
+  });
 }
 
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {

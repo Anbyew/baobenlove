@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Car, PartyPopper, Luggage, Music, Disc, Camera, Mic2, Flower2, Flag, Sparkles, Cloud, Sun, Tent, Palmtree, X, Check, TreePine, Signpost, Bird, Milestone } from 'lucide-react';
+import { motion, AnimatePresence, useAnimationControls } from 'motion/react';
+import { Car, PartyPopper, Music, Disc, Mic2, Eye, PlayCircle, Zap, Flag, Sparkles, X, Check } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { JumpGame, MODES } from '../components/JumpGame';
-import { Textarea } from '../components/ui/textarea';
 import { openVenmo } from '../lib/venmo';
-import { trackClick } from '../lib/auth';
+import { trackClick, resetEscape, getEscapeSessions, type EscapeSession } from '../lib/auth';
 import { fetchEscapeCleared, clearEscapeObstacle, type EscapeClearedState } from '../lib/escape';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 
@@ -17,41 +16,148 @@ interface Obstacle {
   label: string;
   caption: string;
   price: number;
+  image: string;
 }
 
 const OBSTACLES: Obstacle[] = [
-  { id: 'uber', icon: Car, label: 'The Uber That\'s "3 Minutes Away"', caption: '...for the last 45 minutes. We believe in it.', price: 20 },
-  { id: 'inlaws', icon: PartyPopper, label: 'In-Laws Reloading Confetti Cannons', caption: 'Round two is loading.', price: 30 },
-  { id: 'passport', icon: Luggage, label: 'Forgotten Passport Run', caption: "It's in the other car. The one in Michigan.", price: 50 },
-  { id: 'dj', icon: Music, label: 'DJ: "One More Song!"', caption: 'Third encore of the Cha Cha Slide.', price: 30 },
-  { id: 'tire', icon: Disc, label: 'Flat Tire on the Getaway Car', caption: 'Of course. Of course it is.', price: 40 },
-  { id: 'photographer', icon: Camera, label: '"Just One More Pose!"', caption: 'Group photo #47 — everyone squeeze in.', price: 25 },
-  { id: 'toast', icon: Mic2, label: "The Toast That Won't End", caption: 'Uncle Steve still has the mic.', price: 35 },
-  { id: 'bouquet', icon: Flower2, label: 'Bouquet Toss, Take 3', caption: "Someone definitely wasn't ready.", price: 25 },
+  { id: 'tutorial', icon: PlayCircle, label: '47 YouTube Tutorials Later',        caption: 'Not one of them helped. Not one.',                               price: 20, image: '/AI/BenDance/youtube.png'  },
+  { id: 'toes',    icon: Zap,         label: "Yuwei's Toes",                      caption: 'She has signed a liability waiver. We asked her to.',            price: 25, image: '/AI/BenDance/steptoe.png'  },
+  { id: 'warmup',  icon: Music,       label: 'The Pre-Dance Pep Talk',            caption: 'Ben needs to hear it from literally anyone other than himself.', price: 30, image: '/AI/BenDance/prepTalk.png' },
+  { id: 'crowd',   icon: Eye,         label: '200 People Are Watching',           caption: "Ben's face has temporarily stopped working.",                    price: 25, image: '/AI/BenDance/200ppl.png'   },
+  { id: 'dip',     icon: Sparkles,    label: 'The Dip',                           caption: "Yuwei's safety is technically in your hands. No pressure.",     price: 40, image: '/AI/BenDance/dip.png'      },
+  { id: 'mom',     icon: PartyPopper, label: 'Mom Is Already on the Dance Floor', caption: 'There is no stopping her now.',                                  price: 30, image: '/AI/BenDance/mom.png'      },
+  { id: 'spin',    icon: Disc,        label: "Someone Yelled 'Do the Thing!'",    caption: 'There is no thing. Ben must invent one on the spot.',            price: 35, image: '/AI/BenDance/theThing.png' },
+  { id: 'encore',  icon: Mic2,        label: 'Yuwei Wants an Encore',             caption: "Ben's knees have filed a formal complaint.",                    price: 50, image: '/AI/BenDance/encore.png'   },
 ];
 
-// Spread obstacles evenly along the road
-function obstaclePosition(i: number) {
-  const start = 12;
-  const end = 88;
-  return start + (i / (OBSTACLES.length - 1)) * (end - start);
+// ring/bg/icon kept for the popover; glow + dot used for bubble & confetti
+const OBSTACLE_THEMES = [
+  { ring: 'border-sky-300',     bg: 'bg-sky-50',     icon: 'text-sky-500',     dot: 'bg-sky-300',     glow: 'rgba(125,211,252,0.55)'  },
+  { ring: 'border-rose-300',    bg: 'bg-rose-50',    icon: 'text-rose-500',    dot: 'bg-rose-300',    glow: 'rgba(251,113,133,0.55)'  },
+  { ring: 'border-amber-300',   bg: 'bg-amber-50',   icon: 'text-amber-500',   dot: 'bg-amber-300',   glow: 'rgba(252,211,77,0.55)'   },
+  { ring: 'border-emerald-300', bg: 'bg-emerald-50', icon: 'text-emerald-500', dot: 'bg-emerald-300', glow: 'rgba(52,211,153,0.55)'   },
+  { ring: 'border-violet-300',  bg: 'bg-violet-50',  icon: 'text-violet-500',  dot: 'bg-violet-300',  glow: 'rgba(167,139,250,0.55)'  },
+  { ring: 'border-orange-300',  bg: 'bg-orange-50',  icon: 'text-orange-500',  dot: 'bg-orange-300',  glow: 'rgba(251,146,60,0.55)'   },
+  { ring: 'border-pink-300',    bg: 'bg-pink-50',    icon: 'text-pink-500',    dot: 'bg-pink-300',    glow: 'rgba(249,168,212,0.55)'  },
+  { ring: 'border-teal-300',    bg: 'bg-teal-50',    icon: 'text-teal-500',    dot: 'bg-teal-300',    glow: 'rgba(94,234,212,0.55)'   },
+];
+
+const CONFETTI_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+// rangeX/rangeY: max pixel displacement from base position in each direction.
+// Edge-adjacent bubbles (pos 4, 6) get smaller ranges to avoid overflow-hidden clipping.
+const OBSTACLE_POSITIONS = [
+  { left: '16%', top: '22%', size: 'w-20 h-20 md:w-24 md:h-24', icon: 'w-7 h-7 md:w-8 md:h-8', rotate: -9,  rangeX: 65, rangeY: 45 },
+  { left: '33%', top: '17%', size: 'w-16 h-16 md:w-20 md:h-20', icon: 'w-6 h-6 md:w-7 md:h-7', rotate:  7,  rangeX: 85, rangeY: 55 },
+  { left: '54%', top: '20%', size: 'w-24 h-24 md:w-28 md:h-28', icon: 'w-9 h-9 md:w-10 md:h-10',rotate: -4,  rangeX: 70, rangeY: 45 },
+  { left: '74%', top: '18%', size: 'w-16 h-16 md:w-20 md:h-20', icon: 'w-6 h-6 md:w-7 md:h-7', rotate: 12,  rangeX: 75, rangeY: 50 },
+  { left: '86%', top: '22%', size: 'w-20 h-20 md:w-24 md:h-24', icon: 'w-7 h-7 md:w-8 md:h-8', rotate: -6,  rangeX: 50, rangeY: 45 },
+  { left: '18%', top: '68%', size: 'w-20 h-20 md:w-24 md:h-24', icon: 'w-7 h-7 md:w-8 md:h-8', rotate:  5,  rangeX: 65, rangeY: 40 },
+  { left: '44%', top: '72%', size: 'w-24 h-24 md:w-28 md:h-28', icon: 'w-9 h-9 md:w-10 md:h-10',rotate: -8,  rangeX: 60, rangeY: 32 },
+  { left: '67%', top: '67%', size: 'w-16 h-16 md:w-20 md:h-20', icon: 'w-6 h-6 md:w-7 md:h-7', rotate:  8,  rangeX: 80, rangeY: 45 },
+];
+
+// ─── Wandering Bubble ─────────────────────────────────────────────────────────
+// Each bubble picks a new random destination inside its allowed range and glides
+// there, then picks another — giving genuine free-floating instead of looping oscillation.
+
+interface BubbleObstacleProps {
+  ob: Obstacle;
+  i: number;
+  isCleared: boolean;
+  theme: typeof OBSTACLE_THEMES[0];
+  pos: typeof OBSTACLE_POSITIONS[0];
+  sessionToken: string | undefined;
+  onSelect: (id: string) => void;
 }
 
-// A theme per obstacle so each marker, badge, and popover gets its own personality.
-// Classes are written out in full (not built from a variable) so Tailwind picks them up.
-const OBSTACLE_THEMES = [
-  { ring: 'border-sky-300', icon: 'text-sky-500', bg: 'bg-sky-50', dot: 'bg-sky-400' },
-  { ring: 'border-rose-300', icon: 'text-rose-500', bg: 'bg-rose-50', dot: 'bg-rose-400' },
-  { ring: 'border-amber-300', icon: 'text-amber-500', bg: 'bg-amber-50', dot: 'bg-amber-400' },
-  { ring: 'border-emerald-300', icon: 'text-emerald-500', bg: 'bg-emerald-50', dot: 'bg-emerald-400' },
-  { ring: 'border-violet-300', icon: 'text-violet-500', bg: 'bg-violet-50', dot: 'bg-violet-400' },
-  { ring: 'border-orange-300', icon: 'text-orange-500', bg: 'bg-orange-50', dot: 'bg-orange-400' },
-  { ring: 'border-pink-300', icon: 'text-pink-500', bg: 'bg-pink-50', dot: 'bg-pink-400' },
-  { ring: 'border-teal-300', icon: 'text-teal-500', bg: 'bg-teal-50', dot: 'bg-teal-400' },
-];
+function BubbleObstacle({ ob, i, isCleared, theme, pos, sessionToken, onSelect }: BubbleObstacleProps) {
+  const controls = useAnimationControls();
 
-// Confetti burst directions for the "cleared!" effect
-const CONFETTI_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+  useEffect(() => {
+    let active = true;
+    const rand = (r: number) => (Math.random() * 2 - 1) * r;
+
+    (async () => {
+      if (isCleared) {
+        // Fade in first, staggered by index
+        await controls.start({
+          scale: 1, opacity: 1,
+          transition: { duration: 0.45, ease: 'easeOut', delay: i * 0.1 },
+        });
+      } else {
+        // Stagger first move so all bubbles don't drift simultaneously
+        await new Promise<void>(res => setTimeout(res, i * 280 + Math.random() * 450));
+      }
+      while (active) {
+        const dur = 3.8 + Math.random() * 4.2;
+        try {
+          await controls.start({
+            x: rand(pos.rangeX),
+            y: rand(pos.rangeY),
+            transition: { duration: dur, ease: 'easeInOut' },
+          });
+        } catch { break; }
+      }
+    })();
+
+    return () => { active = false; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const baseStyle: React.CSSProperties = {
+    left: pos.left, top: pos.top,
+    rotate: `${pos.rotate}deg`,
+    translateX: '-50%', translateY: '-50%',
+  };
+
+  if (isCleared) {
+    return (
+      <motion.div
+        className={`absolute ${pos.size} rounded-full flex items-center justify-center overflow-hidden`}
+        style={{
+          ...baseStyle,
+          background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+          border: '1px solid rgba(255,255,255,0.12)',
+        }}
+        initial={{ scale: 1.2, opacity: 0 }}
+        animate={controls}
+      >
+        <Check className="w-5 h-5 md:w-6 md:h-6 text-white/25" />
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.button
+      type="button"
+      onClick={() => {
+        onSelect(ob.id);
+        trackClick({ sessionToken, label: 'escape_view_obstacle', metadata: { obstacle: ob.id, amount: ob.price } });
+      }}
+      className={`absolute ${pos.size} rounded-full flex items-center justify-center cursor-pointer overflow-hidden`}
+      style={{
+        ...baseStyle,
+        background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.22), rgba(255,255,255,0.05))',
+        border: '1px solid rgba(255,255,255,0.28)',
+        boxShadow: `0 8px 40px rgba(0,0,0,0.2), 0 0 35px ${theme.glow}, inset 0 1px 0 rgba(255,255,255,0.45)`,
+        backdropFilter: 'blur(6px)',
+      }}
+      animate={controls}
+      whileTap={{ scale: 0.88 }}
+    >
+      <div className="absolute top-[12%] left-[18%] w-[38%] h-[22%] rounded-full bg-white/50 blur-[3px] pointer-events-none" />
+      <ob.icon className={`relative z-10 ${pos.icon} text-white/85 drop-shadow`} />
+    </motion.button>
+  );
+}
+
+function benEmoji(clearedCount: number, allClear: boolean) {
+  if (allClear) return '🕺';
+  if (clearedCount >= 6) return '😄';
+  if (clearedCount >= 4) return '🙂';
+  if (clearedCount >= 2) return '😐';
+  return '😰';
+}
 
 // ─── Main Page ────────────────────────────────────────────────────────────
 
@@ -60,18 +166,37 @@ export function Escape() {
   const [cleared, setCleared] = useState<EscapeClearedState>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [noteDraft, setNoteDraft] = useState('');
   const [poofs, setPoofs] = useState<string[]>([]);
+  const [myClearances, setMyClearances] = useState<Set<string>>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('baoben_dance_clearances') || '[]');
+      return new Set(Array.isArray(stored) ? stored : []);
+    } catch { return new Set(); }
+  });
+
+  const [sessions, setSessions] = useState<EscapeSession[]>([]);
 
   useEffect(() => {
     fetchEscapeCleared().then(setCleared).catch(() => {});
+    getEscapeSessions().then(setSessions).catch(() => {});
   }, []);
+
+  const handleReset = async () => {
+    if (!identity?.sessionToken) return;
+    if (!confirm('Start a new round? The current round will be saved to history and the road resets for everyone.')) return;
+    try {
+      await resetEscape(identity.sessionToken);
+      const [newSessions] = await Promise.all([getEscapeSessions(), fetchEscapeCleared().then(setCleared)]);
+      setSessions(newSessions);
+    } catch {
+      alert('Could not reset. Please try again.');
+    }
+  };
 
   const clearedCount = Object.keys(cleared).length;
   const progress = clearedCount / OBSTACLES.length;
   const allClear = clearedCount === OBSTACLES.length;
 
-  const carLeft = 5 + progress * 84; // %
   const selectedIndex = OBSTACLES.findIndex(o => o.id === selectedId);
   const selected = selectedIndex >= 0 ? OBSTACLES[selectedIndex] : null;
 
@@ -81,17 +206,15 @@ export function Escape() {
       label: 'escape_pay_venmo',
       metadata: { obstacle: ob.id, amount: ob.price },
     });
-    openVenmo(ob.price, `Krakoff Wedding -- Escape the Reception: ${ob.label} ($${ob.price})`);
+    openVenmo(ob.price, `Krakoff Wedding -- SOS: Ben Can't Dance: ${ob.label} ($${ob.price})`);
   };
 
   const handleClear = async (ob: Obstacle) => {
-    const note = noteDraft.trim();
     setSelectedId(null);
     setPlayingId(null);
-    setNoteDraft('');
 
     try {
-      const next = await clearEscapeObstacle(ob.id, note);
+      const next = await clearEscapeObstacle(ob.id, '');
       setCleared(next);
     } catch {
       return;
@@ -100,7 +223,14 @@ export function Escape() {
     trackClick({
       sessionToken: identity?.sessionToken,
       label: 'escape_clear_obstacle',
-      metadata: { obstacle: ob.id, amount: ob.price, note },
+      metadata: { obstacle: ob.id, amount: ob.price },
+    });
+
+    setMyClearances(prev => {
+      const next = new Set(prev);
+      next.add(ob.id);
+      try { localStorage.setItem('baoben_dance_clearances', JSON.stringify([...next])); } catch {}
+      return next;
     });
 
     setPoofs(prev => [...prev, ob.id]);
@@ -134,7 +264,7 @@ export function Escape() {
                   transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <h1 className="text-5xl md:text-7xl font-light text-foreground tracking-tight">
-                    Escape the Reception
+                    SOS: Ben Can't Dance
                   </h1>
                 </motion.div>
               </div>
@@ -144,7 +274,7 @@ export function Escape() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                Tap an obstacle, then tap fast to clear our path
+                The first dance is 20 minutes away. Send a boost. Save the evening.
               </motion.p>
             </div>
           </div>
@@ -154,209 +284,118 @@ export function Escape() {
         <div className="max-w-5xl mx-auto px-4 pb-32">
           <div className="bg-white/85 backdrop-blur-md shadow-2xl shadow-black/5 p-6 md:p-10 rounded-sm">
 
-            {/* The Road */}
+            {/* Dance Floor Scene */}
             <Reveal delay={0.1}>
-              <div className="relative w-full rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.15)]" style={{ aspectRatio: '1000 / 460' }}>
+              <div className="relative w-full rounded-2xl overflow-hidden" style={{ aspectRatio: '1000 / 460' }}>
 
-                {/* Sky */}
-                <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-amber-50" />
+                {/* Dark dance floor */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-800 via-slate-900 to-black" />
+                <img src="/AI/BenDance/cantDance.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
 
-                {/* Golden-hour wash that warms up as the road clears — the closer to
-                    the honeymoon, the closer to sunset. */}
+                {/* Floor tile grid */}
+                <div
+                  className="absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
+                    backgroundSize: '60px 60px',
+                  }}
+                />
+
+                {/* Dance illustration — black background knocks out via screen blend on dark scene */}
+                <img
+                  src="/AI/dance.png"
+                  alt=""
+                  className="absolute right-0 bottom-0 h-full object-contain object-right-bottom opacity-60 pointer-events-none select-none"
+                  style={{ mixBlendMode: 'screen' }}
+                />
+
+                {/* Spotlight — brightens as confidence rises */}
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-t from-orange-300/40 via-pink-200/15 to-transparent pointer-events-none"
-                  animate={{ opacity: progress }}
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 110%, rgba(120,183,208,0.45), transparent 70%)' }}
+                  animate={{ opacity: 0.25 + progress * 0.75 }}
                   transition={{ type: 'spring', stiffness: 40, damping: 16 }}
                 />
 
-                {/* Sun */}
-                <motion.div
-                  className="absolute top-[8%] right-[8%]"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-                >
-                  <Sun className="w-10 h-10 md:w-14 md:h-14 text-amber-300" />
-                </motion.div>
-
-                {/* Clouds */}
-                <motion.div
-                  className="absolute top-[12%] left-[10%]"
-                  animate={{ x: [0, 24, 0] }}
-                  transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <Cloud className="w-10 h-10 md:w-14 md:h-14 text-white/80 fill-white/60" />
-                </motion.div>
-                <motion.div
-                  className="absolute top-[22%] left-[45%]"
-                  animate={{ x: [0, -20, 0] }}
-                  transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                >
-                  <Cloud className="w-8 h-8 md:w-10 md:h-10 text-white/70 fill-white/50" />
-                </motion.div>
-
-                {/* Birds */}
-                <motion.div
-                  className="absolute top-[16%] left-0"
-                  animate={{ x: ['0%', '420%'] }}
-                  transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-                >
-                  <Bird className="w-4 h-4 md:w-5 md:h-5 text-foreground/30" />
-                </motion.div>
-                <motion.div
-                  className="absolute top-[28%] left-0"
-                  animate={{ x: ['0%', '420%'] }}
-                  transition={{ duration: 28, repeat: Infinity, ease: 'linear', delay: 6 }}
-                >
-                  <Bird className="w-3 h-3 md:w-4 md:h-4 text-foreground/20" />
-                </motion.div>
-
-                {/* Grass */}
-                <div className="absolute left-0 right-0 bottom-0 h-[40%] bg-gradient-to-b from-emerald-300 to-emerald-400" />
-
-                {/* Trees along the roadside */}
-                <TreePine className="absolute bottom-[36%] left-[7%] w-5 h-5 md:w-7 md:h-7 text-emerald-700/60" />
-                <TreePine className="absolute bottom-[37%] left-[32%] w-4 h-4 md:w-6 md:h-6 text-emerald-700/50" />
-                <TreePine className="absolute bottom-[35%] left-[58%] w-5 h-5 md:w-7 md:h-7 text-emerald-700/60" />
-                <TreePine className="absolute bottom-[37%] left-[78%] w-4 h-4 md:w-6 md:h-6 text-emerald-700/50" />
-
-                {/* "Just Married" sign near the start */}
-                <div className="absolute left-[2%] bottom-[40%] flex flex-col items-center text-foreground/50">
-                  <Signpost className="w-5 h-5 md:w-7 md:h-7" />
-                  <span className="text-[7px] md:text-[9px] tracking-[0.1em] uppercase font-light whitespace-nowrap -mt-1">Just Married</span>
-                </div>
-
-                {/* Mile-marker countdown sign */}
-                <div className="absolute right-[18%] bottom-[40%] flex flex-col items-center text-foreground/50">
-                  <Milestone className="w-5 h-5 md:w-7 md:h-7" />
-                  <span className="text-[7px] md:text-[9px] tracking-[0.1em] uppercase font-light whitespace-nowrap -mt-1">
-                    {OBSTACLES.length - clearedCount} to go
-                  </span>
-                </div>
-
-                {/* Road — a winding dashed line gives it a cartoon "road trip" feel */}
-                <div className="absolute left-0 right-0 bottom-[14%] h-[18%] bg-gradient-to-b from-stone-400 to-stone-500 rounded-full shadow-[inset_0_-4px_8px_rgba(0,0,0,0.15)]">
-                  <div className="absolute inset-0 overflow-hidden rounded-full">
-                    <motion.svg
-                      className="absolute inset-y-0 left-0 h-full"
-                      style={{ width: '200%' }}
-                      viewBox="0 0 200 20"
-                      preserveAspectRatio="none"
-                      animate={allClear ? {} : { x: ['0%', '-50%'] }}
-                      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                {/* Disco sparkle — appears at halfway */}
+                <AnimatePresence>
+                  {clearedCount >= 4 && (
+                    <motion.div
+                      className="absolute top-3 right-4 pointer-events-none"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      transition={{ type: 'spring' }}
                     >
-                      <path
-                        d="M0,10 Q12.5,2 25,10 T50,10 T75,10 T100,10 T125,10 T150,10 T175,10 T200,10"
-                        fill="none"
-                        stroke="white"
-                        strokeOpacity="0.6"
-                        strokeWidth="2"
-                        strokeDasharray="10 8"
-                        strokeLinecap="round"
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    </motion.svg>
-                  </div>
-                </div>
-
-                {/* Reception tent (start) */}
-                <div className="absolute left-[2%] bottom-[16%] flex flex-col items-center gap-1 text-foreground/60">
-                  <Tent className="w-7 h-7 md:w-10 md:h-10" />
-                  <span className="text-[8px] md:text-[10px] tracking-[0.15em] uppercase font-light whitespace-nowrap">Reception</span>
-                </div>
-
-                {/* Honeymoon palms (finish) */}
-                <div className="absolute right-[1.5%] bottom-[16%] flex items-end gap-1">
-                  <Palmtree className="w-7 h-7 md:w-10 md:h-10 text-emerald-700" />
-                  <div className="flex flex-col items-center gap-1 text-primary/70 mb-1">
-                    <Sparkles className={`w-4 h-4 md:w-5 md:h-5 ${allClear ? 'animate-pulse' : ''}`} />
-                    <span className="text-[8px] md:text-[10px] tracking-[0.15em] uppercase font-light whitespace-nowrap">Honeymoon</span>
-                  </div>
-                </div>
-
-                {/* Obstacles */}
-                {OBSTACLES.map((ob, i) => {
-                  const isCleared = !!cleared[ob.id];
-                  const pos = obstaclePosition(i);
-                  const theme = OBSTACLE_THEMES[i % OBSTACLE_THEMES.length];
-                  if (isCleared) {
-                    return (
                       <motion.div
-                        key={ob.id}
-                        className="absolute bottom-[34%] flex items-center justify-center"
-                        style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-                        initial={{ scale: 0, rotate: -30, opacity: 0 }}
-                        animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                        transition={{ type: 'spring', stiffness: 260, damping: 14 }}
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
                       >
-                        <div className="w-7 h-7 md:w-9 md:h-9 rounded-full bg-white/70 border border-primary/30 flex items-center justify-center">
-                          <Check className="w-4 h-4 text-primary" />
-                        </div>
+                        <Sparkles className={`w-5 h-5 md:w-7 md:h-7 text-amber-300/70 ${allClear ? 'animate-pulse' : ''}`} />
                       </motion.div>
-                    );
-                  }
-                  return (
-                    <motion.button
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Inner layout — everything absolute so obstacles can scatter freely */}
+                <div className="relative h-full">
+
+                  {/* Scattered obstacle bubbles — each wanders freely via BubbleObstacle */}
+                  {OBSTACLES.map((ob, i) => (
+                    <BubbleObstacle
                       key={ob.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedId(ob.id);
-                        setPlayingId(null);
-                        setNoteDraft('');
-                        trackClick({
-                          sessionToken: identity?.sessionToken,
-                          label: 'escape_view_obstacle',
-                          metadata: { obstacle: ob.id, amount: ob.price },
-                        });
-                      }}
-                      className="absolute bottom-[32%] flex flex-col items-center cursor-pointer"
-                      style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-                      animate={{ rotate: [-6, 6, -6], y: [0, -3, 0] }}
-                      transition={{ duration: 2 + (i % 3) * 0.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <div className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-2 ${theme.ring} ${theme.bg} shadow-md`}>
-                        <ob.icon className={`w-4 h-4 md:w-6 md:h-6 ${theme.icon}`} />
-                      </div>
-                      <span className="mt-1 text-[10px] md:text-xs leading-none px-1.5 py-0.5 rounded-full bg-white/85 border border-foreground/10 shadow-sm">${ob.price}</span>
-                    </motion.button>
-                  );
-                })}
+                      ob={ob}
+                      i={i}
+                      isCleared={!!cleared[ob.id]}
+                      theme={OBSTACLE_THEMES[i % OBSTACLE_THEMES.length]}
+                      pos={OBSTACLE_POSITIONS[i]}
+                      sessionToken={identity?.sessionToken}
+                      onSelect={(id) => { setSelectedId(id); setPlayingId(null); }}
+                    />
+                  ))}
+
+                  {/* Per-guest boost count */}
+                  <div className="absolute bottom-3 right-4">
+                    <span className="text-[9px] md:text-[11px] text-white/30 tracking-wider">
+                      {myClearances.size > 0
+                        ? `You've boosted Ben ${myClearances.size}×`
+                        : 'Tap a bubble to send a boost'}
+                    </span>
+                  </div>
+                </div>
 
                 {/* Confetti bursts */}
                 <AnimatePresence>
                   {poofs.map(id => {
                     const i = OBSTACLES.findIndex(o => o.id === id);
-                    const pos = obstaclePosition(i);
+                    const { left, top } = OBSTACLE_POSITIONS[i];
                     const theme = OBSTACLE_THEMES[i % OBSTACLE_THEMES.length];
                     return (
-                      <div key={id} className="absolute bottom-[34%] pointer-events-none" style={{ left: `${pos}%` }}>
-                        {/* soft glow */}
+                      <div key={id} className="absolute pointer-events-none" style={{ left, top, transform: 'translate(-50%, -50%)' }}>
                         <motion.div
                           className="absolute rounded-full"
                           style={{
-                            width: 70, height: 70,
-                            marginLeft: -35, marginBottom: -16,
-                            background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%)',
+                            width: 64, height: 64, marginLeft: -32, marginTop: -32,
+                            background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)',
                           }}
                           initial={{ scale: 0.3, opacity: 0.9 }}
-                          animate={{ scale: 2, opacity: 0 }}
+                          animate={{ scale: 2.5, opacity: 0 }}
                           exit={{ opacity: 0 }}
-                          transition={{ duration: 0.8, ease: 'easeOut' }}
+                          transition={{ duration: 0.7, ease: 'easeOut' }}
                         />
-                        {/* flying confetti dots */}
                         {CONFETTI_ANGLES.map(angle => {
                           const rad = (angle * Math.PI) / 180;
-                          const dx = Math.cos(rad) * 46;
-                          const dy = Math.sin(rad) * 46;
+                          const dx = Math.cos(rad) * 40;
+                          const dy = Math.sin(rad) * 40;
                           return (
                             <motion.div
                               key={angle}
                               className={`absolute w-2 h-2 rounded-full ${theme.dot}`}
-                              style={{ marginLeft: -4, marginBottom: -4 }}
+                              style={{ marginLeft: -4, marginTop: -4 }}
                               initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
                               animate={{ x: dx, y: dy, scale: 0.3, opacity: 0 }}
                               exit={{ opacity: 0 }}
-                              transition={{ duration: 0.7, ease: 'easeOut' }}
+                              transition={{ duration: 0.6, ease: 'easeOut' }}
                             />
                           );
                         })}
@@ -365,37 +404,10 @@ export function Escape() {
                   })}
                 </AnimatePresence>
 
-                {/* Car */}
-                <motion.div
-                  className="absolute bottom-[15%]"
-                  animate={{ left: `${carLeft}%` }}
-                  transition={{ type: 'spring', stiffness: 50, damping: 14 }}
-                  style={{ transform: 'translateX(-50%)' }}
-                >
-                  <motion.div
-                    className="relative"
-                    animate={allClear ? {} : { y: [0, -4, 0] }}
-                    transition={{ duration: 0.5, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <Car className="w-10 h-10 md:w-14 md:h-14 text-foreground/80 drop-shadow-lg" />
-                    {allClear && (
-                      <motion.div
-                        className="absolute -top-7 left-1/2 -translate-x-1/2 text-xl"
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: -2 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        🎉
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </motion.div>
-
               </div>
             </Reveal>
 
-            {/* Selected obstacle popover — rendered outside the road scene so it
-                isn't clipped by the scene's overflow-hidden/aspect-ratio box */}
+            {/* Selected obstacle popover */}
             <AnimatePresence>
               {selected && (
                 <motion.div
@@ -406,7 +418,7 @@ export function Escape() {
                   onClick={() => { setSelectedId(null); setPlayingId(null); }}
                 >
                   <motion.div
-                    className="relative bg-white rounded-2xl shadow-2xl p-5 md:p-6 w-full max-w-sm data-[playing=true]:max-w-xl transition-[max-width]"
+                    className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden data-[playing=true]:max-w-xl transition-[max-width]"
                     data-playing={playingId === selected.id}
                     initial={{ scale: 0.85, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -414,51 +426,55 @@ export function Escape() {
                     transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                     onClick={e => e.stopPropagation()}
                   >
+                    {/* Close button floats over the hero image */}
                     <button
                       type="button"
                       onClick={() => { setSelectedId(null); setPlayingId(null); }}
-                      className="absolute top-3 right-3 text-foreground/30 hover:text-foreground/60"
+                      className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/30 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/50 transition-colors"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
 
-                    <div className="flex items-center gap-3 mb-1">
-                      <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].ring} ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].bg} shrink-0`}>
-                        <selected.icon className={`w-5 h-5 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].icon}`} />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
-                        <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
-                      </div>
-                    </div>
-                    <div className="h-px bg-foreground/10 my-3" />
-
-                    {playingId === selected.id ? (
-                      <JumpGame
-                        mode={MODES[selectedIndex % MODES.length]}
-                        playerIcon={Car}
-                        obstacleIcon={selected.icon}
-                        goal={Math.min(8, Math.max(4, Math.round(selected.price / 8)))}
-                        onSuccess={() => handleClear(selected)}
-                      />
-                    ) : (
-                      <>
-                        <Textarea
-                          value={noteDraft}
-                          onChange={e => setNoteDraft(e.target.value)}
-                          placeholder="Leave a snarky note (optional)"
-                          className="text-sm font-light bg-white resize-none mb-3"
-                          rows={2}
-                          maxLength={120}
+                    {/* Hero illustration — dark dance-floor backdrop unifies all 8 images */}
+                    {playingId !== selected.id && (
+                      <div className="h-56 bg-gradient-to-b from-slate-800 to-slate-900 flex items-center justify-center">
+                        <img
+                          src={selected.image}
+                          alt={selected.label}
+                          className="h-full w-full object-contain"
                         />
+                      </div>
+                    )}
 
+                    {/* Content */}
+                    <div className="p-5 md:p-6">
+                      <div className="flex items-center gap-3 mb-1">
+                        <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].ring} ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].bg} shrink-0`}>
+                          <selected.icon className={`w-5 h-5 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].icon}`} />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-light text-foreground leading-snug">{selected.label}</h3>
+                          <p className="text-xs font-light text-foreground/45">{selected.caption}</p>
+                        </div>
+                      </div>
+                      <div className="h-px bg-foreground/10 my-3" />
+
+                      {playingId === selected.id ? (
+                        <JumpGame
+                          mode={MODES[selectedIndex % MODES.length]}
+                          playerIcon={Car}
+                          obstacleIcon={selected.icon}
+                          goal={Math.min(8, Math.max(4, Math.round(selected.price / 8)))}
+                          onSuccess={() => handleClear(selected)}
+                        />
+                      ) : (
                         <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => handlePay(selected)}
                             className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
                           >
-                            Pay ${selected.price} with Venmo
+                            Send ${selected.price} via Venmo
                           </button>
                           <button
                             type="button"
@@ -475,8 +491,8 @@ export function Escape() {
                             Play to Clear
                           </button>
                         </div>
-                      </>
-                    )}
+                      )}
+                    </div>
                   </motion.div>
                 </motion.div>
               )}
@@ -484,28 +500,77 @@ export function Escape() {
 
             {/* Progress */}
             <Reveal delay={0.15}>
-              <div className="flex items-center gap-4 mt-6 max-w-md mx-auto">
-                <Flag className="w-4 h-4 text-foreground/30 shrink-0" />
-                <div className="flex-1 h-2 rounded-full bg-foreground/10 overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary/70 rounded-full"
-                    animate={{ width: `${progress * 100}%` }}
-                    transition={{ type: 'spring', stiffness: 50, damping: 14 }}
-                  />
+              <div className="mt-6 space-y-2 max-w-md mx-auto">
+                <div className="flex items-center gap-4">
+                  <Flag className="w-4 h-4 text-foreground/30 shrink-0" />
+                  <div className="flex-1 h-2 rounded-full bg-foreground/10 overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary/70 rounded-full"
+                      animate={{ width: `${progress * 100}%` }}
+                      transition={{ type: 'spring', stiffness: 50, damping: 14 }}
+                    />
+                  </div>
+                  <span className="text-xs font-light text-foreground/50 tracking-wider whitespace-nowrap">
+                    Ben's Confidence · {clearedCount}/{OBSTACLES.length} boosts
+                  </span>
                 </div>
-                <span className="text-xs font-light text-foreground/50 tracking-wider whitespace-nowrap">
-                  {clearedCount} / {OBSTACLES.length} cleared
-                </span>
               </div>
             </Reveal>
 
             {allClear && (
               <Reveal>
                 <p className="text-center text-sm font-light text-primary/80 mt-6">
-                  The road is clear — thank you for helping us make a (relatively) graceful exit. 🚗💨
+                  Ben survived the first dance — and honestly? It was beautiful. You are all heroes. 💃
                 </p>
               </Reveal>
             )}
+
+            {/* Reset + session history */}
+            {identity && (
+              <Reveal>
+                <div className="mt-8 border-t border-foreground/10 pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs tracking-[0.2em] uppercase text-foreground/30">
+                      {sessions.length > 0 ? `${sessions.length} previous round${sessions.length !== 1 ? 's' : ''}` : 'Rounds'}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      disabled={clearedCount === 0}
+                      className="text-xs px-3 py-1.5 rounded-full border border-foreground/15 hover:border-primary/40 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed text-foreground/40 tracking-wider uppercase font-light transition-colors"
+                    >
+                      New round
+                    </button>
+                  </div>
+                  {sessions.length > 0 && (
+                    <div className="space-y-2">
+                      {sessions.map(s => (
+                        <div key={s.id} className="border border-foreground/10 rounded px-3 py-2.5 text-xs">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="font-normal text-foreground/70">Round {s.session_number}</span>
+                            <span className="text-foreground/30">
+                              {new Date(s.archived_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-foreground/50">{s.obstacles.length} / {OBSTACLES.length} obstacles cleared</span>
+                            <span className="text-primary/70 font-normal">${s.total_raised} raised</span>
+                          </div>
+                          {s.obstacles.some(o => o.note) && (
+                            <div className="mt-2 space-y-1">
+                              {s.obstacles.filter(o => o.note).map((o, i) => (
+                                <p key={i} className="text-foreground/40 italic">"{o.note}" — on {o.id}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            )}
+
           </div>
         </div>
       </div>

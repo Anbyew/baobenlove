@@ -18,20 +18,22 @@ Testing with real (non-test) guest entries will happen naturally once the real g
 
 ## 📋 Can Wait (post-launch)
 
-### 👥 Replace test guest list with real one
-When the real guest list is ready:
-1. Replace `~/app/guests.tsv` on EC2 with the full list (same TSV format)
-2. `ssh baobenlove`
-3. `rm ~/app/server/data/wedding.db && pm2 restart baobenlove`
-4. DB re-seeds automatically from the new TSV
-5. Smoke-test login with a couple of real guest emails to confirm OTP + session flow works for the real list
+### 🔐 Renew SSL certificate (due Sep 14, 2026)
+Let's Encrypt auto-renews via certbot timer — verify it's working around early September:
+```bash
+ssh baobenlove
+sudo certbot renew --dry-run
+```
 
-**RSVP deadline:** August 1, 2026
+---
+
+### ✅ Real guest list loaded (June 2026)
+87 invite records imported directly into the live DB (89 total including 2 test accounts). Server-side `~/app/guests.tsv` updated to match. Seeder is gated on `COUNT(*) = 0` so restarts won't create duplicates. All stored emails lowercased to match `normalizeEmail()` in db.js.
 
 ---
 
 ### 📋 Finish RSVP
-Form and session system are built (see Done ✅) — once the real guest list is loaded, do an end-to-end test: invite lookup, household-aware OTP login, submitting attendance/dietary/song request, and confirming it persists correctly in the DB.
+Form and session system are built — open the RSVP page before the **September 1, 2026 AOE** deadline. Do an end-to-end test: invite lookup, household-aware OTP login, submitting attendance/dietary/song request, and confirming it persists in the DB.
 
 ---
 
@@ -167,8 +169,9 @@ EC2 t2.micro (free tier) + SQLite + Express + PM2 + Nginx
 - App: `/home/ubuntu/app/server/`
 - SSH: `ssh baobenlove` (alias configured in `~/.ssh/config`)
 - Restart: `pm2 restart baobenlove`
-- Netlify proxies `baoben.love/api/*` → EC2
+- Nginx serves static files from `~/app/wedding-site/dist/` + proxies `/api/*` → EC2
 - Dev proxy: `vite.config.ts` forwards `localhost:5173/api/*` → EC2
+- SSL: Let's Encrypt via certbot (expires 2026-09-14, auto-renewal configured)
 
 **Query analytics:**
 ```bash

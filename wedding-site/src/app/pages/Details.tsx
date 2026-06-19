@@ -91,7 +91,7 @@ export function Details() {
                 {[
                   { icon: Calendar, label: t.dateLabel, value: t.date, sub: null, href: null },
                   { icon: Clock, label: t.timeLabel, value: t.receptionTime, sub: t.receptionDinner, href: null },
-                  { icon: MapPin, label: t.locationLabel, value: t.receptionVenue, sub: t.receptionAddress, href: 'https://maps.google.com/?q=Longwood+Gardens,+1001+Longwood+Road,+Kennett+Square,+PA+19348' },
+                  { icon: MapPin, label: t.locationLabel, value: t.receptionVenue, sub: t.receptionAddress, href: 'https://maps.google.com/?q=409+Conservatory+Road,+Kennett+Square,+PA+19348' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">

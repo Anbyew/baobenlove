@@ -4,7 +4,7 @@ import { toPng } from 'html-to-image';
 import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { openVenmo } from '../lib/venmo';
-import { trackClick, getGarden, saveGarden as saveGardenToServer } from '../lib/auth';
+import { trackClick, getGarden, saveGarden as saveGardenToServer, resetGarden, getGardenSessions, type GardenSession } from '../lib/auth';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -458,6 +458,8 @@ export function Garden() {
 
   const [gardenerName, setGardenerName] = useState('');
   const [downloading, setDownloading] = useState(false);
+  const [sessions, setSessions] = useState<GardenSession[]>([]);
+  const [viewingSession, setViewingSession] = useState<GardenSession | null>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
 
   // Load the household's garden from the server once logged in. If the
@@ -476,6 +478,7 @@ export function Garden() {
       }
       setItems(serverItems as PlantedItem[]);
     }).catch(() => {});
+    getGardenSessions(token).then(setSessions).catch(() => {});
   }, [identity?.sessionToken]);
 
   const persistGarden = (next: PlantedItem[]) => {
@@ -565,11 +568,20 @@ export function Garden() {
     setActiveId(null);
   };
 
-  const handleReset = () => {
-    if (!confirm('Clear your whole garden? This cannot be undone.')) return;
-    setDrafts([]);
-    setActiveId(null);
-    persistGarden([]);
+  const handleReset = async () => {
+    if (!identity?.sessionToken) return;
+    if (!confirm('Start a fresh garden? Your current garden will be saved to your history.')) return;
+    try {
+      await resetGarden(identity.sessionToken);
+      const updatedSessions = await getGardenSessions(identity.sessionToken);
+      setSessions(updatedSessions);
+      setItems([]);
+      setDrafts([]);
+      setActiveId(null);
+      saveGardenLocal([]);
+    } catch {
+      alert('Could not reset garden. Please try again.');
+    }
   };
 
   const handleDownload = async () => {
@@ -588,7 +600,8 @@ export function Garden() {
     }
   };
 
-  const gardenValue = items.reduce((sum, it) => sum + PLANT_CATALOG[it.plantType].stage.price, 0);
+  const displayItems = viewingSession ? (viewingSession.items as PlantedItem[]) : items;
+  const gardenValue = displayItems.reduce((sum, it) => sum + (PLANT_CATALOG[it.plantType]?.stage.price ?? 0), 0);
 
   return (
     <div className="min-h-screen relative">
@@ -679,7 +692,7 @@ export function Garden() {
                     )}
 
                     {/* Planted items */}
-                    {items.map(it => (
+                    {displayItems.map(it => (
                       <div
                         key={it.id}
                         className="absolute"
@@ -953,9 +966,39 @@ export function Garden() {
                         Reset
                       </button>
                     </div>
-                    <p className="text-xs font-light text-foreground/35 mt-3 leading-relaxed">
-                      This garden is just yours — it lives in this browser. Download a picture any time to keep, or share with us for our thank-you card!
-                    </p>
+                    {sessions.length > 0 && (
+                      <div className="mt-5 border-t border-foreground/10 pt-4">
+                        <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-3">Previous gardens</p>
+                        <div className="space-y-2">
+                          {sessions.map(s => {
+                            const counts: Record<string, number> = {};
+                            for (const it of s.items) counts[it.plantType] = (counts[it.plantType] || 0) + 1;
+                            const summary = Object.entries(counts).map(([type, n]) => {
+                              const emoji: Record<string, string> = { sunflower: '🌻', rose: '🌹', tulip: '🌷', daisy: '🌼', lavender: '💜', fern: '🌿', orchid: '🌸', grass: '🌱', bush: '🌿', cherryTree: '🌸' };
+                              return `${emoji[type] || '🌱'}×${n}`;
+                            }).join(' ');
+                            const date = new Date(s.archived_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            const isViewing = viewingSession?.id === s.id;
+                            return (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => setViewingSession(isViewing ? null : s)}
+                                className={`w-full text-left px-3 py-2 rounded border text-xs transition-colors ${isViewing ? 'border-primary/40 bg-primary/5 text-foreground' : 'border-foreground/10 hover:border-foreground/20 text-foreground/50'}`}
+                              >
+                                <span className="font-normal">Garden {s.session_number}</span>
+                                <span className="mx-2 text-foreground/20">·</span>
+                                <span>{summary}</span>
+                                <span className="float-right text-foreground/30">{date}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {viewingSession && (
+                          <p className="text-xs text-foreground/40 mt-2 text-center">Viewing Garden {viewingSession.session_number} — read only</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Reveal>

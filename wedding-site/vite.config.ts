@@ -24,9 +24,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://32.194.163.99',
+        target: 'https://baoben.love',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
