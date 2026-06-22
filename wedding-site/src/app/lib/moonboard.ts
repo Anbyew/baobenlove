@@ -18,6 +18,7 @@ export interface PlaceHoldPayload {
   message: string;
   shape: string;
   color: string;
+  sessionToken?: string;
 }
 
 export async function fetchMoonboardHolds(): Promise<MoonboardHold[]> {

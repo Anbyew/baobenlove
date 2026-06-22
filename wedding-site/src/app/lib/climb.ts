@@ -14,11 +14,11 @@ export async function fetchClimbCleared(): Promise<ClimbClearedState> {
   return body.cleared as ClimbClearedState;
 }
 
-export async function clearClimbBoost(boostId: string, note: string): Promise<ClimbClearedState> {
+export async function clearClimbBoost(boostId: string, note: string, sessionToken?: string): Promise<ClimbClearedState> {
   const response = await fetch(`${API_BASE}/climb`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ boostId, note }),
+    body: JSON.stringify({ boostId, note, sessionToken }),
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) {

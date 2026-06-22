@@ -89,10 +89,42 @@ function buildEmailHtml(code) {
 // --- Routes ---
 
 const ALLOWED_EMAILS = new Set([
-  'baobaoyuwei@gmail.com',
-  'bellabenbao@gmail.com',
-  'yuweibao@umich.edu',
-  'bkrakoff@gmail.com',
+  '13276753627@139.com','13857520003@139.com','1524758446@qq.com',
+  '15868141610@163.com','164092802@qq.com','18ssyy@163.com',
+  'aj3@princeton.edu','alicequ16@gmail.com','andrei.alexan@gmail.com',
+  'angela.wang0068@gmail.com','atticuschristensen@gmail.com','austinpowellb@gmail.com',
+  'awf7@columbia.edu','awk1994@gmail.com','axelkalbach@gmail.com',
+  'baobaoyuwei@gmail.com','baohk@126.com','barroytman@gmail.com',
+  'bellabenbao@gmail.com','bkrakoff@gmail.com','c071132@gmail.com',
+  'chaijy@umich.edu','chris.rhodes45@gmail.com','coa05lu@yahoo.com',
+  'coulter.lheureux@gmail.com','cpbara@umich.edu','cranberrylobster@gmail.com',
+  'ctrenton@umich.edu','daiyp@umich.edu','danielfletcher314@outlook.com',
+  'danjcollins@gmail.com','davidtouger@hotmail.com','dleffler0603@gmail.com',
+  'dmitriykts4@gmail.com','dorothee_newbern@hotmail.com','dtouger@hotmail.com',
+  'dyenkin@yahoo.com','eikorn@optonline.net','elisawtsai@gmail.com',
+  'emmakrakoff@gmail.com','essbeard@gmail.com','faithclayton@gmail.com',
+  'fduplessis21@gmail.com','florian.dahlhausen@gmail.com','gtilde@yahoo.com',
+  'hampledavid@gmail.com','hari.anbarasu95@gmail.com','harryahill@gmail.com',
+  'hwang@jd21.law.harvard.edu','hzzheng@umich.edu','info@kellyaltierweddings.com',
+  'jakrakoff@gmail.com','jane.e.stein66@gmail.com','jed970610@gmail.com',
+  'jessicaleffler@gmail.com','jkornhau13@gmail.com','jminlee@umich.edu',
+  'joshuaaleffler@gmail.com','joymendenhall@gmail.com','jplshnj@gmail.com',
+  'juliet4816@gmail.com','jyenkin@aol.com','kimpapples@gmail.com',
+  'klupiloff@gmail.com','laurabrooksbrown@gmail.com','lefflers@aol.com',
+  'lingluanwh@gmail.com','liubovs@umich.edu','ltouger@cox.net',
+  'lucyjaneck@gmail.com','luoxi.meng98@gmail.com','marciamcham@aol.com',
+  'marctlaurab@gmail.com','mark.luzi@gmail.com','markgreenfield93@gmail.com',
+  'matthew.v.ellison@gmail.com','meera@krishnamoorthy.com','megabyteification@gmail.com',
+  'melissa.touger@gmail.com','michael.kornhauser@gmail.com','michaelito03@gmail.com',
+  'monet-xu@ti.com','murphyluzi@gmail.com','nickbao743@gmail.com',
+  'noahkrakoff@gmail.com','obrnmrk@gmail.com','rachel3shepherd@gmail.com',
+  'rebecca.janssen@outlook.de','rkrakoff@gmail.com','robertmarkberman@gmail.com',
+  'samcookie9@gmail.com','sarahkrakoff@gmail.com','sbshoup@gmail.com',
+  'shanestorks@gmail.com','sharonleerhodes@gmail.com','tougerrs@msn.com',
+  'vivwylai@gmail.com','xinywa@umich.edu','xuan.e.wu@gmail.com',
+  'ye.yaxin3@gmail.com','yenkina@yahoo.com','yiwenzhg@umich.edu',
+  'yukw777@gmail.com','yutian_sun@163.com','yuweibao@umich.edu',
+  'zhang.nuda@gmail.com',
 ]);
 
 app.post('/send-otp', async (req, res) => {
@@ -310,7 +342,7 @@ app.post('/session/create', (req, res) => {
       metadata: { email, name, language, matched: !!invite },
     });
 
-    res.json({ token, invite: invite ?? null });
+    res.json({ sessionToken: token, email, name, language, invite: invite ?? null });
   } catch (err) {
     console.error('session/create error:', err);
     res.status(500).json({ error: 'Could not create session.' });
@@ -467,7 +499,7 @@ app.get('/moonboard', (req, res) => {
 
 app.post('/moonboard', (req, res) => {
   try {
-    const { row, col, guestName, message, shape, color } = req.body ?? {};
+    const { row, col, guestName, message, shape, color, sessionToken } = req.body ?? {};
     const r = Number(row);
     const c = Number(col);
 
@@ -488,7 +520,8 @@ app.post('/moonboard', (req, res) => {
     const hold = placeMoonboardHold({ row: r, col: c, guestName: name, message: msg, shape, color });
     if (!hold) return res.status(409).json({ error: 'That spot was just taken — please pick another.' });
 
-    logEvent({ sessionToken: null, inviteId: null, eventType: 'moonboard_hold_placed', page: '/moonboard', metadata: { guestName: name, row: r, col: c, shape, amount: 25 } });
+    const session = sessionToken ? validateSession(String(sessionToken)) : null;
+    logEvent({ sessionToken: session?.sessionToken || null, inviteId: session?.invite?.id || null, eventType: 'moonboard_hold_placed', page: '/moonboard', metadata: { guestName: name, row: r, col: c, shape, amount: 25 } });
     res.json({ hold });
   } catch (err) {
     console.error('moonboard POST error:', err);
@@ -625,7 +658,7 @@ app.post('/escape/reset', (req, res) => {
     const session = validateSession(token);
     if (!session) return res.status(401).json({ error: 'Please log in first.' });
     const sessionNumber = archiveEscape();
-    logEvent({ sessionToken: token, inviteId: session.invite?.id || null, eventType: 'click', page: '/escape', metadata: JSON.stringify({ label: 'escape_reset', newSession: (sessionNumber || 0) + 1 }) });
+    logEvent({ sessionToken: token, inviteId: session.invite?.id || null, eventType: 'escape_new_round', page: '/escape', metadata: { newSession: (sessionNumber || 0) + 1 } });
     res.json({ ok: true, archivedSession: sessionNumber });
   } catch (err) {
     res.status(500).json({ error: 'Could not reset escape.' });
@@ -643,7 +676,7 @@ app.get('/escape', (req, res) => {
 
 app.post('/escape', (req, res) => {
   try {
-    const { obstacleId, note } = req.body ?? {};
+    const { obstacleId, note, sessionToken } = req.body ?? {};
     if (!ESCAPE_OBSTACLE_IDS.includes(obstacleId))
       return res.status(400).json({ error: 'Invalid obstacle.' });
 
@@ -651,7 +684,8 @@ app.post('/escape', (req, res) => {
     const result = clearEscapeObstacle({ obstacleId, note: n });
     if (!result) return res.status(409).json({ error: 'Someone already cleared that one.', cleared: getEscapeCleared() });
 
-    logEvent({ sessionToken: null, inviteId: null, eventType: 'escape_obstacle_cleared', page: '/escape', metadata: { obstacleId } });
+    const session = sessionToken ? validateSession(String(sessionToken)) : null;
+    logEvent({ sessionToken: session?.sessionToken || null, inviteId: session?.invite?.id || null, eventType: 'escape_obstacle_cleared', page: '/escape', metadata: { obstacleId } });
     res.json({ ok: true, cleared: getEscapeCleared() });
   } catch (err) {
     console.error('escape POST error:', err);
@@ -712,7 +746,7 @@ app.get('/climb', (req, res) => {
 
 app.post('/climb', (req, res) => {
   try {
-    const { boostId, note } = req.body ?? {};
+    const { boostId, note, sessionToken } = req.body ?? {};
     if (!CLIMB_BOOST_IDS.includes(boostId))
       return res.status(400).json({ error: 'Invalid boost.' });
 
@@ -720,7 +754,8 @@ app.post('/climb', (req, res) => {
     const result = clearClimbBoost({ boostId, note: n });
     if (!result) return res.status(409).json({ error: 'Someone already sent that boost.', cleared: getClimbCleared() });
 
-    logEvent({ sessionToken: null, inviteId: null, eventType: 'climb_boost_cleared', page: '/climb', metadata: { boostId } });
+    const session = sessionToken ? validateSession(String(sessionToken)) : null;
+    logEvent({ sessionToken: session?.sessionToken || null, inviteId: session?.invite?.id || null, eventType: 'climb_boost_cleared', page: '/climb', metadata: { boostId } });
     res.json({ ok: true, cleared: getClimbCleared() });
   } catch (err) {
     console.error('climb POST error:', err);

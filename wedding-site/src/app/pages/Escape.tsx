@@ -304,7 +304,7 @@ export function Escape() {
       if (localReset) {
         setCleared(prev => ({ ...prev, [ob.id]: { note: '', clearedAt: new Date().toISOString() } }));
       } else {
-        const next = await clearEscapeObstacle(ob.id, '');
+        const next = await clearEscapeObstacle(ob.id, '', identity?.sessionToken);
         setCleared(next);
       }
     } catch {
@@ -745,7 +745,7 @@ export function Escape() {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-foreground/50">{s.obstacles.length} / {OBSTACLES.length} obstacles cleared</span>
-                            <span className="text-primary/70 font-normal">${s.total_raised} raised</span>
+                            <span className="text-primary/70 font-normal">${s.total_raised} donated</span>
                           </div>
                           {s.obstacles.some(o => o.note) && (
                             <div className="mt-2 space-y-1">

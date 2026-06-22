@@ -77,7 +77,7 @@ export function Climb() {
     setNoteDraft('');
 
     try {
-      const next = await clearClimbBoost(boost.id, note);
+      const next = await clearClimbBoost(boost.id, note, identity?.sessionToken);
       setCleared(next);
     } catch {
       return;

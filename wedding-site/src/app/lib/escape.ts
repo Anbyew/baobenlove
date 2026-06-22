@@ -14,11 +14,11 @@ export async function fetchEscapeCleared(): Promise<EscapeClearedState> {
   return body.cleared as EscapeClearedState;
 }
 
-export async function clearEscapeObstacle(obstacleId: string, note: string): Promise<EscapeClearedState> {
+export async function clearEscapeObstacle(obstacleId: string, note: string, sessionToken?: string): Promise<EscapeClearedState> {
   const response = await fetch(`${API_BASE}/escape`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ obstacleId, note }),
+    body: JSON.stringify({ obstacleId, note, sessionToken }),
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) {

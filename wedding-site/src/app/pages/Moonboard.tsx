@@ -232,6 +232,7 @@ export function Moonboard() {
           message: d.message.trim(),
           shape: d.shape,
           color: d.color,
+          sessionToken: identity?.sessionToken,
         });
         placed.push(hold);
         placedDraftIds.add(d.id);
