@@ -253,9 +253,10 @@ export interface DanceLeaderboardEntry {
   inviteId?: number;
   playerName: string;
   totalScore: number;
+  gamesCompleted?: number;
   totalRestarts: number;
   completedAt: string;
-  games: DanceGameScore[];
+  games?: DanceGameScore[];
 }
 
 export async function submitDanceRound(token: string, round: DanceRoundSubmission): Promise<void> {
@@ -271,4 +272,24 @@ export async function getDanceLeaderboard(): Promise<DanceLeaderboardEntry[]> {
   const response = await fetch(`${API_BASE}/dance/leaderboard`);
   const data = await parseJson<{ leaderboard?: DanceLeaderboardEntry[] }>(response);
   return data.leaderboard ?? [];
+}
+
+export async function submitDanceScore(payload: {
+  sessionToken?: string;
+  playerName: string;
+  totalScore: number;
+  totalRestarts: number;
+  gamesCompleted: number;
+}): Promise<DanceLeaderboardEntry[]> {
+  try {
+    const response = await fetch(`${API_BASE}/dance/score`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await parseJson<{ leaderboard?: DanceLeaderboardEntry[] }>(response);
+    return data.leaderboard ?? [];
+  } catch {
+    return [];
+  }
 }

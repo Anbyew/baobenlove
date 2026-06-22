@@ -94,6 +94,16 @@ db.exec(`
     completed_at   TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS dance_scores (
+    session_token TEXT PRIMARY KEY,
+    invite_id     INTEGER,
+    player_name   TEXT NOT NULL,
+    total_score   INTEGER NOT NULL DEFAULT 0,
+    games_completed INTEGER NOT NULL DEFAULT 0,
+    total_restarts INTEGER NOT NULL DEFAULT 0,
+    updated_at    TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS climb_state (
     boost_id   TEXT PRIMARY KEY,
     note       TEXT DEFAULT '',
@@ -561,33 +571,51 @@ export function saveDanceRound(inviteId, playerName, round) {
   );
 }
 
+export function upsertDanceScore({ sessionToken, inviteId, playerName, totalScore, gamesCompleted, totalRestarts }) {
+  const existing = db.prepare('SELECT total_score FROM dance_scores WHERE session_token = ?').get(sessionToken);
+  if (!existing || totalScore > existing.total_score) {
+    db.prepare(`
+      INSERT INTO dance_scores (session_token, invite_id, player_name, total_score, games_completed, total_restarts, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(session_token) DO UPDATE SET
+        player_name = excluded.player_name,
+        invite_id = COALESCE(excluded.invite_id, dance_scores.invite_id),
+        total_score = excluded.total_score,
+        games_completed = excluded.games_completed,
+        total_restarts = excluded.total_restarts,
+        updated_at = excluded.updated_at
+    `).run(sessionToken, inviteId || null, playerName, totalScore, gamesCompleted, totalRestarts, new Date().toISOString());
+  }
+}
+
 export function getDanceLeaderboard() {
   const rows = db.prepare(`
-    SELECT invite_id, player_name, total_score, total_restarts, games, completed_at
-    FROM dance_rounds
-    ORDER BY total_score DESC, total_restarts ASC, completed_at ASC
+    SELECT session_token, invite_id, player_name, total_score, games_completed, total_restarts, updated_at
+    FROM dance_scores
+    ORDER BY total_score DESC, total_restarts ASC, games_completed DESC, updated_at ASC
   `).all();
 
+  // Deduplicate: best per invite_id for matched guests, keep all unmatched
   const bestByInvite = new Map();
+  const unmatched = [];
   for (const row of rows) {
-    if (bestByInvite.has(row.invite_id)) continue;
-    bestByInvite.set(row.invite_id, {
-      inviteId: row.invite_id,
-      playerName: row.player_name,
-      totalScore: row.total_score,
-      totalRestarts: row.total_restarts,
-      completedAt: row.completed_at,
-      games: parseJson(row.games, []),
-    });
+    if (row.invite_id) {
+      if (!bestByInvite.has(row.invite_id)) bestByInvite.set(row.invite_id, row);
+    } else {
+      unmatched.push(row);
+    }
   }
 
-  return [...bestByInvite.values()]
-    .sort((a, b) =>
-      b.totalScore - a.totalScore ||
-      a.totalRestarts - b.totalRestarts ||
-      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
-    )
-    .slice(0, 20);
+  return [...bestByInvite.values(), ...unmatched]
+    .sort((a, b) => b.total_score - a.total_score || a.total_restarts - b.total_restarts)
+    .slice(0, 20)
+    .map(row => ({
+      playerName: row.player_name,
+      totalScore: row.total_score,
+      gamesCompleted: row.games_completed,
+      totalRestarts: row.total_restarts,
+      completedAt: row.updated_at,
+    }));
 }
 
 // --- Drag Ben Up the Mountain ---

@@ -34,6 +34,7 @@ import {
   getEscapeSessions,
   saveDanceRound,
   getDanceLeaderboard,
+  upsertDanceScore,
   getClimbCleared,
   clearClimbBoost,
   getAdminGames,
@@ -690,6 +691,34 @@ app.post('/escape', (req, res) => {
   } catch (err) {
     console.error('escape POST error:', err);
     res.status(500).json({ error: 'Could not clear that obstacle.' });
+  }
+});
+
+app.post('/dance/score', (req, res) => {
+  try {
+    const { sessionToken, playerName, totalScore, totalRestarts, gamesCompleted } = req.body ?? {};
+    const token = String(sessionToken ?? '').trim();
+    const name = String(playerName ?? '').trim().slice(0, 60);
+    if (!name || typeof totalScore !== 'number' || totalScore < 0)
+      return res.status(400).json({ error: 'Invalid score.' });
+
+    const session = token ? validateSession(token) : null;
+    if (token && !session) return res.status(401).json({ error: 'Session expired.' });
+
+    upsertDanceScore({
+      sessionToken: token || null,
+      inviteId: session?.invite?.id || null,
+      playerName: name,
+      totalScore,
+      gamesCompleted: Number(gamesCompleted) || 0,
+      totalRestarts: Number(totalRestarts) || 0,
+    });
+
+    logEvent({ sessionToken: token || null, inviteId: session?.invite?.id || null, eventType: 'dance_score_update', page: '/escape', metadata: { playerName: name, totalScore, gamesCompleted, totalRestarts } });
+    res.json({ ok: true, leaderboard: getDanceLeaderboard() });
+  } catch (err) {
+    console.error('dance/score error:', err);
+    res.status(500).json({ error: 'Could not save score.' });
   }
 });
 

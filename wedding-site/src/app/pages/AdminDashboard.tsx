@@ -290,11 +290,8 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
 
   const escapeTotal = escape.reduce((sum, e) => sum + (ESCAPE_LABELS[e.obstacle_id]?.price || 0), 0);
   const escapeMax = Object.values(ESCAPE_LABELS).reduce((sum, v) => sum + v.price, 0);
-  const climbTotal = climb.reduce((sum, c) => sum + (CLIMB_LABELS[c.boost_id]?.price || 0), 0);
-  const climbMax = Object.values(CLIMB_LABELS).reduce((sum, v) => sum + v.price, 0);
-  const moonTotal = moonboard.length * MOONBOARD_HOLD_PRICE;
   const gardenTotal = households.reduce((sum, h) => sum + h.garden.value, 0);
-  const grandTotal = escapeTotal + climbTotal + moonTotal + gardenTotal;
+  const grandTotal = escapeTotal + gardenTotal;
 
   // Dance: plays per player
   const playsByPlayer: Record<string, number> = {};
@@ -306,10 +303,8 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
     <div className="space-y-10">
       {/* Donation summary */}
       <Section title="Donation overview">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard label="Escape raised" value={`$${escapeTotal}`} sub={`of $${escapeMax} possible`} color={PRIMARY} />
-          <StatCard label="Climb raised" value={`$${climbTotal}`} sub={`of $${climbMax} possible`} color={GOLD} />
-          <StatCard label="Moonboard pledged" value={`$${moonTotal}`} sub={`${moonboard.length} holds`} color={PURPLE} />
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <StatCard label="Dance raised" value={`$${escapeTotal}`} sub={`of $${escapeMax} possible`} color={PRIMARY} />
           <StatCard label="Garden pledged" value={`$${gardenTotal}`} sub={`${households.filter(h => h.garden.items.length > 0).length} households`} color={GREEN} />
         </div>
         <Card>
@@ -341,51 +336,49 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
         </div>
       </Section>
 
-      {/* Climb — Drag Ben Up the Mountain */}
-      <Section title={`Drag Ben Up the Mountain — ${climb.length}/8 boosts sent · $${climbTotal} raised`}>
-        <div className="border border-foreground/10 rounded-sm overflow-x-auto">
-          <table className="w-full">
-            <thead><tr><Th>Boost</Th><Th>Amount</Th><Th>Status</Th><Th>Note</Th><Th>Sent</Th></tr></thead>
-            <tbody>
-              {Object.entries(CLIMB_LABELS).map(([id, meta]) => {
-                const cleared = climb.find(c => c.boost_id === id);
-                return (
-                  <tr key={id} className={cleared ? 'bg-amber-50/30' : ''}>
-                    <Td className="font-normal">{meta.label}</Td>
-                    <Td>${meta.price}</Td>
-                    <Td>{cleared ? <Badge label="Sent" color={AMBER} /> : <Badge label="Available" color={MUTED} />}</Td>
-                    <Td className="text-foreground/50 italic">{cleared?.note || '—'}</Td>
-                    <Td className="text-foreground/40">{cleared ? daysAgo(cleared.cleared_at) : '—'}</Td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Section>
-
-      {/* Moonboard */}
-      <Section title={`Climbing Board Fund — ${moonboard.length} holds · $${moonTotal} pledged`}>
-        {moonboard.length === 0
-          ? <Card><p className="text-xs text-foreground/30 text-center py-4">No holds placed yet</p></Card>
-          : <div className="border border-foreground/10 rounded-sm overflow-x-auto">
-              <table className="w-full">
-                <thead><tr><Th>#</Th><Th>Guest</Th><Th>Shape</Th><Th>Message</Th><Th>Position</Th><Th>Placed</Th></tr></thead>
-                <tbody>
-                  {moonboard.map((h, i) => (
-                    <tr key={h.id}>
-                      <Td className="text-foreground/30">{i + 1}</Td>
-                      <Td className="font-normal">{h.guest_name}</Td>
-                      <Td><span className="capitalize text-foreground/60">{h.shape}</span></Td>
-                      <Td className="text-foreground/50 italic">{h.message || '—'}</Td>
-                      <Td className="text-foreground/40">R{h.row} C{h.col}</Td>
-                      <Td className="text-foreground/40">{daysAgo(h.placed_at)}</Td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>}
-      </Section>
+      {/* Garden */}
+      {(() => {
+        const gardenHouseholds = households.filter(h => h.garden.items.length > 0);
+        return (
+          <Section title={`Garden Fund — ${gardenHouseholds.length} households · $${gardenTotal} pledged`}>
+            {gardenHouseholds.length === 0
+              ? <Card><p className="text-xs text-foreground/30 text-center py-4">No gardens yet</p></Card>
+              : <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+                  <table className="w-full">
+                    <thead><tr><Th>Household</Th><Th>Plants</Th><Th>Colors</Th><Th>Value</Th><Th>Last updated</Th></tr></thead>
+                    <tbody>
+                      {gardenHouseholds.map(h => {
+                        const counts: Record<string, number> = {};
+                        const colorSet = new Set<string>();
+                        for (const it of h.garden.items) {
+                          counts[it.plantType] = (counts[it.plantType] || 0) + 1;
+                          if (it.color) colorSet.add(it.color);
+                        }
+                        const plantSummary = Object.entries(counts)
+                          .map(([t, n]) => `${GARDEN_LABELS[t] || t} ×${n}`)
+                          .join(', ');
+                        return (
+                          <tr key={h.id}>
+                            <Td className="font-normal">{h.informal_name || h.party_name}</Td>
+                            <Td className="text-foreground/70">{plantSummary}</Td>
+                            <Td>
+                              <div className="flex gap-1 flex-wrap">
+                                {[...colorSet].map(c => (
+                                  <span key={c} title={c} className="inline-block w-4 h-4 rounded-full border border-white/50 shadow-sm" style={{ background: c }} />
+                                ))}
+                              </div>
+                            </Td>
+                            <Td><span className="font-normal" style={{ color: GREEN }}>${h.garden.value}</span></Td>
+                            <Td className="text-foreground/40">{h.garden.updatedAt ? daysAgo(h.garden.updatedAt) : '—'}</Td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>}
+          </Section>
+        );
+      })()}
 
       {/* Dance leaderboard */}
       <Section title={`Dance Leaderboard — ${allDanceRounds.length} total rounds played`}>
@@ -630,7 +623,7 @@ export function AdminDashboard() {
                 <StatCard label="Site visited" value={visitedCount} sub={`of ${stats?.households ?? '?'}`} color={PRIMARY} />
                 <StatCard label="RSVP Yes" value={stats?.rsvpYes} color={GREEN} />
                 <StatCard label="RSVP No" value={stats?.rsvpNo} color={RED} />
-                <StatCard label="Pending RSVP" value={pending} color={pending > 0 ? AMBER : MUTED} />
+                <StatCard label="Guests RSVPed" value={stats?.rsvpYes !== undefined ? (stats.rsvpYes > 0 ? households.filter(h => h.attendance === 'yes').reduce((s, h) => s + (h.guest_count || 0), 0) : 0) : '—'} sub="RSVP coming soon" color={MUTED} />
                 <StatCard label="Unmatched" value={unmatched.length} color={unmatched.length > 0 ? RED : undefined} sub={unmatched.length > 0 ? 'needs review' : 'all clear'} />
               </div>
             </Section>

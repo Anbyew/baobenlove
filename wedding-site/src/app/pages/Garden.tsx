@@ -604,6 +604,31 @@ export function Garden() {
     const merged = [...items, ...newItems];
     persistGarden(merged);
 
+    // Log what was planted
+    const typeCounts: Record<string, number> = {};
+    const colorSet = new Set<string>();
+    let plantValue = 0;
+    for (const it of newItems) {
+      typeCounts[it.plantType] = (typeCounts[it.plantType] || 0) + 1;
+      colorSet.add(it.color);
+      plantValue += PLANT_CATALOG[it.plantType as PlantId]?.stage.price ?? 0;
+    }
+    const plantSummary = Object.entries(typeCounts)
+      .map(([t, n]) => `${PLANT_CATALOG[t as PlantId]?.label ?? t}×${n}`)
+      .join(', ');
+    trackClick({
+      sessionToken: identity?.sessionToken,
+      label: 'garden_plant',
+      metadata: {
+        plants: plantSummary,
+        colors: [...colorSet].join(', '),
+        count: newItems.length,
+        value: plantValue,
+        total_plants: merged.length,
+        total_value: merged.reduce((s, it) => s + (PLANT_CATALOG[it.plantType as PlantId]?.stage.price ?? 0), 0),
+      },
+    });
+
     setPoofs(prev => [...prev, ...newItems.map(it => ({ id: it.id, x: it.x, y: it.y }))]);
     newItems.forEach(it => {
       setTimeout(() => setPoofs(prev => prev.filter(p => p.id !== it.id)), 700);
@@ -614,6 +639,12 @@ export function Garden() {
   };
 
   const handleReset = async () => {
+    const resetValue = items.reduce((s, it) => s + (PLANT_CATALOG[it.plantType as PlantId]?.stage.price ?? 0), 0);
+    trackClick({
+      sessionToken: identity?.sessionToken,
+      label: 'garden_reset',
+      metadata: { plants_archived: items.length, value_archived: resetValue },
+    });
     try {
       if (activeSessionId) {
         setItems([]);

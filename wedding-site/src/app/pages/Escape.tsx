@@ -11,6 +11,7 @@ import {
   getEscapeSessions,
   getDanceLeaderboard,
   submitDanceRound,
+  submitDanceScore,
   type DanceGameScore,
   type DanceLeaderboardEntry,
   type EscapeSession,
@@ -340,6 +341,21 @@ export function Escape() {
           },
         };
         saveDanceScores(next);
+
+        // Submit running total immediately so partial rounds appear on leaderboard
+        const scored = Object.values(next);
+        const runningScore = scored.reduce((s, g) => s + g.score, 0);
+        const runningRestarts = scored.reduce((s, g) => s + g.restarts, 0);
+        if (identity?.sessionToken || identity?.name) {
+          submitDanceScore({
+            sessionToken: identity?.sessionToken,
+            playerName: identity?.name || 'Guest',
+            totalScore: runningScore,
+            totalRestarts: runningRestarts,
+            gamesCompleted: scored.length,
+          }).then(lb => { if (lb.length > 0) setLeaderboard(lb); }).catch(() => {});
+        }
+
         return next;
       });
       setRoundSubmitted(false);
@@ -690,28 +706,34 @@ export function Escape() {
               </Reveal>
             )}
 
-            {(roundComplete || leaderboard.length > 0) && (
-              <Reveal>
-                <div className="mt-8 max-w-md mx-auto">
-                  <div className="rounded-2xl border border-foreground/10 bg-white/45 p-4">
-                    <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-3">Leaderboard</p>
-                    {leaderboard.length === 0 ? (
-                      <p className="text-xs font-light text-foreground/40">Complete all 8 games to post a score.</p>
-                    ) : (
-                      <div className="space-y-2">
-                        {leaderboard.slice(0, 5).map((entry, index) => (
-                          <div key={`${entry.playerName}-${entry.completedAt}`} className="flex items-center gap-3 text-xs">
-                            <span className="w-5 text-foreground/30">{index + 1}</span>
-                            <span className="flex-1 truncate text-foreground/60 font-light">{entry.playerName}</span>
-                            <span className="text-primary/75 font-normal">{entry.totalScore}</span>
+            <Reveal>
+              <div className="mt-6 max-w-md mx-auto">
+                <div className="rounded-2xl border border-foreground/10 bg-white/45 p-4">
+                  <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-3">Global Dance Leaderboard</p>
+                  {leaderboard.length === 0 ? (
+                    <p className="text-xs font-light text-foreground/40 text-center py-2">No scores yet — play to be first! 🕺</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {leaderboard.slice(0, 10).map((entry, index) => (
+                        <div key={`${entry.playerName}-${entry.completedAt}`} className="flex items-center gap-3 text-xs">
+                          <span className="w-5 text-foreground/30 shrink-0">
+                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <span className="truncate text-foreground/70 font-light block">{entry.playerName}</span>
+                            {entry.gamesCompleted != null && entry.gamesCompleted < OBSTACLES.length && (
+                              <span className="text-[9px] text-foreground/35">{entry.gamesCompleted}/{OBSTACLES.length} games</span>
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                          <span className="text-foreground/35 text-[10px] shrink-0">{entry.totalRestarts}↺</span>
+                          <span className="text-primary/75 font-normal tabular-nums shrink-0">{entry.totalScore}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </Reveal>
-            )}
+              </div>
+            </Reveal>
 
             {/* Reset + session history */}
             {identity && (
