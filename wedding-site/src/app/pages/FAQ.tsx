@@ -8,6 +8,17 @@ import {
 } from '../components/ui/accordion';
 import { useLang } from '../context/LanguageContext';
 
+function renderAnswer(text: string) {
+  // Handles [label](url) links and bare email addresses
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\)|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
+  return parts.map((part, i) => {
+    if (i % 2 === 0) return part;
+    const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (md) return <a key={i} href={md[2]} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">{md[1]}</a>;
+    return <a key={i} href={`mailto:${part}`} className="text-primary hover:text-primary/80 transition-colors">{part}</a>;
+  });
+}
+
 export function FAQ() {
   const { t } = useLang();
   const sections = t.faqSections;
@@ -62,7 +73,7 @@ export function FAQ() {
                           {item.q}
                         </AccordionTrigger>
                         <AccordionContent className="text-base font-light text-foreground/75 leading-relaxed pb-5">
-                          {item.a}
+                          {renderAnswer(item.a)}
                         </AccordionContent>
                       </AccordionItem>
                     </Reveal>

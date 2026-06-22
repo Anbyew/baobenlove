@@ -117,8 +117,8 @@ export function Registry() {
               </Link>
 
               <Link
-                to="/escape"
-                onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_visit_escape' })}
+                to="/dance"
+                onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_visit_dance' })}
                 className="group block border border-foreground/10 rounded-sm p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 animate-slide-up-delayed-4"
               >
                 <Car className="w-10 h-10 text-primary/50 mx-auto mb-5 group-hover:text-primary transition-colors" />

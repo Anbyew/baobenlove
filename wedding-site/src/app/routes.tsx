@@ -29,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "registry", Component: Registry },
       { path: "moonboard", Component: Moonboard },
       { path: "garden", Component: Garden },
+      { path: "dance", Component: Escape },
       { path: "escape", Component: Escape },
       { path: "climb", Component: Climb },
       { path: "faq", Component: FAQ },

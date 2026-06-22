@@ -26,12 +26,17 @@ import {
   setGardenItems,
   archiveGarden,
   getGardenSessions,
+  updateGardenSession,
+  clearGardenForInvite,
   getEscapeCleared,
   clearEscapeObstacle,
   archiveEscape,
   getEscapeSessions,
+  saveDanceRound,
+  getDanceLeaderboard,
   getClimbCleared,
   clearClimbBoost,
+  getAdminGames,
 } from './db.js';
 
 const app = express();
@@ -83,11 +88,21 @@ function buildEmailHtml(code) {
 
 // --- Routes ---
 
+const ALLOWED_EMAILS = new Set([
+  'baobaoyuwei@gmail.com',
+  'bellabenbao@gmail.com',
+  'yuweibao@umich.edu',
+  'bkrakoff@gmail.com',
+]);
+
 app.post('/send-otp', async (req, res) => {
   try {
     const email = String(req.body?.email ?? '').trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Please enter a valid email address.' });
+
+    if (!ALLOWED_EMAILS.has(email))
+      return res.status(403).json({ error: 'This site is currently in private preview. Please contact bellabenbao@gmail.com if you need access.' });
 
     const { GMAIL_APP_PASSWORD, OTP_SECRET } = process.env;
     if (!GMAIL_APP_PASSWORD || !OTP_SECRET)
@@ -430,6 +445,13 @@ app.get('/admin/households', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/admin/games', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    res.json(getAdminGames());
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 const MOONBOARD_COLS = 11;
 const MOONBOARD_ROWS = 18;
 const MOONBOARD_SHAPES = ['jug', 'crimp', 'sloper', 'pinch', 'pocket'];
@@ -466,6 +488,7 @@ app.post('/moonboard', (req, res) => {
     const hold = placeMoonboardHold({ row: r, col: c, guestName: name, message: msg, shape, color });
     if (!hold) return res.status(409).json({ error: 'That spot was just taken — please pick another.' });
 
+    logEvent({ sessionToken: null, inviteId: null, eventType: 'moonboard_hold_placed', page: '/moonboard', metadata: { guestName: name, row: r, col: c, shape, amount: 25 } });
     res.json({ hold });
   } catch (err) {
     console.error('moonboard POST error:', err);
@@ -530,6 +553,25 @@ app.get('/garden/sessions', (req, res) => {
   }
 });
 
+app.patch('/garden/sessions/:id', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+
+    const sessionId = parseInt(req.params.id, 10);
+    const items = req.body?.items;
+    if (!Number.isInteger(sessionId) || !Array.isArray(items) || items.length > GARDEN_MAX_ITEMS || !items.every(isValidGardenItem))
+      return res.status(400).json({ error: 'Invalid garden data.' });
+
+    const updated = updateGardenSession(parseInt(session.invite.id), sessionId, items);
+    if (!updated) return res.status(404).json({ error: 'Garden not found.' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not update garden.' });
+  }
+});
+
 app.post('/garden/reset', (req, res) => {
   try {
     const token = String(req.body?.token ?? '').trim();
@@ -542,9 +584,32 @@ app.post('/garden/reset', (req, res) => {
   }
 });
 
+app.post('/garden/clear-mine', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+    const cleared = clearGardenForInvite(parseInt(session.invite.id));
+    res.json({ ok: true, cleared });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not clear your garden history.' });
+  }
+});
+
 // --- Escape the Reception ---
 
 const ESCAPE_OBSTACLE_IDS = ['tutorial', 'toes', 'warmup', 'crowd', 'dip', 'mom', 'spin', 'encore'];
+const DANCE_MAX_GAME_SCORE = 100;
+const DANCE_MIN_GAME_SCORE = 40;
+
+function isValidDanceGame(game) {
+  return game && typeof game === 'object'
+    && ESCAPE_OBSTACLE_IDS.includes(game.obstacleId)
+    && typeof game.label === 'string' && game.label.length <= 120
+    && Number.isInteger(game.score) && game.score >= DANCE_MIN_GAME_SCORE && game.score <= DANCE_MAX_GAME_SCORE
+    && Number.isInteger(game.restarts) && game.restarts >= 0 && game.restarts <= 100
+    && typeof game.completedAt === 'string';
+}
 
 app.get('/escape/sessions', (req, res) => {
   try {
@@ -586,10 +651,49 @@ app.post('/escape', (req, res) => {
     const result = clearEscapeObstacle({ obstacleId, note: n });
     if (!result) return res.status(409).json({ error: 'Someone already cleared that one.', cleared: getEscapeCleared() });
 
+    logEvent({ sessionToken: null, inviteId: null, eventType: 'escape_obstacle_cleared', page: '/escape', metadata: { obstacleId } });
     res.json({ ok: true, cleared: getEscapeCleared() });
   } catch (err) {
     console.error('escape POST error:', err);
     res.status(500).json({ error: 'Could not clear that obstacle.' });
+  }
+});
+
+app.post('/dance/rounds', (req, res) => {
+  try {
+    const token = String(req.body?.token ?? '').trim();
+    const session = validateSession(token);
+    if (!session?.invite) return res.status(401).json({ error: 'Session expired or not found.' });
+
+    const games = req.body?.games;
+    const uniqueIds = new Set(Array.isArray(games) ? games.map(g => g?.obstacleId) : []);
+    if (!Array.isArray(games) || games.length !== ESCAPE_OBSTACLE_IDS.length || uniqueIds.size !== ESCAPE_OBSTACLE_IDS.length || !games.every(isValidDanceGame))
+      return res.status(400).json({ error: 'Invalid dance round.' });
+
+    const totalScore = games.reduce((sum, game) => sum + game.score, 0);
+    const totalRestarts = games.reduce((sum, game) => sum + game.restarts, 0);
+    if (req.body?.totalScore !== totalScore || req.body?.totalRestarts !== totalRestarts)
+      return res.status(400).json({ error: 'Invalid dance score.' });
+
+    const playerName = session.name || session.email || 'Guest';
+    saveDanceRound(parseInt(session.invite.id), playerName, {
+      games,
+      totalScore,
+      totalRestarts,
+      completedAt: String(req.body?.completedAt || new Date().toISOString()),
+    });
+    logEvent({ sessionToken: token, inviteId: parseInt(session.invite.id), eventType: 'dance_round_complete', page: '/escape', metadata: { playerName, totalScore, totalRestarts } });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not save dance score.' });
+  }
+});
+
+app.get('/dance/leaderboard', (req, res) => {
+  try {
+    res.json({ leaderboard: getDanceLeaderboard() });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load dance leaderboard.' });
   }
 });
 
@@ -616,6 +720,7 @@ app.post('/climb', (req, res) => {
     const result = clearClimbBoost({ boostId, note: n });
     if (!result) return res.status(409).json({ error: 'Someone already sent that boost.', cleared: getClimbCleared() });
 
+    logEvent({ sessionToken: null, inviteId: null, eventType: 'climb_boost_cleared', page: '/climb', metadata: { boostId } });
     res.json({ ok: true, cleared: getClimbCleared() });
   } catch (err) {
     console.error('climb POST error:', err);

@@ -42,12 +42,17 @@ export function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.firstName.trim()) return;
     setError(null);
+
+    if (!form.title || !form.firstName.trim() || !form.lastName.trim() || !form.language) {
+      setError('Please complete every field before saving.');
+      return;
+    }
+
     setSaving(true);
 
     try {
-      const fullName = [form.title, form.firstName.trim(), form.lastName.trim()].filter(Boolean).join(' ');
+      const fullName = [form.title, form.firstName.trim(), form.lastName.trim()].join(' ');
 
       if (identity.sessionToken) {
         await updateSession(identity.sessionToken, {
@@ -90,9 +95,10 @@ export function ProfilePage() {
           {/* Title */}
           <div>
             <Label className="text-xs tracking-wider uppercase font-light text-foreground/50">
-              Title
+              Title *
             </Label>
             <select
+              required
               value={form.title}
               onChange={e => set('title', e.target.value)}
               className="w-full border-b border-foreground/20 focus:border-primary bg-transparent py-2 font-light text-foreground outline-none mt-1 transition-colors duration-300"
@@ -119,9 +125,10 @@ export function ProfilePage() {
           {/* Last Name */}
           <div>
             <Label className="text-xs tracking-wider uppercase font-light text-foreground/50">
-              Last Name
+              Last Name *
             </Label>
             <input
+              required
               value={form.lastName}
               onChange={e => set('lastName', e.target.value)}
               className="w-full border-b border-foreground/20 focus:border-primary bg-transparent py-2 font-light text-foreground outline-none mt-1 transition-colors duration-300"
@@ -131,7 +138,7 @@ export function ProfilePage() {
           {/* Language */}
           <div>
             <Label className="text-xs tracking-wider uppercase font-light text-foreground/50">
-              Preferred Language
+              Preferred Language *
             </Label>
             <div className="flex gap-3 mt-2">
               {(['en', 'zh'] as const).map(l => (

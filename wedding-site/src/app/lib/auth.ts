@@ -182,8 +182,26 @@ export async function getGardenSessions(token: string): Promise<GardenSession[]>
   return data.sessions ?? [];
 }
 
+export async function saveGardenSession(token: string, sessionId: number, items: GardenItem[]): Promise<void> {
+  const response = await fetch(`${API_BASE}/garden/sessions/${sessionId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, items }),
+  });
+  await parseJson(response);
+}
+
 export async function resetGarden(token: string): Promise<void> {
   const response = await fetch(`${API_BASE}/garden/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  await parseJson(response);
+}
+
+export async function clearMyGardenHistory(token: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/garden/clear-mine`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token }),
@@ -214,4 +232,43 @@ export async function resetEscape(token: string): Promise<void> {
     body: JSON.stringify({ token }),
   });
   await parseJson(response);
+}
+
+export interface DanceGameScore {
+  obstacleId: string;
+  label: string;
+  score: number;
+  restarts: number;
+  completedAt: string;
+}
+
+export interface DanceRoundSubmission {
+  games: DanceGameScore[];
+  totalScore: number;
+  totalRestarts: number;
+  completedAt: string;
+}
+
+export interface DanceLeaderboardEntry {
+  inviteId?: number;
+  playerName: string;
+  totalScore: number;
+  totalRestarts: number;
+  completedAt: string;
+  games: DanceGameScore[];
+}
+
+export async function submitDanceRound(token: string, round: DanceRoundSubmission): Promise<void> {
+  const response = await fetch(`${API_BASE}/dance/rounds`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, ...round }),
+  });
+  await parseJson(response);
+}
+
+export async function getDanceLeaderboard(): Promise<DanceLeaderboardEntry[]> {
+  const response = await fetch(`${API_BASE}/dance/leaderboard`);
+  const data = await parseJson<{ leaderboard?: DanceLeaderboardEntry[] }>(response);
+  return data.leaderboard ?? [];
 }

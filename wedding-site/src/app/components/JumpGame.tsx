@@ -28,6 +28,14 @@ interface LaneObstacle {
 export type Mode = 'jump' | 'lane' | 'duck';
 
 export const MODES: Mode[] = ['jump', 'lane', 'duck'];
+export const MAX_GAME_SCORE = 100;
+export const MIN_GAME_SCORE = 40;
+export const RESTART_PENALTY = 10;
+
+export interface JumpGameResult {
+  score: number;
+  restarts: number;
+}
 
 const GROUND = 0;
 const GRAVITY = 8.5; // tuned so a jump comfortably clears OBSTACLE_HEIGHT
@@ -68,9 +76,10 @@ export function JumpGame({
   playerIcon: LucideIcon;
   obstacleIcon: LucideIcon;
   goal: number;
-  onSuccess: () => void;
+  onSuccess: (result: JumpGameResult) => void;
 }) {
   const [cleared, setCleared] = useState(0);
+  const [restarts, setRestarts] = useState(0);
 
   // Jump / duck mode state (both use horizontally-scrolling obstacles)
   const [playerY, setPlayerY] = useState(GROUND);
@@ -109,6 +118,7 @@ export function JumpGame({
   const advance = Math.min(cleared, targetGoal) / targetGoal;
   const playerX = PLAYER_X_START + advance * (PLAYER_X_FINISH - PLAYER_X_START);
   const playerYLane = PLAYER_Y_START + advance * (PLAYER_Y_FINISH - PLAYER_Y_START);
+  const score = Math.max(MIN_GAME_SCORE, MAX_GAME_SCORE - restarts * RESTART_PENALTY);
 
   // ── Jump / duck mode loop (horizontal scroll) ───────────────────────────
   useEffect(() => {
@@ -202,9 +212,9 @@ export function JumpGame({
 
   useEffect(() => {
     if (status !== 'success') return;
-    const t = setTimeout(onSuccess, 500);
+    const t = setTimeout(() => onSuccess({ score, restarts }), 500);
     return () => clearTimeout(t);
-  }, [status, onSuccess]);
+  }, [status, onSuccess, restarts, score]);
 
   // Snap player to ground once landed
   useEffect(() => {
@@ -276,6 +286,7 @@ export function JumpGame({
   };
 
   const retry = () => {
+    setRestarts(r => r + 1);
     velocityRef.current = 0;
     if (duckTimeoutRef.current) clearTimeout(duckTimeoutRef.current);
     setPlayerY(GROUND);
@@ -292,6 +303,9 @@ export function JumpGame({
     return (
       <div className="text-center py-3">
         <p className="text-sm font-light text-foreground/60 mb-3">Tripped! Back to the start.</p>
+        <p className="text-xs font-light text-foreground/40 mb-4">
+          Current score: {Math.max(MIN_GAME_SCORE, score - RESTART_PENALTY)}
+        </p>
         <button
           type="button"
           onClick={retry}
@@ -311,7 +325,7 @@ export function JumpGame({
     <>
       <div className="flex items-center justify-between mb-2 text-xs font-light text-foreground/50 tracking-wider">
         <span>{headerText}</span>
-        <span>{Math.min(cleared, targetGoal)} / {targetGoal}</span>
+        <span>{Math.min(cleared, targetGoal)} / {targetGoal} · {score} pts</span>
       </div>
       <div className="h-1.5 rounded-full bg-foreground/10 overflow-hidden mb-3">
         <motion.div
@@ -323,7 +337,7 @@ export function JumpGame({
       <button
         type="button"
         onClick={handleTap}
-        className="relative w-full h-72 rounded-xl bg-foreground/5 overflow-hidden mb-3 select-none"
+        className="relative w-full h-96 md:h-[32rem] rounded-xl bg-foreground/5 overflow-hidden mb-3 select-none"
       >
         {status === 'success' ? (
           <div className="absolute inset-0 flex items-center justify-center text-sm font-light text-primary">

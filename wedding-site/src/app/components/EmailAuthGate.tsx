@@ -196,6 +196,7 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
             </div>
             {error && <p className="text-xs text-destructive font-light tracking-wide">{error}</p>}
             <button
+              type="button"
               onClick={handleVerifyOtp}
               disabled={isLoading || code.length !== 6}
               className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-sm tracking-widest uppercase font-light transition-all duration-300 disabled:opacity-50"
@@ -204,12 +205,14 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
             </button>
             <div className="flex justify-between text-xs font-light text-foreground/40">
               <button
+                type="button"
                 onClick={() => { setStep('email'); setCode(''); setError(null); }}
                 className="hover:text-foreground/70 transition-colors"
               >
                 {t.back}
               </button>
               <button
+                type="button"
                 onClick={handleResend}
                 disabled={isLoading}
                 className="hover:text-foreground/70 transition-colors disabled:opacity-50"
@@ -333,6 +336,7 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
         {/* Language toggle (steps 1 & 2 only) */}
         {step !== 'profile' && (
           <button
+            type="button"
             onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
             className="mt-8 text-xs font-light text-foreground/40 hover:text-foreground/70 tracking-wider transition-colors duration-300"
           >
@@ -344,6 +348,7 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
         <div className="mt-10 space-y-3">
           {error && !helpSent && (
             <button
+              type="button"
               onClick={async () => {
                 await reportIssue({ email, name: selectedName || customName.firstName, issue: error });
                 setHelpSent(true);

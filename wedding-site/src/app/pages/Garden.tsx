@@ -4,7 +4,8 @@ import { toPng } from 'html-to-image';
 import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { openVenmo } from '../lib/venmo';
-import { trackClick, getGarden, saveGarden as saveGardenToServer, resetGarden, getGardenSessions, type GardenSession } from '../lib/auth';
+import { ZelleButton } from '../components/ZelleButton';
+import { trackClick, getGarden, saveGarden as saveGardenToServer, saveGardenSession, resetGarden, getGardenSessions, type GardenSession } from '../lib/auth';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ const VB_H = 600;
 const QTY_OPTIONS = [1, 2, 4, 8, 16, 32, 64];
 const PICKUP_RADIUS = 28;
 const STORAGE_KEY = 'wedding-garden-plots-v2';
+const HISTORY_STORAGE_KEY = 'wedding-garden-history-v1';
 
 // exclusion zones — can't plant here
 const POND = { cx: 800, cy: 470, rx: 150, ry: 78 };
@@ -431,6 +433,43 @@ function saveGardenLocal(items: PlantedItem[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
 }
 
+function loadGardenSessionsLocal(): GardenSession[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+    return raw ? JSON.parse(raw) as GardenSession[] : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveGardenSessionsLocal(sessions: GardenSession[]) {
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(sessions));
+}
+
+function updateGardenSessionLocal(sessions: GardenSession[], sessionId: number, items: PlantedItem[]) {
+  const now = new Date().toISOString();
+  const next = sessions.map(session =>
+    session.id === sessionId ? { ...session, items, archived_at: now } : session
+  );
+  saveGardenSessionsLocal(next);
+  return next;
+}
+
+function archiveGardenLocal(items: PlantedItem[], sessions: GardenSession[]) {
+  if (!items.length) return sessions;
+  const now = new Date().toISOString();
+  const nextSession: GardenSession = {
+    id: Date.now(),
+    session_number: Math.max(0, ...sessions.map(s => s.session_number)) + 1,
+    items,
+    started_at: now,
+    archived_at: now,
+  };
+  const next = [nextSession, ...sessions];
+  saveGardenSessionsLocal(next);
+  return next;
+}
+
 function inPond(x: number, y: number) {
   const dx = (x - POND.cx) / POND.rx;
   const dy = (y - POND.cy) / POND.ry;
@@ -458,8 +497,8 @@ export function Garden() {
 
   const [gardenerName, setGardenerName] = useState('');
   const [downloading, setDownloading] = useState(false);
-  const [sessions, setSessions] = useState<GardenSession[]>([]);
-  const [viewingSession, setViewingSession] = useState<GardenSession | null>(null);
+  const [sessions, setSessions] = useState<GardenSession[]>(loadGardenSessionsLocal);
+  const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
 
   // Load the household's garden from the server once logged in. If the
@@ -483,7 +522,13 @@ export function Garden() {
 
   const persistGarden = (next: PlantedItem[]) => {
     setItems(next);
-    if (identity?.sessionToken) {
+    if (activeSessionId && identity?.sessionToken) {
+      saveGardenSession(identity.sessionToken, activeSessionId, next).then(() => {
+        getGardenSessions(identity.sessionToken).then(setSessions).catch(() => {});
+      }).catch(() => {});
+    } else if (activeSessionId) {
+      setSessions(prev => updateGardenSessionLocal(prev, activeSessionId, next));
+    } else if (identity?.sessionToken) {
       saveGardenToServer(identity.sessionToken, next).catch(() => {});
     } else {
       saveGardenLocal(next);
@@ -502,7 +547,7 @@ export function Garden() {
       label: 'garden_pay_venmo',
       metadata: { qty, plantType, amount: qty * unitPrice },
     });
-    openVenmo(qty * unitPrice, `Krakoff Wedding -- Garden Fund: $${qty * unitPrice}`);
+    openVenmo(qty * unitPrice, 'Garden Fund');
   };
 
   const handleAddDrafts = () => {
@@ -569,19 +614,48 @@ export function Garden() {
   };
 
   const handleReset = async () => {
-    if (!identity?.sessionToken) return;
-    if (!confirm('Start a fresh garden? Your current garden will be saved to your history.')) return;
     try {
-      await resetGarden(identity.sessionToken);
-      const updatedSessions = await getGardenSessions(identity.sessionToken);
-      setSessions(updatedSessions);
+      if (activeSessionId) {
+        setItems([]);
+        setDrafts([]);
+        setActiveId(null);
+        setActiveSessionId(null);
+        saveGardenLocal([]);
+        return;
+      }
+      if (identity?.sessionToken) {
+        await resetGarden(identity.sessionToken);
+        const updatedSessions = await getGardenSessions(identity.sessionToken);
+        setSessions(updatedSessions);
+      } else {
+        setSessions(archiveGardenLocal(items, sessions));
+      }
       setItems([]);
       setDrafts([]);
       setActiveId(null);
+      setActiveSessionId(null);
       saveGardenLocal([]);
     } catch {
       alert('Could not reset garden. Please try again.');
     }
+  };
+
+  const handleSelectSession = async (session: GardenSession) => {
+    if (!activeSessionId && items.length > 0) {
+      if (identity?.sessionToken) {
+        await resetGarden(identity.sessionToken);
+        const updatedSessions = await getGardenSessions(identity.sessionToken);
+        setSessions(updatedSessions);
+      } else {
+        setSessions(prev => archiveGardenLocal(items, prev));
+      }
+      saveGardenLocal([]);
+    }
+
+    setItems(session.items as PlantedItem[]);
+    setDrafts([]);
+    setActiveId(null);
+    setActiveSessionId(session.id);
   };
 
   const handleDownload = async () => {
@@ -600,7 +674,8 @@ export function Garden() {
     }
   };
 
-  const displayItems = viewingSession ? (viewingSession.items as PlantedItem[]) : items;
+  const activeSession = sessions.find(session => session.id === activeSessionId) ?? null;
+  const displayItems = items;
   const gardenValue = displayItems.reduce((sum, it) => sum + (PLANT_CATALOG[it.plantType]?.stage.price ?? 0), 0);
 
   return (
@@ -658,7 +733,7 @@ export function Garden() {
             <Reveal delay={0.1}>
               <div className="flex justify-center gap-16 mb-10">
                 {[
-                  { value: items.length, label: 'Planted' },
+                  { value: displayItems.length, label: 'Planted' },
                   { value: `$${gardenValue}`, label: 'Garden Value' },
                 ].map(({ value, label }) => (
                   <div key={label} className="text-center">
@@ -849,13 +924,16 @@ export function Garden() {
                       {qty} {PLANT_CATALOG[plantType].label}{qty > 1 ? 's' : ''} × ${unitPrice} = <span className="text-foreground">${qty * unitPrice}</span>
                     </p>
 
-                    <button
-                      type="button"
-                      onClick={handlePay}
-                      className="w-full py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                    >
-                      Pay ${qty * unitPrice} with Venmo
-                    </button>
+                    <div className="flex gap-2 items-start">
+                      <button
+                        type="button"
+                        onClick={handlePay}
+                        className="flex-1 py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                      >
+                        ${qty * unitPrice} via Venmo
+                      </button>
+                      <ZelleButton amount={qty * unitPrice} note="Garden Fund" sessionToken={identity?.sessionToken} />
+                    </div>
 
                     <button
                       type="button"
@@ -939,7 +1017,7 @@ export function Garden() {
                   {/* Keep / download */}
                   <div className="bg-foreground/[0.03] rounded-2xl p-5">
                     <div className="text-xs tracking-[0.3em] uppercase text-primary/55 mb-4 font-light">
-                      Keep Your Garden
+                      {activeSession ? `Editing Garden ${activeSession.session_number}` : 'Keep Your Garden'}
                     </div>
                     <Input
                       value={gardenerName}
@@ -952,7 +1030,7 @@ export function Garden() {
                       <button
                         type="button"
                         onClick={handleDownload}
-                        disabled={downloading || items.length === 0}
+                        disabled={downloading || displayItems.length === 0}
                         className="flex-1 py-3 rounded-full border border-foreground/15 hover:border-foreground/30 disabled:opacity-30 disabled:cursor-not-allowed text-foreground/70 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                       >
                         {downloading ? 'Saving…' : 'Download'}
@@ -963,12 +1041,13 @@ export function Garden() {
                         disabled={items.length === 0}
                         className="py-3 px-4 rounded-full border border-foreground/10 hover:border-destructive/40 hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed text-foreground/40 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                       >
-                        Reset
+                        {activeSession ? 'New' : 'Reset'}
                       </button>
                     </div>
                     {sessions.length > 0 && (
                       <div className="mt-5 border-t border-foreground/10 pt-4">
-                        <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-3">Previous gardens</p>
+                        <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-1">Saved gardens</p>
+                        <p className="text-xs font-light text-foreground/40 mb-3">Tap one to edit that saved garden. Changes stay with that garden.</p>
                         <div className="space-y-2">
                           {sessions.map(s => {
                             const counts: Record<string, number> = {};
@@ -978,15 +1057,18 @@ export function Garden() {
                               return `${emoji[type] || '🌱'}×${n}`;
                             }).join(' ');
                             const date = new Date(s.archived_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                            const isViewing = viewingSession?.id === s.id;
                             return (
                               <button
                                 key={s.id}
                                 type="button"
-                                onClick={() => setViewingSession(isViewing ? null : s)}
-                                className={`w-full text-left px-3 py-2 rounded border text-xs transition-colors ${isViewing ? 'border-primary/40 bg-primary/5 text-foreground' : 'border-foreground/10 hover:border-foreground/20 text-foreground/50'}`}
+                                onClick={() => handleSelectSession(s)}
+                                className={`w-full text-left px-3 py-2 rounded border text-xs transition-colors ${
+                                  activeSessionId === s.id
+                                    ? 'border-primary/40 bg-primary/5 text-foreground'
+                                    : 'border-foreground/10 hover:border-primary/30 hover:bg-primary/5 text-foreground/50'
+                                }`}
                               >
-                                <span className="font-normal">Garden {s.session_number}</span>
+                                <span className="font-normal text-foreground/70">Garden {s.session_number}</span>
                                 <span className="mx-2 text-foreground/20">·</span>
                                 <span>{summary}</span>
                                 <span className="float-right text-foreground/30">{date}</span>
@@ -994,9 +1076,6 @@ export function Garden() {
                             );
                           })}
                         </div>
-                        {viewingSession && (
-                          <p className="text-xs text-foreground/40 mt-2 text-center">Viewing Garden {viewingSession.session_number} — read only</p>
-                        )}
                       </div>
                     )}
                   </div>

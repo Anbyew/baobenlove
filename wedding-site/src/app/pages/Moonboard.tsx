@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { Reveal } from '../components/Reveal';
 import { fetchMoonboardHolds, placeMoonboardHold, type MoonboardHold } from '../lib/moonboard';
 import { openVenmo } from '../lib/venmo';
+import { ZelleButton } from '../components/ZelleButton';
 import { trackClick } from '../lib/auth';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 
@@ -252,6 +253,11 @@ export function Moonboard() {
     setActiveId(null);
     setName('');
     setSubmitting(false);
+    trackClick({
+      sessionToken: identity?.sessionToken,
+      label: 'moonboard_hold_submitted',
+      metadata: { qty: placed.length, amount: placed.length * HOLD_PRICE },
+    });
   };
 
   const filledCount = holds.length;
@@ -371,6 +377,7 @@ export function Moonboard() {
                         return (
                           <button
                             key={key}
+                            type="button"
                             onClick={() => handleCellClick(row, col)}
                             title={
                               hold
@@ -495,23 +502,23 @@ export function Moonboard() {
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        trackClick({
-                          sessionToken: identity?.sessionToken,
-                          label: 'moonboard_pay_venmo',
-                          metadata: { qty, amount: qty * HOLD_PRICE },
-                        });
-                        openVenmo(
-                          qty * HOLD_PRICE,
-                          `Krakoff Wedding -- Climbing Board Fund: $${qty * HOLD_PRICE}`
-                        );
-                      }}
-                      className="w-full py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                    >
-                      Pay ${qty * HOLD_PRICE} with Venmo
-                    </button>
+                    <div className="flex gap-2 items-start">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackClick({
+                            sessionToken: identity?.sessionToken,
+                            label: 'moonboard_pay_venmo',
+                            metadata: { qty, amount: qty * HOLD_PRICE },
+                          });
+                          openVenmo(qty * HOLD_PRICE, 'Climbing Board Fund');
+                        }}
+                        className="flex-1 py-3 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                      >
+                        ${qty * HOLD_PRICE} via Venmo
+                      </button>
+                      <ZelleButton amount={qty * HOLD_PRICE} note="Climbing Board Fund" sessionToken={identity?.sessionToken} />
+                    </div>
 
                     <button
                       type="button"

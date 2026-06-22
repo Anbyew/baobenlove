@@ -1,11 +1,17 @@
-export function openVenmo(amount: number, note: string) {
+export function buildPaymentMemo(amount: number, label: string) {
+  return `Krakoff Wedding 2026 — ${label}`;
+}
+
+export function openVenmo(amount: number, label: string) {
+  const note = buildPaymentMemo(amount, label);
   const params = new URLSearchParams({
     txn: 'pay',
-    recipients: 'baobenlove',
+    recipients: 'Benjamin-Krakoff',
     amount: amount.toString(),
     note,
   });
-  const fallback = 'https://venmo.com/baobenlove';
+  const webParams = new URLSearchParams({ txn: 'pay', amount: amount.toString(), note });
+  const fallback = `https://venmo.com/Benjamin-Krakoff?${webParams.toString()}`;
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   if (!isMobile) {

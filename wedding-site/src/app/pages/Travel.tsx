@@ -133,9 +133,6 @@ export function Travel() {
                         ) : (
                           <p className={`text-sm font-light mt-3 ${hotel.codeColor}`}>{t.roomBlockSoon}</p>
                         )}
-                        {hotel.hasNote && (
-                          <p className="text-sm font-light text-foreground/50 mt-1">{t.bookingNoteRef}</p>
-                        )}
                       </div>
                     </Reveal>
                   ))}

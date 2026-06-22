@@ -82,6 +82,7 @@ export function Navigation() {
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden text-foreground/60 hover:text-foreground transition-colors ml-auto"
           >

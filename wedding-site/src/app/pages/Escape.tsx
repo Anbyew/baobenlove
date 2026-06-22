@@ -2,9 +2,19 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence, useAnimationControls } from 'motion/react';
 import { Car, PartyPopper, Music, Disc, Mic2, Eye, PlayCircle, Zap, Flag, Sparkles, X, Check } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
-import { JumpGame, MODES } from '../components/JumpGame';
+import { JumpGame, MAX_GAME_SCORE, MODES, type JumpGameResult } from '../components/JumpGame';
 import { openVenmo } from '../lib/venmo';
-import { trackClick, resetEscape, getEscapeSessions, type EscapeSession } from '../lib/auth';
+import { ZelleButton } from '../components/ZelleButton';
+import {
+  trackClick,
+  resetEscape,
+  getEscapeSessions,
+  getDanceLeaderboard,
+  submitDanceRound,
+  type DanceGameScore,
+  type DanceLeaderboardEntry,
+  type EscapeSession,
+} from '../lib/auth';
 import { fetchEscapeCleared, clearEscapeObstacle, type EscapeClearedState } from '../lib/escape';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
 
@@ -29,6 +39,44 @@ const OBSTACLES: Obstacle[] = [
   { id: 'spin',    icon: Disc,        label: "Someone Yelled 'Do the Thing!'",    caption: 'There is no thing. Ben must invent one on the spot.',            price: 35, image: '/AI/BenDance/theThing.png' },
   { id: 'encore',  icon: Mic2,        label: 'Yuwei Wants an Encore',             caption: "Ben's knees have filed a formal complaint.",                    price: 50, image: '/AI/BenDance/encore.png'   },
 ];
+
+const LOCAL_DANCE_RESET_KEY = 'baoben_dance_local_reset';
+const LOCAL_DANCE_SCORES_KEY = 'baoben_dance_scores_v1';
+const LOCAL_DANCE_LEADERBOARD_KEY = 'baoben_dance_leaderboard_v1';
+
+type DanceScoreMap = Record<string, DanceGameScore>;
+
+function loadDanceScores(): DanceScoreMap {
+  try {
+    const raw = localStorage.getItem(LOCAL_DANCE_SCORES_KEY);
+    return raw ? JSON.parse(raw) as DanceScoreMap : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveDanceScores(scores: DanceScoreMap) {
+  localStorage.setItem(LOCAL_DANCE_SCORES_KEY, JSON.stringify(scores));
+}
+
+function loadLocalLeaderboard(): DanceLeaderboardEntry[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_DANCE_LEADERBOARD_KEY);
+    return raw ? JSON.parse(raw) as DanceLeaderboardEntry[] : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLocalLeaderboard(entries: DanceLeaderboardEntry[]) {
+  localStorage.setItem(LOCAL_DANCE_LEADERBOARD_KEY, JSON.stringify(entries));
+}
+
+function isLocalDanceMode() {
+  return window.location.hostname === '127.0.0.1'
+    || window.location.hostname === 'localhost'
+    || localStorage.getItem(LOCAL_DANCE_RESET_KEY) === 'true';
+}
 
 // ring/bg/icon kept for the popover; glow + dot used for bubble & confetti
 const OBSTACLE_THEMES = [
@@ -90,7 +138,7 @@ function BubbleObstacle({ ob, i, isCleared, theme, pos, sessionToken, onSelect }
         await new Promise<void>(res => setTimeout(res, i * 280 + Math.random() * 450));
       }
       while (active) {
-        const dur = 3.8 + Math.random() * 4.2;
+        const dur = 2.2 + Math.random() * 2.6;
         try {
           await controls.start({
             x: rand(pos.rangeX),
@@ -163,10 +211,15 @@ function benEmoji(clearedCount: number, allClear: boolean) {
 
 export function Escape() {
   const { identity } = useGuestIdentity();
+  const [localReset] = useState(isLocalDanceMode);
   const [cleared, setCleared] = useState<EscapeClearedState>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [poofs, setPoofs] = useState<string[]>([]);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [gameScores, setGameScores] = useState<DanceScoreMap>(loadDanceScores);
+  const [leaderboard, setLeaderboard] = useState<DanceLeaderboardEntry[]>([]);
+  const [roundSubmitted, setRoundSubmitted] = useState(false);
   const [myClearances, setMyClearances] = useState<Set<string>>(() => {
     try {
       const stored = JSON.parse(localStorage.getItem('baoben_dance_clearances') || '[]');
@@ -177,25 +230,59 @@ export function Escape() {
   const [sessions, setSessions] = useState<EscapeSession[]>([]);
 
   useEffect(() => {
-    fetchEscapeCleared().then(setCleared).catch(() => {});
-    getEscapeSessions().then(setSessions).catch(() => {});
-  }, []);
+    if (localReset) {
+      setSessions([]);
+      setLeaderboard(loadLocalLeaderboard());
+    } else {
+      fetchEscapeCleared().then(setCleared).catch(() => {});
+      getEscapeSessions().then(setSessions).catch(() => {});
+      getDanceLeaderboard().then(setLeaderboard).catch(() => {});
+    }
+  }, [localReset]);
 
   const handleReset = async () => {
-    if (!identity?.sessionToken) return;
-    if (!confirm('Start a new round? The current round will be saved to history and the road resets for everyone.')) return;
+    setResetMessage(null);
+    if (localReset) {
+      setCleared({});
+      setMyClearances(new Set());
+      setGameScores({});
+      setRoundSubmitted(false);
+      try {
+        localStorage.removeItem('baoben_dance_clearances');
+        localStorage.removeItem(LOCAL_DANCE_SCORES_KEY);
+      } catch {}
+      setResetMessage('Local round reset.');
+      return;
+    }
+    if (!identity?.sessionToken) {
+      setResetMessage('Please refresh or sign in again before starting a new round.');
+      return;
+    }
     try {
       await resetEscape(identity.sessionToken);
+      setCleared({});
       const [newSessions] = await Promise.all([getEscapeSessions(), fetchEscapeCleared().then(setCleared)]);
       setSessions(newSessions);
+      setMyClearances(new Set());
+      setGameScores({});
+      setRoundSubmitted(false);
+      try {
+        localStorage.removeItem('baoben_dance_clearances');
+        localStorage.removeItem(LOCAL_DANCE_SCORES_KEY);
+      } catch {}
+      setResetMessage('New round started.');
     } catch {
-      alert('Could not reset. Please try again.');
+      setResetMessage('Could not start a new round. Please try again.');
     }
   };
 
   const clearedCount = Object.keys(cleared).length;
   const progress = clearedCount / OBSTACLES.length;
   const allClear = clearedCount === OBSTACLES.length;
+  const scoredGames = OBSTACLES.map(ob => gameScores[ob.id]).filter(Boolean) as DanceGameScore[];
+  const totalScore = scoredGames.reduce((sum, game) => sum + game.score, 0);
+  const totalRestarts = scoredGames.reduce((sum, game) => sum + game.restarts, 0);
+  const roundComplete = scoredGames.length === OBSTACLES.length;
 
   const selectedIndex = OBSTACLES.findIndex(o => o.id === selectedId);
   const selected = selectedIndex >= 0 ? OBSTACLES[selectedIndex] : null;
@@ -206,16 +293,20 @@ export function Escape() {
       label: 'escape_pay_venmo',
       metadata: { obstacle: ob.id, amount: ob.price },
     });
-    openVenmo(ob.price, `Krakoff Wedding -- SOS: Ben Can't Dance: ${ob.label} ($${ob.price})`);
+    openVenmo(ob.price, `SOS: Ben Can't Dance — ${ob.label}`);
   };
 
-  const handleClear = async (ob: Obstacle) => {
+  const handleClear = async (ob: Obstacle, result?: JumpGameResult) => {
     setSelectedId(null);
     setPlayingId(null);
 
     try {
-      const next = await clearEscapeObstacle(ob.id, '');
-      setCleared(next);
+      if (localReset) {
+        setCleared(prev => ({ ...prev, [ob.id]: { note: '', clearedAt: new Date().toISOString() } }));
+      } else {
+        const next = await clearEscapeObstacle(ob.id, '');
+        setCleared(next);
+      }
     } catch {
       return;
     }
@@ -235,7 +326,65 @@ export function Escape() {
 
     setPoofs(prev => [...prev, ob.id]);
     setTimeout(() => setPoofs(prev => prev.filter(id => id !== ob.id)), 800);
+
+    if (result) {
+      setGameScores(prev => {
+        const next = {
+          ...prev,
+          [ob.id]: {
+            obstacleId: ob.id,
+            label: ob.label,
+            score: result.score,
+            restarts: result.restarts,
+            completedAt: new Date().toISOString(),
+          },
+        };
+        saveDanceScores(next);
+        return next;
+      });
+      setRoundSubmitted(false);
+    }
   };
+
+  useEffect(() => {
+    if (!roundComplete || roundSubmitted) return;
+    const completedAt = new Date().toISOString();
+    const games = OBSTACLES.map(ob => gameScores[ob.id]);
+    if (games.some(game => !game)) return;
+
+    const entry: DanceLeaderboardEntry = {
+      playerName: identity?.name || 'Local Guest',
+      totalScore,
+      totalRestarts,
+      completedAt,
+      games: games as DanceGameScore[],
+    };
+
+    if (localReset || !identity?.sessionToken) {
+      const current = loadLocalLeaderboard();
+      const playerName = entry.playerName;
+      const withoutPlayer = current.filter(e => e.playerName !== playerName);
+      const existing = current.find(e => e.playerName === playerName);
+      const best = !existing || entry.totalScore > existing.totalScore || (entry.totalScore === existing.totalScore && entry.totalRestarts < existing.totalRestarts)
+        ? entry
+        : existing;
+      const next = [best, ...withoutPlayer]
+        .sort((a, b) => b.totalScore - a.totalScore || a.totalRestarts - b.totalRestarts || new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime())
+        .slice(0, 20);
+      saveLocalLeaderboard(next);
+      setLeaderboard(next);
+      setRoundSubmitted(true);
+      return;
+    }
+
+    submitDanceRound(identity.sessionToken, {
+      games: entry.games,
+      totalScore,
+      totalRestarts,
+      completedAt,
+    }).then(() => getDanceLeaderboard().then(setLeaderboard).catch(() => {}))
+      .finally(() => setRoundSubmitted(true));
+  }, [gameScores, identity?.name, identity?.sessionToken, localReset, roundComplete, roundSubmitted, totalRestarts, totalScore]);
 
   return (
     <div className="min-h-screen relative">
@@ -299,14 +448,6 @@ export function Escape() {
                     backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
                     backgroundSize: '60px 60px',
                   }}
-                />
-
-                {/* Dance illustration — black background knocks out via screen blend on dark scene */}
-                <img
-                  src="/AI/dance.png"
-                  alt=""
-                  className="absolute right-0 bottom-0 h-full object-contain object-right-bottom opacity-60 pointer-events-none select-none"
-                  style={{ mixBlendMode: 'screen' }}
                 />
 
                 {/* Spotlight — brightens as confidence rises */}
@@ -418,7 +559,9 @@ export function Escape() {
                   onClick={() => { setSelectedId(null); setPlayingId(null); }}
                 >
                   <motion.div
-                    className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden data-[playing=true]:max-w-xl transition-[max-width]"
+                    className={`relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden transition-[max-width] ${
+                      playingId === selected.id ? 'max-w-5xl' : 'max-w-xl'
+                    }`}
                     data-playing={playingId === selected.id}
                     initial={{ scale: 0.85, opacity: 0, y: 10 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -447,7 +590,7 @@ export function Escape() {
                     )}
 
                     {/* Content */}
-                    <div className="p-5 md:p-6">
+                    <div className={playingId === selected.id ? 'p-5 md:p-8' : 'p-5 md:p-6'}>
                       <div className="flex items-center gap-3 mb-1">
                         <div className={`w-11 h-11 rounded-full flex items-center justify-center border-2 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].ring} ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].bg} shrink-0`}>
                           <selected.icon className={`w-5 h-5 ${OBSTACLE_THEMES[selectedIndex % OBSTACLE_THEMES.length].icon}`} />
@@ -465,17 +608,20 @@ export function Escape() {
                           playerIcon={Car}
                           obstacleIcon={selected.icon}
                           goal={Math.min(8, Math.max(4, Math.round(selected.price / 8)))}
-                          onSuccess={() => handleClear(selected)}
+                          onSuccess={(result) => handleClear(selected, result)}
                         />
                       ) : (
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handlePay(selected)}
-                            className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                          >
-                            Send ${selected.price} via Venmo
-                          </button>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2 items-start">
+                            <button
+                              type="button"
+                              onClick={() => handlePay(selected)}
+                              className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                            >
+                              ${selected.price} via Venmo
+                            </button>
+                            <ZelleButton amount={selected.price} note={`SOS: Ben Can't Dance — ${selected.label}`} sessionToken={identity?.sessionToken} />
+                          </div>
                           <button
                             type="button"
                             onClick={() => {
@@ -486,7 +632,7 @@ export function Escape() {
                                 metadata: { obstacle: selected.id, amount: selected.price },
                               });
                             }}
-                            className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
+                            className="w-full px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                           >
                             Play to Clear
                           </button>
@@ -500,7 +646,7 @@ export function Escape() {
 
             {/* Progress */}
             <Reveal delay={0.15}>
-              <div className="mt-6 space-y-2 max-w-md mx-auto">
+              <div className="mt-6 space-y-3 max-w-2xl mx-auto">
                 <div className="flex items-center gap-4">
                   <Flag className="w-4 h-4 text-foreground/30 shrink-0" />
                   <div className="flex-1 h-2 rounded-full bg-foreground/10 overflow-hidden">
@@ -514,14 +660,56 @@ export function Escape() {
                     Ben's Confidence · {clearedCount}/{OBSTACLES.length} boosts
                   </span>
                 </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Round Score', value: `${totalScore}/${OBSTACLES.length * MAX_GAME_SCORE}` },
+                    { label: 'Games Scored', value: `${scoredGames.length}/${OBSTACLES.length}` },
+                    { label: 'Restarts', value: totalRestarts },
+                  ].map(item => (
+                    <div key={item.label} className="rounded-xl border border-foreground/10 bg-white/50 px-3 py-2 text-center">
+                      <p className="text-base font-light text-foreground/70">{item.value}</p>
+                      <p className="text-[9px] tracking-[0.18em] uppercase text-foreground/35 font-light">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Reveal>
 
             {allClear && (
               <Reveal>
-                <p className="text-center text-sm font-light text-primary/80 mt-6">
-                  Ben survived the first dance — and honestly? It was beautiful. You are all heroes. 💃
-                </p>
+                <div className="text-center mt-6">
+                  <p className="text-sm font-light text-primary/80">
+                    Ben survived the first dance — and honestly? It was beautiful. You are all heroes. 💃
+                  </p>
+                  {roundComplete && (
+                    <p className="text-xs font-light text-foreground/45 mt-2">
+                      Final score: {totalScore} · {totalRestarts} restart{totalRestarts === 1 ? '' : 's'}
+                    </p>
+                  )}
+                </div>
+              </Reveal>
+            )}
+
+            {(roundComplete || leaderboard.length > 0) && (
+              <Reveal>
+                <div className="mt-8 max-w-md mx-auto">
+                  <div className="rounded-2xl border border-foreground/10 bg-white/45 p-4">
+                    <p className="text-xs tracking-[0.2em] uppercase text-foreground/30 mb-3">Leaderboard</p>
+                    {leaderboard.length === 0 ? (
+                      <p className="text-xs font-light text-foreground/40">Complete all 8 games to post a score.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {leaderboard.slice(0, 5).map((entry, index) => (
+                          <div key={`${entry.playerName}-${entry.completedAt}`} className="flex items-center gap-3 text-xs">
+                            <span className="w-5 text-foreground/30">{index + 1}</span>
+                            <span className="flex-1 truncate text-foreground/60 font-light">{entry.playerName}</span>
+                            <span className="text-primary/75 font-normal">{entry.totalScore}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </Reveal>
             )}
 
@@ -542,6 +730,9 @@ export function Escape() {
                       New round
                     </button>
                   </div>
+                  {resetMessage && (
+                    <p className="text-xs font-light text-foreground/45 mb-3">{resetMessage}</p>
+                  )}
                   {sessions.length > 0 && (
                     <div className="space-y-2">
                       {sessions.map(s => (

@@ -84,6 +84,16 @@ db.exec(`
     total_raised   INTEGER NOT NULL DEFAULT 0
   );
 
+  CREATE TABLE IF NOT EXISTS dance_rounds (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    invite_id      INTEGER NOT NULL REFERENCES invites(id),
+    player_name    TEXT NOT NULL,
+    total_score    INTEGER NOT NULL,
+    total_restarts INTEGER NOT NULL,
+    games          TEXT NOT NULL DEFAULT '[]',
+    completed_at   TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS climb_state (
     boost_id   TEXT PRIMARY KEY,
     note       TEXT DEFAULT '',
@@ -121,6 +131,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_events_session     ON events(session_token);
   CREATE INDEX IF NOT EXISTS idx_events_type        ON events(event_type);
   CREATE INDEX IF NOT EXISTS idx_events_created     ON events(created_at);
+  CREATE INDEX IF NOT EXISTS idx_dance_rounds_invite ON dance_rounds(invite_id);
+  CREATE INDEX IF NOT EXISTS idx_dance_rounds_score  ON dance_rounds(total_score);
 `);
 
 // --- Seeding ---
@@ -460,6 +472,24 @@ export function getGardenSessions(inviteId) {
     .map(r => ({ ...r, items: parseJson(r.items, []) }));
 }
 
+export function updateGardenSession(inviteId, sessionId, items) {
+  const result = db.prepare(`
+    UPDATE garden_sessions
+    SET items = ?, archived_at = ?
+    WHERE id = ? AND invite_id = ?
+  `).run(JSON.stringify(items), new Date().toISOString(), sessionId, inviteId);
+  return result.changes > 0;
+}
+
+export function clearGardenForInvite(inviteId) {
+  const deleteState = db.prepare('DELETE FROM garden_state WHERE invite_id = ?').run(inviteId);
+  const deleteSessions = db.prepare('DELETE FROM garden_sessions WHERE invite_id = ?').run(inviteId);
+  return {
+    state: deleteState.changes,
+    sessions: deleteSessions.changes,
+  };
+}
+
 // --- Escape the Reception ---
 
 export function getEscapeCleared() {
@@ -515,6 +545,51 @@ export function getEscapeSessions() {
     .map(r => ({ ...r, obstacles: parseJson(r.obstacles, []) }));
 }
 
+// --- Dance scoring ---
+
+export function saveDanceRound(inviteId, playerName, round) {
+  db.prepare(`
+    INSERT INTO dance_rounds (invite_id, player_name, total_score, total_restarts, games, completed_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(
+    inviteId,
+    playerName,
+    round.totalScore,
+    round.totalRestarts,
+    JSON.stringify(round.games),
+    round.completedAt || new Date().toISOString(),
+  );
+}
+
+export function getDanceLeaderboard() {
+  const rows = db.prepare(`
+    SELECT invite_id, player_name, total_score, total_restarts, games, completed_at
+    FROM dance_rounds
+    ORDER BY total_score DESC, total_restarts ASC, completed_at ASC
+  `).all();
+
+  const bestByInvite = new Map();
+  for (const row of rows) {
+    if (bestByInvite.has(row.invite_id)) continue;
+    bestByInvite.set(row.invite_id, {
+      inviteId: row.invite_id,
+      playerName: row.player_name,
+      totalScore: row.total_score,
+      totalRestarts: row.total_restarts,
+      completedAt: row.completed_at,
+      games: parseJson(row.games, []),
+    });
+  }
+
+  return [...bestByInvite.values()]
+    .sort((a, b) =>
+      b.totalScore - a.totalScore ||
+      a.totalRestarts - b.totalRestarts ||
+      new Date(a.completedAt).getTime() - new Date(b.completedAt).getTime()
+    )
+    .slice(0, 20);
+}
+
 // --- Drag Ben Up the Mountain ---
 
 export function getClimbCleared() {
@@ -558,7 +633,15 @@ export function getAdminSessions() {
 }
 
 export function getAdminEvents(limit = 100) {
-  return db.prepare('SELECT session_token, event_type, page, metadata, created_at FROM events ORDER BY created_at DESC LIMIT ?').all(limit)
+  return db.prepare(`
+    SELECT e.invite_id, e.session_token, e.event_type, e.page, e.metadata, e.created_at,
+           s.name as session_name, s.email as session_email,
+           i.party_name, i.informal_name
+    FROM events e
+    LEFT JOIN sessions s ON s.session_token = e.session_token
+    LEFT JOIN invites i ON i.id = e.invite_id
+    ORDER BY e.created_at DESC LIMIT ?
+  `).all(limit)
     .map(r => ({ ...r, metadata: parseJson(r.metadata, {}) }));
 }
 
@@ -574,15 +657,22 @@ export function getAdminHouseholds() {
     "SELECT invite_id, event_type, page, metadata, created_at FROM events WHERE event_type IN ('click','login','login_unmatched') ORDER BY created_at DESC"
   ).all().map(r => ({ ...r, metadata: parseJson(r.metadata, {}) }));
 
+  const GARDEN_PRICES = { grass: 2, bush: 8, sunflower: 16, cherryTree: 32 };
+
   return invites.map(inv => {
     const invSessions = sessions.filter(s => s.invite_id === inv.id);
     const garden = gardens.find(g => g.invite_id === inv.id);
     const invEvents = events.filter(e => e.invite_id === inv.id);
     const gardenItems = parseJson(garden?.items, []);
-    const gardenValue = gardenItems.reduce((sum, it) => {
-      const prices = { sunflower: 15, rose: 20, tulip: 10, daisy: 8, lavender: 12, fern: 10, orchid: 25 };
-      return sum + (prices[it.plantType] || 10);
-    }, 0);
+    const gardenValue = gardenItems.reduce((sum, it) => sum + (GARDEN_PRICES[it.plantType] || 0), 0);
+
+    // Estimate donation amounts from click events
+    const venmoClicks = invEvents.filter(e => e.event_type === 'click' && String(e.metadata?.label || '').includes('pay_venmo'));
+    const zelleViews = invEvents.filter(e => e.event_type === 'click' && e.metadata?.label === 'zelle_view');
+    const moonboardHolds = invEvents.filter(e => e.event_type === 'click' && e.metadata?.label === 'moonboard_hold_submitted');
+    const moonboardAmount = moonboardHolds.reduce((sum, e) => sum + (Number(e.metadata?.amount) || 0), 0);
+    const pageViews = invEvents.filter(e => e.event_type === 'page_view').length;
+
     return {
       id: inv.id,
       party_name: inv.party_name,
@@ -597,11 +687,21 @@ export function getAdminHouseholds() {
       emails: parseJson(inv.emails, []),
       sessions: invSessions,
       garden: { items: gardenItems, value: gardenValue, updatedAt: garden?.updated_at || null },
-      recentEvents: invEvents.slice(0, 20),
+      recentEvents: invEvents.slice(0, 30),
       lastSeen: invSessions[0]?.last_seen_at || invSessions[0]?.created_at || null,
       hasLoggedIn: invSessions.length > 0,
+      stats: { venmoClicks: venmoClicks.length, zelleViews: zelleViews.length, moonboardAmount, pageViews },
     };
   });
+}
+
+export function getAdminGames() {
+  const escape = db.prepare('SELECT obstacle_id, note, cleared_at FROM escape_state').all();
+  const climb = db.prepare('SELECT boost_id, note, cleared_at FROM climb_state').all();
+  const moonboard = db.prepare('SELECT id, row, col, guest_name, message, shape, color, placed_at FROM moonboard_holds ORDER BY placed_at ASC').all();
+  const dance = getDanceLeaderboard();
+  const allDanceRounds = db.prepare('SELECT invite_id, player_name, total_score, total_restarts, completed_at FROM dance_rounds ORDER BY completed_at DESC').all();
+  return { escape, climb, moonboard, dance, allDanceRounds };
 }
 
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {

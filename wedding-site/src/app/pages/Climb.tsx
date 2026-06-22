@@ -5,6 +5,7 @@ import { Reveal } from '../components/Reveal';
 import { JumpGame, MODES } from '../components/JumpGame';
 import { Textarea } from '../components/ui/textarea';
 import { openVenmo } from '../lib/venmo';
+import { ZelleButton } from '../components/ZelleButton';
 import { trackClick } from '../lib/auth';
 import { fetchClimbCleared, clearClimbBoost, type ClimbClearedState } from '../lib/climb';
 import { useGuestIdentity } from '../context/GuestIdentityContext';
@@ -66,7 +67,7 @@ export function Climb() {
       label: 'climb_pay_venmo',
       metadata: { boost: boost.id, amount: boost.price },
     });
-    openVenmo(boost.price, `Krakoff Wedding -- Drag Ben Up the Mountain: ${boost.label} ($${boost.price})`);
+    openVenmo(boost.price, `Drag Ben Up the Mountain — ${boost.label}`);
   };
 
   const handleClear = async (boost: Boost) => {
@@ -362,18 +363,21 @@ export function Climb() {
                           maxLength={120}
                         />
 
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handlePay(selected)}
-                            className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
-                          >
-                            Pay ${selected.price} with Venmo
-                          </button>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2 items-start">
+                            <button
+                              type="button"
+                              onClick={() => handlePay(selected)}
+                              className="flex-1 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-white text-xs tracking-[0.2em] uppercase font-light transition-colors"
+                            >
+                              ${selected.price} via Venmo
+                            </button>
+                            <ZelleButton amount={selected.price} note={`Drag Ben Up the Mountain — ${selected.label}`} sessionToken={identity?.sessionToken} />
+                          </div>
                           <button
                             type="button"
                             onClick={() => setPlayingId(selected.id)}
-                            className="px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white whitespace-nowrap"
+                            className="w-full px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                           >
                             Push to Help
                           </button>

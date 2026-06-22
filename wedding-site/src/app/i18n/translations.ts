@@ -73,7 +73,7 @@ export const t = {
     weatherLabel: 'Weather',
     weatherValue: '60–70°F · Outdoor + Indoor',
     parkingLabel: 'Parking',
-    parkingValue: 'West Lot',
+    parkingValue: 'Event Parking — West Lot',
     sundayBonusLabel: 'An Extra Day in the Gardens',
     sundayDate: 'Sunday, October 4',
     sundayDateSub: 'Wander the gardens at your leisure',
@@ -84,7 +84,7 @@ export const t = {
 
     // Schedule
     scheduleTitle: 'Schedule',
-    scheduleNote: 'Times are approximate and may vary slightly throughout the evening',
+    scheduleNote: 'Times are approximate and may shift slightly',
     scheduleEvents: [
       { time: '2:45 PM', title: 'Guest Arrival', description: 'Please arrive at Hartefeld National and find your seats before the ceremony begins' },
       { time: '3:00 PM', title: 'Ceremony', description: 'Join us at Hartefeld National as we exchange our vows under the autumn sky' },
@@ -186,7 +186,7 @@ export const t = {
         title: 'The Proposal',
         paragraphs: [
           'We had settled into the rhythm of living in the city — walks along the riverfront, dinner on the patio with our cat, commuting on the PATH. The timing was clearly right, and we got engaged on January 3rd outside a nice Italian restaurant overlooking lower Manhattan.',
-          'A few weeks later we got married in the New York City City Hall, officially starting our future together.',
+          'A few weeks later we got married at New York City Hall, officially starting our future together.',
         ],
       },
     ],
@@ -200,19 +200,19 @@ export const t = {
         items: [
           {
             q: 'Is the ceremony indoors or outdoors?',
-            a: 'The ceremony will be held outdoors at Hartefeld National. The cocktail hour and reception follow indoors at Longwood Gardens. In the unlikely event of inclement weather, we have a beautiful indoor backup plan in place.',
+            a: 'The ceremony takes place outdoors at Hartefeld National, followed by the cocktail hour and reception indoors at Longwood Gardens. Should the weather have other ideas, we have a lovely indoor backup ready.',
           },
           {
             q: 'Where are the venues?',
-            a: 'The ceremony is at Hartefeld National, 1 Hartefeld Dr, Avondale, PA 19311. The cocktail hour and reception are at Longwood Gardens, 1001 Longwood Road, Kennett Square, Pennsylvania 19348 — about 30 miles southwest of Philadelphia.',
+            a: 'The ceremony is at [Hartefeld National, 1 Hartefeld Dr, Avondale, PA 19311](https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311). The cocktail hour and reception follow at [Longwood Gardens, 409 Conservatory Road, Kennett Square, PA 19348](https://maps.google.com/?q=409+Conservatory+Road,+Kennett+Square,+PA+19348), about 30 miles southwest of Philadelphia.',
           },
           {
             q: 'Is there parking available?',
-            a: 'Yes — free parking is available at both Hartefeld National and Longwood Gardens.',
+            a: 'Yes. For the wedding day, please use the [West Lot at Longwood Gardens](https://maps.google.com/?q=409+Conservatory+Road,+Kennett+Square,+PA+19348) for the reception; ceremony parking is available at [Hartefeld National](https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311). Longwood is also offering guests complimentary admission on Sunday; if you choose to visit, please use the regular [Visitor Center parking](https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348).',
           },
           {
             q: 'Will there be transportation between the venues and hotels?',
-            a: 'Complimentary shuttles will run between our recommended hotels and the venues throughout the evening. Shuttle details will be shared closer to the date.',
+            a: 'Private coach service will be arranged among our partner hotels, the ceremony, and the reception throughout the evening. Full details will follow closer to the date.',
           },
         ],
       },
@@ -222,19 +222,19 @@ export const t = {
         items: [
           {
             q: 'What is the dress code?',
-            a: 'Expressive Garden Formal. We encourage formal attire with a creative, garden-inspired flair — think florals, jewel tones, and soft neutrals. Because the ceremony is outdoors, we recommend block heels, wedges, or flats for ladies.',
+            a: 'Expressive Garden Formal. Think formal attire with a creative, garden-inspired touch: florals, jewel tones, soft neutrals. Since the ceremony is outdoors, block heels, wedges, or flats are ideal.',
           },
           {
             q: 'What will the weather be like?',
-            a: 'October in Pennsylvania is typically beautiful — crisp autumn air with temperatures around 60–70°F during the day and cooler in the evening. We recommend bringing a light jacket or wrap for after sundown.',
+            a: 'October in Pennsylvania is usually gorgeous. Expect crisp autumn air and temperatures around 60–70°F during the day, with a bit of a chill once the sun goes down. We recommend a light jacket or wrap for the evening.',
           },
           {
             q: 'Can I take photos during the ceremony?',
-            a: 'We kindly ask that you be fully present during the ceremony and refrain from using your phone or camera — we have a wonderful photographer capturing every moment. You are absolutely welcome to photograph freely during the cocktail hour and reception.',
+            a: 'We ask that you put your phone away and just be with us during the ceremony. Our photographer will capture every moment beautifully. After that, please take as many photos as you like.',
           },
           {
             q: 'Are children welcome?',
-            a: 'We love your little ones! Please check your invitation for the number of guests included in your party.',
+            a: 'We love your little ones! Please check your invitation for the number of guests in your party.',
           },
         ],
       },
@@ -244,23 +244,20 @@ export const t = {
         items: [
           {
             q: 'When is the RSVP deadline?',
-            a: 'Please RSVP by September 1, 2026 at 11:59 PM AOE (Anywhere on Earth) so we can finalize our headcount with the venue and caterers.',
+            a: 'Please RSVP by September 1, 2026 at 11:59 PM AOE (Anywhere on Earth) so we can finalize headcount with the venue and caterers.',
           },
-          {
-            q: 'Can I bring a plus-one?',
-            a: 'Due to venue capacity, we can only accommodate guests named on the invitation. Your invitation will indicate whether a guest is included for you.',
-          },
+          // Hidden for now.
+          // {
+          //   q: 'Can I bring a plus-one?',
+          //   a: 'Due to venue capacity, we are only able to host the guests named on each invitation. Your invite will make clear whether a plus-one is included.',
+          // },
           {
             q: 'Do you accommodate dietary restrictions?',
-            a: 'Absolutely. Please let us know about any dietary restrictions or allergies in your RSVP and we will make sure the catering team takes great care of you.',
-          },
-          {
-            q: 'Where are you registered?',
-            a: 'Our registry information is on the Registry page. Your presence at our wedding is the greatest gift — but if you wish to give, we are grateful.',
+            a: 'Absolutely. Just let us know in your RSVP and our catering team will take good care of you.',
           },
           {
             q: 'Who can I contact if I have more questions?',
-            a: 'Please reach out to us at bellabenbao@gmail.com — we are happy to help.',
+            a: 'We would love to hear from you. Please email us at bellabenbao@gmail.com, and we will be delighted to help.',
           },
         ],
       },
@@ -268,7 +265,7 @@ export const t = {
 
     // Registry
     registryTitle: 'Registry',
-    registryIntro: "We feel incredibly lucky — in love, in life, and in all the things that truly matter. In lieu of a traditional gift, we would be deeply honored if you made a donation in our name to one of the charities below.",
+    registryIntro: "We feel incredibly lucky in love, in life, and in all the things that truly matter. Rather than gifts, we would be so grateful if you considered making a donation in our name to one of the charities below.",
     registryGamesIntro: "For those who'd like to give a little something, we've turned our honeymoon fund into a game — or two. Pick one and help send us off into the life ahead.",
     registryHomeKitchen: 'Home & Kitchen',
     registryGourmet: 'Gourmet Kitchen',
@@ -353,7 +350,7 @@ export const t = {
     weatherLabel: '天气',
     weatherValue: '约15–21°C · 户外+室内',
     parkingLabel: '停车',
-    parkingValue: 'West Lot',
+    parkingValue: 'Event Parking — West Lot',
     sundayBonusLabel: '婚礼次日，畅游花园',
     sundayDate: '10月4日，周日',
     sundayDateSub: '悠然漫步，细品花园',
@@ -484,15 +481,15 @@ export const t = {
           },
           {
             q: '婚礼场地在哪里？',
-            a: '仪式场地：哈特菲尔德，地址为 1 Hartefeld Dr, Avondale, PA 19311。鸡尾酒时间与晚宴场地：长木花园，地址为 1001 Longwood Road, Kennett Square, Pennsylvania 19348，位于费城西南约50公里处。',
+            a: '仪式场地：哈特菲尔德，地址为 1 Hartefeld Dr, Avondale, PA 19311。鸡尾酒时间与晚宴场地：长木花园，地址为 409 Conservatory Road, Kennett Square, PA 19348，位于费城西南约50公里处。',
           },
           {
             q: '场地是否提供停车？',
-            a: '是的——哈特菲尔德和长木花园均提供免费停车。',
+            a: '是的。婚礼当天，请在长木花园 [West Lot](https://maps.google.com/?q=409+Conservatory+Road,+Kennett+Square,+PA+19348) 停车参加晚宴；仪式停车位位于 [Hartefeld National](https://maps.google.com/?q=1+Hartefeld+Dr,+Avondale,+PA+19311)。长木花园也将在周日为宾客提供免费入园；若您选择前往参观，请使用常规 [Visitor Center 停车场](https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348)。',
           },
           {
             q: '场地与酒店之间是否有交通接送？',
-            a: '当晚将提供免费班车，往返于推荐酒店与婚礼场地之间。详细班车信息将于婚礼前发送给各位宾客。',
+            a: '当晚备有专属礼宾车，恭候宾客往返于合作酒店、婚礼仪式与晚宴场地之间。详细安排将于婚礼前夕另行致函告知。',
           },
         ],
       },
@@ -526,21 +523,18 @@ export const t = {
             q: '回复截止日期是什么时候？',
             a: '请于2026年9月1日（AOE国际日期变更线时间，11:59 PM）前回复，以便我们与场地及餐饮团队确认最终人数。',
           },
-          {
-            q: '可以携带同伴吗？',
-            a: '由于场地容量有限，我们只能接待邀请函上注明的宾客。您的邀请函将注明是否包含同伴名额。',
-          },
+          // Hidden for now.
+          // {
+          //   q: '可以携带同伴吗？',
+          //   a: '由于场地容量有限，我们只能接待邀请函上注明的宾客。您的邀请函将注明是否包含同伴名额。',
+          // },
           {
             q: '是否提供特殊饮食安排？',
             a: '当然。请在回复时告知我们您的饮食限制或过敏情况，我们将确保餐饮团队为您提供周到的照顾。',
           },
           {
-            q: '你们在哪里注册了礼品单？',
-            a: '详情请见心愿单页面。您的到来是对我们最好的礼物——若您希望赠礼，我们将不胜感激。',
-          },
-          {
             q: '如有更多问题，应联系谁？',
-            a: '请发送邮件至 bellabenbao@gmail.com，我们很乐意为您解答。',
+            a: '我们非常期待收到您的来信。如有任何疑问，请发送邮件至 bellabenbao@gmail.com，我们将很乐意为您解答。',
           },
         ],
       },

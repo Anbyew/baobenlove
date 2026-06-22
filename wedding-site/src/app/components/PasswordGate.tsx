@@ -67,6 +67,7 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
         </form>
 
         <button
+          type="button"
           onClick={toggle}
           className="mt-8 text-xs font-light text-foreground/40 hover:text-foreground/70 tracking-wider transition-colors duration-300"
         >
