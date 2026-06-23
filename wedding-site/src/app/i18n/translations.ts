@@ -169,7 +169,7 @@ export const t = {
         year: '2020',
         title: 'How We Met',
         paragraphs: [
-          "Yuwei and I were both PhD students at the University of Michigan — I studied math, she studied computer science — so our paths did not cross until we met online at the beginning of the pandemic. I was 60% sure she was a spy and would lose interest once she figured out my research wasn't worth stealing.",
+          "Yuwei and I were both PhD students at the University of Michigan — I studied math, she studied computer science — so our paths did not cross until we met online at the beginning of the pandemic. I was 60% sure she was running some kind of experiment and I was the control group.",
           "On our first date we went to the Michigan Arboretum, where we both got plenty of mosquito bites. On our second date we had some of my home-brewed tepache which, I explained, I was fairly confident had no botulism and I only kept the fermentation kit in the bathtub in case it exploded. After a few more dates I suddenly found myself building her a plant stand and realizing we were both in it for the long haul.",
         ],
       },
@@ -266,7 +266,7 @@ export const t = {
     // Registry
     registryTitle: 'Registry',
     registryIntro: "We feel incredibly lucky in love, in life, and in all the things that truly matter. Rather than gifts, we would be so grateful if you considered making a donation in our name to one of the charities below.",
-    registryGamesIntro: "For those who'd like to give a little something, we've turned our honeymoon fund into a game — or two. Pick one and help send us off into the life ahead.",
+    registryGamesIntro: "We have turned our honeymoon fund into a game or two. Play for the joy of it, or play to send us off. Either way, we are delighted you are here.",
     registryHomeKitchen: 'Home & Kitchen',
     registryGourmet: 'Gourmet Kitchen',
     registryUniversal: 'Universal Registry',
@@ -446,7 +446,7 @@ export const t = {
         year: '2020年',
         title: '初次相遇',
         paragraphs: [
-          '我和雨薇都是密歇根大学的博士生——我学数学，她学计算机科学——两条轨迹本不相交，直到疫情初期，我们在网上相识。那时我有60%的把握认为她是间谍，心想一旦她发现我的研究毫无窃取价值，便会就此离去。',
+          '我和雨薇都是密歇根大学的博士生——我学数学，她学计算机科学——两条轨迹本不相交，直到疫情初期，我们在网上相识。那时我有60%的把握认为她在进行某种实验，而我只是她的对照组。',
           '第一次约会，我们去了密歇根树木园，两人都被蚊子叮了不少包。第二次约会，我拿出自酿的特帕切发酵饮料款待她——我解释说，我相当确信里面没有肉毒杆菌，而发酵桶放在浴缸里，只是以防万一它爆炸。就这样约会几次之后，我突然发现自己正在为她做一个花架，也意识到我们都是认真的。',
         ],
       },
@@ -543,7 +543,7 @@ export const t = {
     // Registry
     registryTitle: '心愿单',
     registryIntro: '我们很幸运，并不需要太多物质礼物（而且泽西市的小公寓也放不下）。若您想表达心意，欢迎以我们的名字向下方的慈善机构捐赠。',
-    registryGamesIntro: '若您希望送我们一份礼物，可以玩玩下面的小游戏，为我们的蜜月基金出一份力，帮助我们一起建立新生活。',
+    registryGamesIntro: '我们将蜜月基金化为了一两个小游戏。尽情玩乐即可，亦可借此为我们的旅程送上一份心意。无论如何，我们都由衷感谢您的到来。',
     registryHomeKitchen: '家居厨房',
     registryGourmet: '精品厨具',
     registryUniversal: '通用礼品单',

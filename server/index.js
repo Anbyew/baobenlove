@@ -124,8 +124,7 @@ const ALLOWED_EMAILS = new Set([
   'shanestorks@gmail.com','sharonleerhodes@gmail.com','tougerrs@msn.com',
   'vivwylai@gmail.com','xinywa@umich.edu','xuan.e.wu@gmail.com',
   'ye.yaxin3@gmail.com','yenkina@yahoo.com','yiwenzhg@umich.edu',
-  'yukw777@gmail.com','yutian_sun@163.com','yuweibao@umich.edu',
-  'zhang.nuda@gmail.com',
+  'yukw777@gmail.com','yutian_sun@163.com','zhang.nuda@gmail.com',
 ]);
 
 app.post('/send-otp', async (req, res) => {
@@ -325,13 +324,19 @@ app.post('/session/create', (req, res) => {
     let invite = lookupInviteByEmail(email);
     if (!invite && name) invite = lookupInviteByName(name);
 
+    const ua = req.headers['user-agent'] || null;
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+      || req.headers['x-real-ip']
+      || req.ip
+      || null;
+
     let token;
     let eventType;
     if (invite) {
-      token = createSession(parseInt(invite.id), email, name, language);
+      token = createSession(parseInt(invite.id), email, name, language, ua, ip);
       eventType = 'login';
     } else {
-      token = createUnmatchedSession(email, name, language);
+      token = createUnmatchedSession(email, name, language, ua, ip);
       eventType = 'login_unmatched';
     }
 

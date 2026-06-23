@@ -38,7 +38,8 @@ TEST_EMAILS: list[str] = [
     "bellabenbao@gmail.com",
     "info@kellyaltierweddings.com",
     "ltouger@cox.net",
-    "jakrakoff@gmail.com"
+    "jakrakoff@gmail.com",
+    "bkrakoff@gmail.com"
 ]
 # ─────────────────────────────────────────────────────────────────────────────
 

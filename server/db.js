@@ -3,6 +3,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { randomBytes } from 'node:crypto';
+import geoip from 'geoip-lite';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DB_PATH || join(__dirname, 'data', 'wedding.db');
@@ -144,6 +145,16 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_dance_rounds_invite ON dance_rounds(invite_id);
   CREATE INDEX IF NOT EXISTS idx_dance_rounds_score  ON dance_rounds(total_score);
 `);
+
+// --- Migrations ---
+for (const sql of [
+  'ALTER TABLE sessions ADD COLUMN user_agent TEXT',
+  'ALTER TABLE sessions ADD COLUMN city TEXT',
+  'ALTER TABLE sessions ADD COLUMN country TEXT',
+  'ALTER TABLE unmatched_guests ADD COLUMN user_agent TEXT',
+  'ALTER TABLE unmatched_guests ADD COLUMN city TEXT',
+  'ALTER TABLE unmatched_guests ADD COLUMN country TEXT',
+]) { try { db.exec(sql); } catch {} }
 
 // --- Seeding ---
 
@@ -331,25 +342,34 @@ export function updateInviteRsvp(token, payload) {
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-export function createSession(inviteId, email, name, language = 'en') {
+function lookupGeo(ip) {
+  if (!ip || ip === '::1' || ip.startsWith('127.') || ip.startsWith('10.') || ip.startsWith('192.168.')) return {};
+  const geo = geoip.lookup(ip);
+  if (!geo) return {};
+  return { city: geo.city || null, country: geo.country || null };
+}
+
+export function createSession(inviteId, email, name, language = 'en', userAgent = null, ip = null) {
   const token = randomBytes(32).toString('hex');
   const now = new Date();
   const expiresAt = new Date(now.getTime() + SESSION_TTL_MS);
+  const { city, country } = lookupGeo(ip);
   db.prepare(`
-    INSERT INTO sessions (token, invite_id, email, name, language, created_at, expires_at, last_seen_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(token, inviteId, normalizeEmail(email), name, language, now.toISOString(), expiresAt.toISOString(), now.toISOString());
+    INSERT INTO sessions (token, invite_id, email, name, language, created_at, expires_at, last_seen_at, user_agent, city, country)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(token, inviteId, normalizeEmail(email), name, language, now.toISOString(), expiresAt.toISOString(), now.toISOString(), userAgent, city ?? null, country ?? null);
   return token;
 }
 
-export function createUnmatchedSession(email, name, language = 'en') {
+export function createUnmatchedSession(email, name, language = 'en', userAgent = null, ip = null) {
   const token = randomBytes(32).toString('hex');
   const now = new Date();
   const expiresAt = new Date(now.getTime() + SESSION_TTL_MS);
+  const { city, country } = lookupGeo(ip);
   db.prepare(`
-    INSERT INTO unmatched_guests (token, email, name, language, created_at, expires_at, last_seen_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(token, normalizeEmail(email), name, language, now.toISOString(), expiresAt.toISOString(), now.toISOString());
+    INSERT INTO unmatched_guests (token, email, name, language, created_at, expires_at, last_seen_at, user_agent, city, country)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(token, normalizeEmail(email), name, language, now.toISOString(), expiresAt.toISOString(), now.toISOString(), userAgent, city ?? null, country ?? null);
   return token;
 }
 
@@ -657,16 +677,16 @@ export function getAdminStats() {
 }
 
 export function getAdminSessions() {
-  return db.prepare('SELECT email, name, language, created_at, last_seen_at FROM sessions ORDER BY created_at DESC').all();
+  return db.prepare('SELECT email, name, language, created_at, last_seen_at, user_agent, city, country FROM sessions ORDER BY created_at DESC').all();
 }
 
 export function getAdminEvents(limit = 100) {
   return db.prepare(`
     SELECT e.invite_id, e.session_token, e.event_type, e.page, e.metadata, e.created_at,
-           s.name as session_name, s.email as session_email,
+           s.name as session_name, s.email as session_email, s.user_agent as session_ua, s.city as session_city, s.country as session_country,
            i.party_name, i.informal_name
     FROM events e
-    LEFT JOIN sessions s ON s.session_token = e.session_token
+    LEFT JOIN sessions s ON s.token = e.session_token
     LEFT JOIN invites i ON i.id = e.invite_id
     ORDER BY e.created_at DESC LIMIT ?
   `).all(limit)
@@ -679,7 +699,7 @@ export function getAdminRsvps() {
 
 export function getAdminHouseholds() {
   const invites = db.prepare('SELECT * FROM invites ORDER BY party_name ASC').all();
-  const sessions = db.prepare('SELECT invite_id, email, name, language, created_at, last_seen_at FROM sessions ORDER BY created_at DESC').all();
+  const sessions = db.prepare('SELECT invite_id, email, name, language, created_at, last_seen_at, user_agent, city, country FROM sessions ORDER BY created_at DESC').all();
   const gardens = db.prepare('SELECT invite_id, items, updated_at FROM garden_state').all();
   const events = db.prepare(
     "SELECT invite_id, event_type, page, metadata, created_at FROM events WHERE event_type IN ('click','login','login_unmatched') ORDER BY created_at DESC"

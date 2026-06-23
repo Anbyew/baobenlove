@@ -58,7 +58,8 @@ export function GuestIdentityProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     const stored = readStored();
     if (!stored?.sessionToken) {
-      setIdentityState(stored);
+      window.localStorage.removeItem(STORAGE_KEY);
+      setIdentityState(null);
       setIsValidating(false);
       return;
     }

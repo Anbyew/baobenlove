@@ -13,13 +13,15 @@ import { useGuestIdentity } from "../context/GuestIdentityContext";
 export function AnalyticsTracker() {
   const location = useLocation();
   const lastTrackedClickKey = useRef<string | null>(null);
-  const { identity } = useGuestIdentity();
+  const { identity, isValidating } = useGuestIdentity();
 
   useEffect(() => {
     initializeAnalytics();
   }, []);
 
   useEffect(() => {
+    if (isValidating) return;
+
     const capturedAttribution = captureInviteAttribution(location.search);
     const cleanPagePath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const storedAttribution = getStoredInviteAttribution();
@@ -40,7 +42,7 @@ export function AnalyticsTracker() {
       page: cleanPagePath,
       referrer: document.referrer || undefined,
     });
-  }, [location.pathname, location.search, location.hash, identity?.sessionToken]);
+  }, [location.pathname, location.search, location.hash, identity?.sessionToken, isValidating]);
 
   return null;
 }

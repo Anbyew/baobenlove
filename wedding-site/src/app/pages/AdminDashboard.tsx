@@ -24,9 +24,9 @@ const PURPLE = '#a78bfa';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface Stats { households: number; totalGuests: number; sessions: number; unmatched: number; rsvpYes: number; rsvpNo: number; }
-interface RawEvent { event_type: string; page: string; metadata: Record<string, unknown>; created_at: string; invite_id?: number; session_token?: string; session_name?: string; session_email?: string; party_name?: string; informal_name?: string; }
+interface RawEvent { event_type: string; page: string; metadata: Record<string, unknown>; created_at: string; invite_id?: number; session_token?: string; session_name?: string; session_email?: string; session_ua?: string; session_city?: string; session_country?: string; party_name?: string; informal_name?: string; }
 interface UnmatchedGuest { email: string; name: string; language: string; created_at: string; }
-interface HouseholdSession { email: string; name: string; language: string; created_at: string; last_seen_at: string; }
+interface HouseholdSession { email: string; name: string; language: string; created_at: string; last_seen_at: string; user_agent?: string; city?: string; country?: string; }
 interface HouseholdStats { venmoClicks: number; zelleViews: number; moonboardAmount: number; pageViews: number; }
 interface GardenItem { plantType: string; color: string; }
 interface Household {
@@ -70,6 +70,14 @@ const CLIMB_LABELS: Record<string, { label: string; price: number }> = {
 const GARDEN_PRICES: Record<string, number> = { grass: 2, bush: 8, sunflower: 16, cherryTree: 32 };
 const GARDEN_LABELS: Record<string, string> = { grass: 'Grass', bush: 'Bush', sunflower: 'Sunflower', cherryTree: 'Cherry Tree' };
 const MOONBOARD_HOLD_PRICE = 25;
+
+function parseDevice(ua?: string | null): string {
+  if (!ua) return '';
+  const isMobile = /iPhone|iPad|Android/i.test(ua);
+  const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Macintosh/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Device';
+  const browser = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+  return `${device} · ${browser}`;
+}
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -171,12 +179,18 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
         </Td>
         <Td>
           {h.hasLoggedIn ? (
-            <div>
-              <div className="flex flex-wrap gap-1 mb-0.5">
-                {uniqueLoggedIn.map((s, i) => (
-                  <span key={i} className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">{s.name || s.email}</span>
-                ))}
-              </div>
+            <div className="space-y-0.5">
+              {uniqueLoggedIn.map((s, i) => {
+                const device = parseDevice(s.user_agent);
+                const loc = [s.city, s.country].filter(Boolean).join(', ');
+                return (
+                  <div key={i}>
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">{s.name || s.email}</span>
+                    {device && <span className="ml-1.5 text-[10px] text-foreground/35">{device}</span>}
+                    {loc && <span className="ml-1 text-[10px] text-foreground/30">· {loc}</span>}
+                  </div>
+                );
+              })}
               <div className="text-xs text-foreground/30">{h.lastSeen ? `Last seen ${daysAgo(h.lastSeen)}` : ''}</div>
             </div>
           ) : <span className="text-xs text-foreground/30">Not yet</span>}
@@ -479,14 +493,14 @@ export function AdminDashboard() {
       const allHouseholds: Household[] = (await hr.json()).households || [];
       setHouseholds(allHouseholds.map(h => ({
         ...h,
-        sessions: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email)),
+        sessions: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email) || h.emails?.includes(s.email)),
         recentEvents: (h.recentEvents || []).filter(e => {
           const meta = e.metadata || {};
           return !ADMIN_EMAILS.has(String(meta.email || ''));
         }),
-        hasLoggedIn: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email)).length > 0,
-        lastSeen: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email))[0]?.last_seen_at
-          || h.sessions.filter(s => !ADMIN_EMAILS.has(s.email))[0]?.created_at
+        hasLoggedIn: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email) || h.emails?.includes(s.email)).length > 0,
+        lastSeen: h.sessions.filter(s => !ADMIN_EMAILS.has(s.email) || h.emails?.includes(s.email))[0]?.last_seen_at
+          || h.sessions.filter(s => !ADMIN_EMAILS.has(s.email) || h.emails?.includes(s.email))[0]?.created_at
           || null,
       })));
       // games endpoint may not be deployed yet — load independently
@@ -821,23 +835,23 @@ export function AdminDashboard() {
             </div>
             <div className="border border-foreground/10 rounded-sm overflow-x-auto">
               <table className="w-full">
-                <thead><tr><Th>Time</Th><Th>Who</Th><Th>Event</Th><Th>Page</Th><Th>Details</Th></tr></thead>
+                <thead><tr><Th>Time</Th><Th>Who</Th><Th>Device</Th><Th>Event</Th><Th>Page</Th><Th>Details</Th></tr></thead>
                 <tbody>
                   {filteredEvents.map((e, i) => {
                     const inviteHousehold = e.invite_id ? inviteMap.get(e.invite_id) : undefined;
                     const metaEmail = e.metadata?.email ? String(e.metadata.email) : null;
                     const metaName = e.metadata?.name ? String(e.metadata.name) : null;
-                    // name: prefer JOIN result, then invite lookup, then metadata
                     const who = e.session_name
                       || e.informal_name
                       || e.party_name
                       || metaName
                       || (e.session_email ? e.session_email.split('@')[0] : null)
                       || (metaEmail ? metaEmail.split('@')[0] : null);
-                    // household label for context
                     const householdLabel = inviteHousehold
                       ? (inviteHousehold.informal_name || inviteHousehold.party_name)
                       : null;
+                    const device = parseDevice(e.session_ua);
+                    const loc = [e.session_city, e.session_country].filter(Boolean).join(', ');
                     return (
                       <tr key={i} className="hover:bg-foreground/[0.02]">
                         <Td className="text-foreground/40 whitespace-nowrap">{fmt(e.created_at)}</Td>
@@ -848,6 +862,14 @@ export function AdminDashboard() {
                                 {householdLabel && householdLabel !== who && (
                                   <div className="text-[10px] text-foreground/35 mt-0.5">{householdLabel}</div>
                                 )}
+                              </div>
+                            : <span className="text-xs text-foreground/25">—</span>}
+                        </Td>
+                        <Td>
+                          {device
+                            ? <div>
+                                <div className="text-xs text-foreground/60">{device}</div>
+                                {loc && <div className="text-[10px] text-foreground/35 mt-0.5">{loc}</div>}
                               </div>
                             : <span className="text-xs text-foreground/25">—</span>}
                         </Td>
@@ -862,7 +884,7 @@ export function AdminDashboard() {
                     );
                   })}
                   {filteredEvents.length === 0 && (
-                    <tr><td colSpan={5} className="text-center text-xs text-foreground/30 py-8">No events</td></tr>
+                    <tr><td colSpan={6} className="text-center text-xs text-foreground/30 py-8">No events</td></tr>
                   )}
                 </tbody>
               </table>
