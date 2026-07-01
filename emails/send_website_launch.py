@@ -1,23 +1,30 @@
 """
 Wedding Website Launch Email Sender — Gmail API / OAuth2
-Reads testList.tsv, fills in template, and sends emails from bellabenbao@gmail.com
+Reads guests.tsv, fills in template, and sends emails from bellabenbao@gmail.com
 
 Usage:
-  python send_website_launch.py           # dry run (default)
-  python send_website_launch.py --preview # open browser preview
-  python send_website_launch.py --send    # actually send (set DRY_RUN = False first)
+  python send_website_launch.py                         # dry run (all guests)
+  python send_website_launch.py --batch "Ben/Friends"   # dry run one batch
+  python send_website_launch.py --preview               # browser preview (first recipient)
+  python send_website_launch.py --batch "Ben/Friends" --send  # actually send a batch
+
+Available batches (Affiliation/Relation):
+  Ben/Colleagues  Ben/Family  Ben/Family Friends  Ben/Friends
+  Yuwei/Colleagues  Yuwei/Family  Yuwei/Friends
+  Both/Friends
 """
 
 import base64
 import csv
-import re
 import sys
 import webbrowser
 import tempfile
+from datetime import datetime
 from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from urllib.parse import urlencode
+from email.mime.image import MIMEImage
+
 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -31,46 +38,43 @@ XLSX_PATH    = BASE_DIR / "guests.tsv"
 CREDS_PATH   = BASE_DIR / "emails" / "credentials.json"
 TOKEN_PATH   = BASE_DIR / "emails" / "token.json"
 
-DRY_RUN = True  # ← set to False (and pass --send) to actually send
+DRY_RUN = False  # ← set to False (and pass --send) to actually send
 
-# Leave empty to send to all guests; populate to restrict to a test subset.
+# Households that have never logged in — resend targets only.
 TEST_EMAILS: list[str] = [
-    "bellabenbao@gmail.com",
-    "info@kellyaltierweddings.com",
-    "ltouger@cox.net",
-    "jakrakoff@gmail.com",
-    "bkrakoff@gmail.com"
+    "atticuschristensen@gmail.com","lingluanwh@gmail.com","markgreenfield93@gmail.com",
+    "axelkalbach@gmail.com","faithclayton@gmail.com","andrei.alexan@gmail.com",
+    "matthew.v.ellison@gmail.com","danjcollins@gmail.com","noahkrakoff@gmail.com",
+    "sarahkrakoff@gmail.com","lucyjaneck@gmail.com","jyenkin@aol.com",
+    "gtilde@yahoo.com","dyenkin@yahoo.com","lefflers@aol.com",
+    "dleffler0603@gmail.com","jessicaleffler@gmail.com","joshuaaleffler@gmail.com",
+    "jkornhau13@gmail.com","michael.kornhauser@gmail.com","tougerrs@msn.com",
+    "melissa.touger@gmail.com","juliet4816@gmail.com","davidtouger@hotmail.com",
+    "murphyluzi@gmail.com","awf7@columbia.edu","harryahill@gmail.com",
+    "laurabrooksbrown@gmail.com","marctlaurab@gmail.com","chris.rhodes45@gmail.com",
+    "sharonleerhodes@gmail.com","jane.e.stein66@gmail.com","marciamcham@aol.com",
+    "dorothee_newbern@hotmail.com","joymendenhall@gmail.com","aj3@princeton.edu",
+    "essbeard@gmail.com","megabyteification@gmail.com","obrnmrk@gmail.com",
+    "samcookie9@gmail.com","xuan.e.wu@gmail.com","cranberrylobster@gmail.com",
+    "klupiloff@gmail.com","rebecca.janssen@outlook.de","florian.dahlhausen@gmail.com",
+    "chaijy@umich.edu","vivwylai@gmail.com","baohk@126.com",
+    "nickbao743@gmail.com","13276753627@139.com","13857520003@139.com",
+    "yutian_sun@163.com","15868141610@163.com","jminlee@umich.edu",
+    "ctrenton@umich.edu","liubovs@umich.edu","michaelito03@gmail.com",
+    "zhang.nuda@gmail.com","alicequ16@gmail.com","elisawtsai@gmail.com",
+    "barroytman@gmail.com","18ssyy@163.com","164092802@qq.com",
+    "monet-xu@ti.com","hwang@jd21.law.harvard.edu","c071132@gmail.com",
+    "daiyp@umich.edu","xinywa@umich.edu","yukw777@gmail.com",
+    "jed970610@gmail.com","cpbara@umich.edu","bellabenbao@gmail.com",
 ]
 # ─────────────────────────────────────────────────────────────────────────────
 
+LOG_PATH        = Path(__file__).parent / "send_log.csv"
+
 SCOPES          = ["https://www.googleapis.com/auth/gmail.send"]
-EMAIL_SUBJECT   = "[TEST] A Little Prelude to Our Celebration on Oct 3, 2026"
+EMAIL_SUBJECT   = "With All Our Love, Before October 3rd"
 WEBSITE_BASE_URL = "https://www.baoben.love/"
-INVITE_SOURCE   = "website_launch"
-
-
-def build_guest_id(name: str, row_number: int) -> str:
-    normalized = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
-    return f"{normalized or 'guest'}_{row_number}"
-
-
-def build_email_slug(email: str) -> str:
-    local_part = email.split("@", 1)[0]
-    normalized = re.sub(r"[^a-z0-9]+", "_", local_part.lower()).strip("_")
-    return normalized or "email"
-
-
-def build_tracked_website_url(guest_id: str) -> str:
-    query = urlencode(
-        {
-            "src": INVITE_SOURCE,
-            "guest": guest_id,
-            "utm_source": "website_launch_email",
-            "utm_medium": "email",
-            "utm_campaign": "website_launch",
-        }
-    )
-    return f"{WEBSITE_BASE_URL}?{query}"
+SEAL_PATH       = BASE_DIR / "assets" / "AI" / "seal_sm.png"
 
 
 def get_gmail_service():
@@ -107,7 +111,9 @@ def build_html_body(name: str, website_url: str) -> str:
 <p>Formal invitations and RSVP details will arrive by mail in the coming months. Until then, please consider this our heartfelt early welcome. We cannot wait for us all to gather and for this beautiful day to blossom together.</p>
 
 <p>With all our love and warm anticipation,<br>
-Yuwei &amp; Ben</p>
+Yuwei &amp; Ben<br>
+<img src="cid:seal" alt="" width="48" style="margin-top: 8px; display: block;">
+</p>
 
 </body>
 </html>
@@ -131,7 +137,20 @@ Yuwei & Ben
 """
 
 
-def load_recipients():
+def parse_batch_arg() -> tuple[str, str] | None:
+    """Return (affiliation, relation) from --batch "Affiliation/Relation", or None."""
+    for i, arg in enumerate(sys.argv):
+        if arg == "--batch" and i + 1 < len(sys.argv):
+            raw = sys.argv[i + 1]
+            parts = raw.split("/", 1)
+            if len(parts) != 2:
+                print(f"Error: --batch value must be 'Affiliation/Relation', got: {raw!r}")
+                sys.exit(1)
+            return parts[0].strip(), parts[1].strip()
+    return None
+
+
+def load_recipients(batch: tuple[str, str] | None = None):
     with open(XLSX_PATH, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f, delimiter="\t")
         rows = list(reader)
@@ -139,37 +158,90 @@ def load_recipients():
     allowed = {e.lower() for e in TEST_EMAILS} if TEST_EMAILS else None
 
     recipients = []
-    for row_number, row in enumerate(rows, start=2):
-        name       = row.get("Name on Envelope")
-        emails_raw = row.get("Email")
+    for row in rows:
+        name          = (row.get("Name on Envelope") or "").strip()
+        emails_raw    = (row.get("Email") or "").strip()
+        affiliation   = (row.get("Affiliation") or "").strip()
+        relation      = (row.get("Relation") or "").strip()
+
         if not name or not emails_raw:
             continue
-        emails = [e.strip() for e in str(emails_raw).split(",") if e.strip()]
+
+        if batch and (affiliation.lower() != batch[0].lower()
+                      or relation.lower() != batch[1].lower()):
+            continue
+
+        emails = [e.strip() for e in emails_raw.split(",") if e.strip()]
         if allowed:
             emails = [e for e in emails if e.lower() in allowed]
         if not emails:
             continue
-        base_guest_id = build_guest_id(str(name), row_number)
+
         for email in emails:
-            guest_id = f"{base_guest_id}_{build_email_slug(email)}"
             recipients.append(
                 {
-                    "name": name,
-                    "email": email,
-                    "guest_id": guest_id,
-                    "website_url": build_tracked_website_url(guest_id),
+                    "name":        name,
+                    "email":       email,
+                    "affiliation": affiliation,
+                    "relation":    relation,
+                    "website_url": WEBSITE_BASE_URL,
                 }
             )
     return recipients
 
 
+def print_recipient_list(recipients: list, label: str = ""):
+    header = f"{'NAME ON ENVELOPE':<45} {'EMAIL':<40} {'BATCH'}"
+    sep    = "-" * len(header)
+    if label:
+        print(f"\n{label}")
+    print(sep)
+    print(header)
+    print(sep)
+    for r in recipients:
+        batch_tag = f"{r['affiliation']}/{r['relation']}"
+        print(f"{r['name']:<45} {r['email']:<40} {batch_tag}")
+    print(sep)
+    print(f"Total: {len(recipients)} email(s)\n")
+
+
+def write_send_log(recipients: list, batch_label: str):
+    fieldnames = ["timestamp", "batch", "name", "email", "affiliation", "relation"]
+    write_header = not LOG_PATH.exists()
+    with open(LOG_PATH, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for r in recipients:
+            writer.writerow({
+                "timestamp":   ts,
+                "batch":       batch_label,
+                "name":        r["name"],
+                "email":       r["email"],
+                "affiliation": r["affiliation"],
+                "relation":    r["relation"],
+            })
+    print(f"Log written → {LOG_PATH}")
+
+
 def build_message(name: str, email: str, website_url: str) -> MIMEMultipart:
-    msg = MIMEMultipart("alternative")
+    msg = MIMEMultipart("related")
     msg["Subject"] = EMAIL_SUBJECT
     msg["From"]    = SENDER_EMAIL
     msg["To"]      = email
-    msg.attach(MIMEText(build_plain_body(name, website_url), "plain"))
-    msg.attach(MIMEText(build_html_body(name, website_url), "html"))
+
+    alt = MIMEMultipart("alternative")
+    alt.attach(MIMEText(build_plain_body(name, website_url), "plain"))
+    alt.attach(MIMEText(build_html_body(name, website_url), "html"))
+    msg.attach(alt)
+
+    with open(SEAL_PATH, "rb") as f:
+        img = MIMEImage(f.read())
+        img.add_header("Content-ID", "<seal>")
+        img.add_header("Content-Disposition", "inline", filename="seal.png")
+        msg.attach(img)
+
     return msg
 
 
@@ -193,17 +265,19 @@ def main():
         preview()
         return
 
-    recipients = load_recipients()
-    print(f"Found {len(recipients)} recipients.\n")
+    batch = parse_batch_arg()
+    batch_label = f"{batch[0]}/{batch[1]}" if batch else "ALL"
 
-    if DRY_RUN:
-        for r in recipients:
-            print(f"[DRY RUN] To: {r['email']}  |  Name: {r['name']}  |  Link: {r['website_url']}")
-        print("\nDry run complete. Set DRY_RUN = False and pass --send to actually send.")
+    recipients = load_recipients(batch)
+
+    if not recipients:
+        print(f"No recipients found for batch: {batch_label}")
         return
 
-    if "--send" not in sys.argv:
-        print("Safety check: pass --send to actually send emails (and set DRY_RUN = False).")
+    if DRY_RUN or "--send" not in sys.argv:
+        print_recipient_list(recipients, label=f"[DRY RUN] Batch: {batch_label}")
+        if "--send" not in sys.argv:
+            print("Dry run complete. Pass --send (and set DRY_RUN = False) to actually send.")
         return
 
     if not CREDS_PATH.exists():
@@ -214,13 +288,16 @@ def main():
 
     service = get_gmail_service()
 
+    sent = []
     for r in recipients:
         msg = build_message(r["name"], r["email"], r["website_url"])
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
         service.users().messages().send(userId="me", body={"raw": raw}).execute()
-        print(f"Sent to: {r['email']}  |  Name: {r['name']}")
+        print(f"Sent → {r['email']}  ({r['name']})")
+        sent.append(r)
 
-    print("\nAll emails sent!")
+    print_recipient_list(sent, label=f"Emails sent — Batch: {batch_label}")
+    write_send_log(sent, batch_label)
 
 
 if __name__ == "__main__":

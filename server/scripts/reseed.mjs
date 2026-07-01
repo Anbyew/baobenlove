@@ -55,10 +55,11 @@ const iName        = col('Name');
 const iEnvelope    = col('Name on Envelope');
 const iEmail       = col('Email');
 const iCount       = col('Count');
+const iNickname    = col('Nickname');
 
 const insert = db.prepare(`
-  INSERT INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests)
-  VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests)
+  INSERT INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests, nickname)
+  VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests, @nickname)
 `);
 
 const rows = lines.slice(1).flatMap(line => {
@@ -81,6 +82,7 @@ const rows = lines.slice(1).flatMap(line => {
     emails:       JSON.stringify(emails),
     guest_names:  JSON.stringify(guestNames),
     max_guests:   Math.max(1, parseInt(cols[iCount] || '1', 10) || 1),
+    nickname:     iNickname >= 0 ? (cols[iNickname]?.trim() || null) : null,
   }];
 });
 

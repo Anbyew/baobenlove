@@ -28,7 +28,8 @@ db.exec(`
     guest_count          INTEGER,
     dietary_restrictions TEXT DEFAULT '',
     song_request         TEXT DEFAULT '',
-    submitted_at         TEXT
+    submitted_at         TEXT,
+    nickname             TEXT
   );
 
   CREATE TABLE IF NOT EXISTS sessions (
@@ -154,6 +155,7 @@ for (const sql of [
   'ALTER TABLE unmatched_guests ADD COLUMN user_agent TEXT',
   'ALTER TABLE unmatched_guests ADD COLUMN city TEXT',
   'ALTER TABLE unmatched_guests ADD COLUMN country TEXT',
+  'ALTER TABLE invites ADD COLUMN nickname TEXT',
 ]) { try { db.exec(sql); } catch {} }
 
 // --- Seeding ---
@@ -170,10 +172,11 @@ function seedFromTsv(tsvPath) {
   const iEnvelope = col('Name on Envelope');
   const iEmail = col('Email');
   const iCount = col('Count');
+  const iNickname = col('Nickname');
 
   const insert = db.prepare(`
-    INSERT OR IGNORE INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests)
-    VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests)
+    INSERT OR IGNORE INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests, nickname)
+    VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests, @nickname)
   `);
 
   const rows = lines.slice(1).flatMap(line => {
@@ -196,6 +199,7 @@ function seedFromTsv(tsvPath) {
       emails: JSON.stringify(emails),
       guest_names: JSON.stringify(guestNames),
       max_guests: Math.max(1, parseInt(cols[iCount] || '1', 10) || 1),
+      nickname: iNickname >= 0 ? (cols[iNickname]?.trim() || null) : null,
     }];
   });
 
@@ -610,9 +614,11 @@ export function upsertDanceScore({ sessionToken, inviteId, playerName, totalScor
 
 export function getDanceLeaderboard() {
   const rows = db.prepare(`
-    SELECT session_token, invite_id, player_name, total_score, games_completed, total_restarts, updated_at
-    FROM dance_scores
-    ORDER BY total_score DESC, total_restarts ASC, games_completed DESC, updated_at ASC
+    SELECT ds.session_token, ds.invite_id, ds.player_name, ds.total_score, ds.games_completed, ds.total_restarts, ds.updated_at,
+           i.nickname
+    FROM dance_scores ds
+    LEFT JOIN invites i ON i.id = ds.invite_id
+    ORDER BY ds.total_score DESC, ds.total_restarts ASC, ds.games_completed DESC, ds.updated_at ASC
   `).all();
 
   // Deduplicate: best per invite_id for matched guests, keep all unmatched
@@ -630,7 +636,7 @@ export function getDanceLeaderboard() {
     .sort((a, b) => b.total_score - a.total_score || a.total_restarts - b.total_restarts)
     .slice(0, 20)
     .map(row => ({
-      playerName: row.player_name,
+      playerName: row.nickname || row.player_name,
       totalScore: row.total_score,
       gamesCompleted: row.games_completed,
       totalRestarts: row.total_restarts,

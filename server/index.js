@@ -112,7 +112,7 @@ const ALLOWED_EMAILS = new Set([
   'joshuaaleffler@gmail.com','joymendenhall@gmail.com','jplshnj@gmail.com',
   'juliet4816@gmail.com','jyenkin@aol.com','kimpapples@gmail.com',
   'klupiloff@gmail.com','laurabrooksbrown@gmail.com','lefflers@aol.com',
-  'lingluanwh@gmail.com','liubovs@umich.edu','ltouger@cox.net',
+  'lingluanwh@gmail.com','liubovs@umich.edu','ltouger@gmail.com',
   'lucyjaneck@gmail.com','luoxi.meng98@gmail.com','marciamcham@aol.com',
   'marctlaurab@gmail.com','mark.luzi@gmail.com','markgreenfield93@gmail.com',
   'matthew.v.ellison@gmail.com','meera@krishnamoorthy.com','megabyteification@gmail.com',
