@@ -29,7 +29,8 @@ db.exec(`
     dietary_restrictions TEXT DEFAULT '',
     song_request         TEXT DEFAULT '',
     submitted_at         TEXT,
-    nickname             TEXT
+    nickname             TEXT,
+    rehearsal_dinner     TEXT DEFAULT ''
   );
 
   CREATE TABLE IF NOT EXISTS sessions (
@@ -156,6 +157,7 @@ for (const sql of [
   'ALTER TABLE unmatched_guests ADD COLUMN city TEXT',
   'ALTER TABLE unmatched_guests ADD COLUMN country TEXT',
   'ALTER TABLE invites ADD COLUMN nickname TEXT',
+  "ALTER TABLE invites ADD COLUMN rehearsal_dinner TEXT DEFAULT ''",
 ]) { try { db.exec(sql); } catch {} }
 
 // --- Seeding ---
@@ -173,10 +175,11 @@ function seedFromTsv(tsvPath) {
   const iEmail = col('Email');
   const iCount = col('Count');
   const iNickname = col('Nickname');
+  const iRehearsal = col('Rehearsal Dinner');
 
   const insert = db.prepare(`
-    INSERT OR IGNORE INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests, nickname)
-    VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests, @nickname)
+    INSERT OR IGNORE INTO invites (token, party_name, informal_name, affiliation, relation, emails, guest_names, max_guests, nickname, rehearsal_dinner)
+    VALUES (@token, @party_name, @informal_name, @affiliation, @relation, @emails, @guest_names, @max_guests, @nickname, @rehearsal_dinner)
   `);
 
   const rows = lines.slice(1).flatMap(line => {
@@ -200,6 +203,7 @@ function seedFromTsv(tsvPath) {
       guest_names: JSON.stringify(guestNames),
       max_guests: Math.max(1, parseInt(cols[iCount] || '1', 10) || 1),
       nickname: iNickname >= 0 ? (cols[iNickname]?.trim() || null) : null,
+      rehearsal_dinner: iRehearsal >= 0 ? (cols[iRehearsal]?.trim() || '') : '',
     }];
   });
 
@@ -246,6 +250,40 @@ if (count === 0) {
   }
 }
 
+// Non-destructive: keeps rehearsal_dinner in sync for households seeded before
+// this column existed, without touching tokens or any RSVP/session data.
+function backfillRehearsalDinner(tsvPath) {
+  const content = readFileSync(tsvPath, 'utf8');
+  const lines = content.split('\n').map(l => l.trimEnd()).filter(Boolean);
+  const headers = lines[0].split('\t');
+  const col = (name) => headers.findIndex(h => h.trim() === name);
+  const iEmail = col('Email');
+  const iRehearsal = col('Rehearsal Dinner');
+  if (iEmail < 0 || iRehearsal < 0) return;
+
+  const update = db.prepare(`
+    UPDATE invites SET rehearsal_dinner = ?
+    WHERE EXISTS (SELECT 1 FROM json_each(emails) WHERE value = ?)
+  `);
+
+  db.transaction(() => {
+    for (const line of lines.slice(1)) {
+      const cols = line.split('\t');
+      const rehearsal = cols[iRehearsal]?.trim() || '';
+      if (!rehearsal) continue;
+      const emails = (cols[iEmail] || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+      for (const email of emails) update.run(rehearsal, email);
+    }
+  })();
+}
+
+for (const path of [
+  process.env.GUESTS_TSV,
+  join(__dirname, '../guests.tsv'),
+].filter(Boolean)) {
+  try { backfillRehearsalDinner(path); break; } catch {}
+}
+
 // --- Helpers ---
 
 function parseJson(v, fallback = []) {
@@ -271,6 +309,7 @@ function toInviteSession(row) {
     emails: parseJson(row.emails, []),
     guestNames: parseJson(row.guest_names, []),
     maxGuests: Number(row.max_guests ?? 1) || 1,
+    rehearsalDinner: String(row.rehearsal_dinner ?? '').trim().toLowerCase() === 'yes',
     rsvp: {
       attendance: row.attendance === 'yes' || row.attendance === 'no' ? row.attendance : '',
       guestCount: row.guest_count == null ? null : Number(row.guest_count),

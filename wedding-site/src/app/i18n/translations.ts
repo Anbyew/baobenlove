@@ -55,6 +55,12 @@ export const t = {
 
     // Details
     detailsTitle: 'Details',
+    welcomeDinnerLabel: 'Welcome Dinner',
+    welcomeDinnerDate: 'Friday, October 2, 2026',
+    welcomeDinnerTime: '7:00 PM',
+    welcomeDinnerVenue: 'Eggspectation - Christiana',
+    welcomeDinnerAddress: '507 Stanton Christiana Rd, Newark, DE 19713',
+    welcomeDinnerHost: 'Lovingly hosted by Roberta Krakoff',
     ceremonyLabel: 'Ceremony',
     cocktailReceptionLabel: 'Cocktail & Reception',
     dateLabel: 'Date',
@@ -332,6 +338,12 @@ export const t = {
 
     // Details
     detailsTitle: '婚礼详情',
+    welcomeDinnerLabel: '欢迎晚宴',
+    welcomeDinnerDate: '10月2日，周五',
+    welcomeDinnerTime: '晚上7:00',
+    welcomeDinnerVenue: 'Eggspectation - Christiana',
+    welcomeDinnerAddress: '507 Stanton Christiana Rd, Newark, DE 19713',
+    welcomeDinnerHost: '由Roberta Krakoff用心呈现',
     ceremonyLabel: '婚礼仪式',
     cocktailReceptionLabel: '鸡尾酒会与婚宴',
     dateLabel: '日期',

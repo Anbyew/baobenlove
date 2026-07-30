@@ -8,6 +8,7 @@ export interface InviteSession {
   secondaryEmail: string | null;
   guestNames: string[];
   maxGuests: number;
+  rehearsalDinner: boolean;
   rsvp: {
     attendance: AttendanceStatus;
     guestCount: number | null;

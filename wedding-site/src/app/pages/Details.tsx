@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Clock, MapPin, QrCode } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
+import { useGuestSession } from '../context/GuestSessionContext';
+import { Switch } from '../components/ui/switch';
 
 // Sum of the couple illustration widths below (840) plus their gaps (6 × 4px)
 const COUPLES_ROW_WIDTH = 864;
@@ -9,14 +12,33 @@ function coupleImgWidth(w: number) {
   return `min(${w}px, calc((100vw - 64px) * ${(w / COUPLES_ROW_WIDTH).toFixed(4)}))`;
 }
 
+// Dev-only preview: lets the mega/admin test household flip the Welcome
+// Dinner section on/off locally, since the real flag lives on invites that
+// aren't easy to log into one at a time during development.
+const MEGA_USER_EMAIL = 'baobaoyuwei@gmail.com';
+
 export function Details() {
   const { t } = useLang();
+  const { invite } = useGuestSession();
+  const [devOverride, setDevOverride] = useState<boolean | null>(null);
+
+  const isMegaUser = invite?.emails?.some(e => e.toLowerCase() === MEGA_USER_EMAIL) ?? false;
+  const showDevToggle = import.meta.env.DEV && isMegaUser;
+  const showWelcomeDinner = devOverride ?? invite?.rehearsalDinner ?? false;
+
   return (
     <div className="min-h-screen relative">
       <div className="fixed inset-0 z-0">
         <img src="/Wedding Cherries Web/IMG_0403.jpg" alt="Garden background" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-white/45 via-white/25 to-white/45" />
       </div>
+
+      {showDevToggle && (
+        <div className="fixed top-1/2 right-4 -translate-y-1/2 z-50 flex items-center gap-3 bg-white/95 shadow-lg border border-black/10 rounded-full px-4 py-2">
+          <span className="text-xs font-light text-foreground/70 whitespace-nowrap">Welcome Dinner (dev preview)</span>
+          <Switch checked={showWelcomeDinner} onCheckedChange={(checked) => setDevOverride(checked)} />
+        </div>
+      )}
 
       <div className="relative z-10">
         {/* Hero */}
@@ -46,6 +68,51 @@ export function Details() {
         {/* Content panel */}
         <div className="max-w-5xl mx-auto px-4 pb-32">
           <div className="bg-white/80 backdrop-blur-xl shadow-2xl shadow-black/8 border border-white/50 p-8 md:p-16 rounded-sm">
+
+            {/* Welcome Dinner — shown only to households invited to it */}
+            {showWelcomeDinner && (
+              <>
+                <div className="mb-16">
+                  <div className="text-center mb-16">
+                    <Reveal>
+                      <div className="text-sm tracking-[0.3em] uppercase text-secondary/55 mb-3 font-light">{t.welcomeDinnerLabel}</div>
+                    </Reveal>
+                    <Reveal delay={0.08}>
+                      <p
+                        className="text-lg md:text-xl italic text-secondary/70 tracking-wide"
+                        style={{ fontFamily: 'var(--font-heading)' }}
+                      >
+                        {t.welcomeDinnerHost}
+                      </p>
+                    </Reveal>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
+                    {[
+                      { icon: Calendar, label: t.dateLabel, value: t.welcomeDinnerDate, sub: null, href: null },
+                      { icon: Clock, label: t.timeLabel, value: t.welcomeDinnerTime, sub: null, href: null },
+                      { icon: MapPin, label: t.locationLabel, value: t.welcomeDinnerVenue, sub: t.welcomeDinnerAddress, href: 'https://maps.google.com/?q=507+Stanton+Christiana+Rd,+Newark,+DE+19713' },
+                    ].map((item, i) => (
+                      <Reveal key={item.label} delay={i * 0.12} direction="up">
+                        <div className="text-center group">
+                          <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
+                          <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
+                          {item.href ? (
+                            <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                          ) : (
+                            <div className="text-lg font-light text-foreground">{item.value}</div>
+                          )}
+                          {item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
+                        </div>
+                      </Reveal>
+                    ))}
+                  </div>
+                </div>
+
+                <Reveal>
+                  <div className="h-px w-24 bg-gradient-to-r from-transparent via-primary/30 to-transparent mx-auto my-12" />
+                </Reveal>
+              </>
+            )}
 
             {/* Ceremony */}
             <div className="mb-16">
