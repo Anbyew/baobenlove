@@ -1,4 +1,20 @@
 export type AttendanceStatus = 'yes' | 'no' | '';
+export type AgeGroup = 'under21' | 'over21' | '';
+export type MainCourse = 'cod' | 'duck' | 'wellington' | 'childrens' | 'other' | '';
+export type LanguageLevel = 0 | 1 | 2 | 3;
+export type Transportation = 'yes' | 'no' | 'tbd' | '';
+
+export interface GuestEntry {
+  id: string;
+  firstName: string;
+  lastName: string;
+  ageGroup: AgeGroup;
+  mainCourse: MainCourse;
+  mainCourseOther: string;
+  dietaryRestrictions: string;
+  languageEnglish: LanguageLevel;
+  languageChinese: LanguageLevel;
+}
 
 export interface InviteSession {
   id: string;
@@ -12,7 +28,10 @@ export interface InviteSession {
   rsvp: {
     attendance: AttendanceStatus;
     guestCount: number | null;
-    dietaryRestrictions: string;
+    guests: GuestEntry[];
+    transportation: Transportation;
+    additionalNotes: string;
+    welcomeDinnerAttendance: AttendanceStatus;
     songRequest: string;
     submittedAt: string | null;
   };
@@ -25,9 +44,11 @@ export interface InviteLookupInput {
 
 export interface SaveRsvpInput {
   attendance: Exclude<AttendanceStatus, ''>;
-  guestCount: number;
-  dietaryRestrictions: string;
+  guests: GuestEntry[];
+  transportation: Transportation;
   songRequest: string;
+  additionalNotes: string;
+  welcomeDinnerAttendance: AttendanceStatus;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';

@@ -2,9 +2,14 @@ import { motion } from 'motion/react';
 import { Plane, Hotel, Map, ExternalLink } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
+import { trackClick } from '../lib/auth';
 
 export function Travel() {
   const { t } = useLang();
+  const { identity } = useGuestIdentity();
+  const track = (label: string, metadata?: Record<string, unknown>) =>
+    trackClick({ sessionToken: identity?.sessionToken, label, metadata });
 
   const hotels = [
     {
@@ -95,13 +100,13 @@ export function Travel() {
                 <div className="space-y-8">
                   <Reveal delay={0.08}>
                     <div className="border-b border-foreground/5 pb-8 group">
-                      <a href="https://maps.google.com/?q=Philadelphia+International+Airport" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.phlAirport}</a>
+                      <a href="https://maps.google.com/?q=Philadelphia+International+Airport" target="_blank" rel="noreferrer" onClick={() => track('travel_map_click', { target: 'PHL Airport' })} className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.phlAirport}</a>
                       <p className="text-sm font-light text-foreground/65 mt-1">{t.phlDistance}</p>
                     </div>
                   </Reveal>
                   <Reveal delay={0.16}>
                     <div className="border-b border-foreground/5 pb-8 group">
-                      <a href="https://maps.google.com/?q=Wilmington+Airport+ILG+Delaware" target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.ilgAirport}</a>
+                      <a href="https://maps.google.com/?q=Wilmington+Airport+ILG+Delaware" target="_blank" rel="noreferrer" onClick={() => track('travel_map_click', { target: 'ILG Airport' })} className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{t.ilgAirport}</a>
                       <p className="text-sm font-light text-foreground/65 mt-1">{t.ilgDistance}</p>
                     </div>
                   </Reveal>
@@ -124,10 +129,10 @@ export function Travel() {
                   {hotels.map((hotel, i) => (
                     <Reveal key={hotel.name} delay={i * 0.1}>
                       <div className="border-b border-foreground/5 pb-8 group">
-                        <a href={hotel.mapUrl} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{hotel.name}</a>
+                        <a href={hotel.mapUrl} target="_blank" rel="noreferrer" onClick={() => track('travel_map_click', { target: hotel.name })} className="text-lg font-light text-foreground transition-colors duration-300 group-hover:text-primary">{hotel.name}</a>
                         <p className="text-sm font-light text-foreground/65 mt-1">{hotel.distance}</p>
                         {hotel.link ? (
-                          <a href={hotel.link} target="_blank" rel="noreferrer" className={`text-sm font-light mt-3 inline-block underline underline-offset-2 ${hotel.codeColor}`}>
+                          <a href={hotel.link} target="_blank" rel="noreferrer" onClick={() => track('travel_book_hotel', { hotel: hotel.name })} className={`text-sm font-light mt-3 inline-block underline underline-offset-2 ${hotel.codeColor}`}>
                             {t.bookRoomBlock}
                           </a>
                         ) : (
@@ -156,7 +161,7 @@ export function Travel() {
                     group.items.map((item, i) => (
                       <Reveal key={item.name} delay={i * 0.08}>
                         <div className="border-b border-foreground/5 pb-8 group">
-                          <a href={item.mapUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-lg font-light text-primary/80 underline underline-offset-4 decoration-primary/25 hover:decoration-primary hover:text-primary transition-colors duration-300">
+                          <a href={item.mapUrl} target="_blank" rel="noreferrer" onClick={() => track('travel_map_click', { target: item.name })} className="inline-flex items-center gap-1.5 text-lg font-light text-primary/80 underline underline-offset-4 decoration-primary/25 hover:decoration-primary hover:text-primary transition-colors duration-300">
                           {item.name}
                           <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                         </a>
@@ -168,6 +173,7 @@ export function Travel() {
                                 href="https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348"
                                 target="_blank"
                                 rel="noreferrer"
+                                onClick={() => track('travel_map_click', { target: 'Longwood Sunday Access' })}
                                 className="font-medium underline underline-offset-2 decoration-secondary/50 hover:text-primary transition-colors duration-300"
                               >
                                 {t.sundayAccessAddress}

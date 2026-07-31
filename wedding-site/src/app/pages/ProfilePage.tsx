@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGuestIdentity, parseName } from '../context/GuestIdentityContext';
 import { useLang } from '../context/LanguageContext';
-import { updateSession } from '../lib/auth';
+import { updateSession, trackClick } from '../lib/auth';
 import { Label } from '../components/ui/label';
 
 const TITLES = ['', 'Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.'];
@@ -26,6 +26,7 @@ export function ProfilePage() {
   };
 
   const [form, setForm] = useState(initial);
+  const [originalForm] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,10 +55,26 @@ export function ProfilePage() {
     try {
       const fullName = [form.title, form.firstName.trim(), form.lastName.trim()].join(' ');
 
+      const changedFields = (['title', 'firstName', 'lastName', 'language'] as const).filter(
+        field => form[field].trim() !== originalForm[field].trim(),
+      );
+
       if (identity.sessionToken) {
         await updateSession(identity.sessionToken, {
           name: fullName,
           language: form.language,
+        });
+      }
+
+      if (changedFields.length > 0) {
+        trackClick({
+          sessionToken: identity.sessionToken,
+          label: 'profile_update',
+          metadata: {
+            changed: changedFields,
+            previous: originalForm,
+            updated: { title: form.title, firstName: form.firstName.trim(), lastName: form.lastName.trim(), language: form.language },
+          },
         });
       }
 

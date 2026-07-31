@@ -3,7 +3,7 @@ import { Label } from './ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from './ui/input-otp';
 import { useGuestIdentity, parseName, type GuestIdentity } from '../context/GuestIdentityContext';
 import { useLang } from '../context/LanguageContext';
-import { sendOtp, verifyOtp, lookupByEmail, createSession, reportIssue } from '../lib/auth';
+import { sendOtp, verifyOtp, lookupByEmail, createSession, reportIssue, trackClick } from '../lib/auth';
 
 const SUPPORT_EMAIL = 'bellabenbao@gmail.com';
 
@@ -365,7 +365,11 @@ export function EmailAuthGate({ children }: { children: React.ReactNode }) {
           )}
           <p className="text-xs font-light text-foreground/30">
             {lang === 'zh' ? '需要帮助？' : 'Need help?'}{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="underline hover:text-foreground/60 transition-colors">
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              onClick={() => trackClick({ label: 'login_help_email_click' })}
+              className="underline hover:text-foreground/60 transition-colors"
+            >
               {SUPPORT_EMAIL}
             </a>
           </p>

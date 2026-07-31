@@ -3,6 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend,
 } from 'recharts';
+import type { GuestEntry } from '../lib/invite';
 
 const API = import.meta.env.VITE_API_BASE ?? '/api';
 
@@ -27,23 +28,23 @@ interface Stats { households: number; totalGuests: number; sessions: number; unm
 interface RawEvent { event_type: string; page: string; metadata: Record<string, unknown>; created_at: string; invite_id?: number; session_token?: string; session_name?: string; session_email?: string; session_ua?: string; session_city?: string; session_country?: string; party_name?: string; informal_name?: string; }
 interface UnmatchedGuest { email: string; name: string; language: string; created_at: string; }
 interface HouseholdSession { email: string; name: string; language: string; created_at: string; last_seen_at: string; user_agent?: string; city?: string; country?: string; }
-interface HouseholdStats { venmoClicks: number; zelleViews: number; moonboardAmount: number; pageViews: number; }
+interface HouseholdStats { venmoClicks: number; zelleViews: number; pageViews: number; }
 interface GardenItem { plantType: string; color: string; }
 interface Household {
   id: number; party_name: string; informal_name: string; affiliation: string;
   max_guests: number; attendance: string; guest_count: number;
-  dietary_restrictions: string; song_request: string; submitted_at: string;
+  guests: GuestEntry[]; transportation: string; additional_notes: string;
+  welcome_dinner_attendance: string; rehearsal_dinner: string;
+  song_request: string; submitted_at: string;
   emails: string[]; sessions: HouseholdSession[];
   garden: { items: GardenItem[]; value: number; updatedAt: string | null };
   recentEvents: RawEvent[]; lastSeen: string | null; hasLoggedIn: boolean;
   stats: HouseholdStats;
 }
 interface EscapeCleared { obstacle_id: string; note: string; cleared_at: string; }
-interface ClimbCleared { boost_id: string; note: string; cleared_at: string; }
-interface MoonboardHold { id: number; row: number; col: number; guest_name: string; message: string; shape: string; color: string; placed_at: string; }
 interface DanceEntry { playerName: string; totalScore: number; totalRestarts: number; completedAt: string; }
 interface AllDanceRound { player_name: string; total_score: number; total_restarts: number; completed_at: string; }
-interface Games { escape: EscapeCleared[]; climb: ClimbCleared[]; moonboard: MoonboardHold[]; dance: DanceEntry[]; allDanceRounds: AllDanceRound[]; }
+interface Games { escape: EscapeCleared[]; dance: DanceEntry[]; allDanceRounds: AllDanceRound[]; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -57,19 +58,8 @@ const ESCAPE_LABELS: Record<string, { label: string; price: number }> = {
   spin:     { label: "Someone Yelled 'Do the Thing!'", price: 35 },
   encore:   { label: 'Yuwei Wants an Encore', price: 50 },
 };
-const CLIMB_LABELS: Record<string, { label: string; price: number }> = {
-  energybar:   { label: 'Energy Bar', price: 10 },
-  poles:       { label: 'Trekking Poles', price: 15 },
-  coffee:      { label: 'Emergency Coffee', price: 10 },
-  boots:       { label: 'Proper Boots', price: 25 },
-  yell:        { label: 'A Motivational Yell', price: 5 },
-  donut:       { label: 'Summit Donut', price: 8 },
-  sherpa:      { label: 'Personal Sherpa', price: 50 },
-  selfiestick: { label: 'Selfie Stick', price: 12 },
-};
 const GARDEN_PRICES: Record<string, number> = { grass: 2, bush: 8, sunflower: 16, cherryTree: 32 };
 const GARDEN_LABELS: Record<string, string> = { grass: 'Grass', bush: 'Bush', sunflower: 'Sunflower', cherryTree: 'Cherry Tree' };
-const MOONBOARD_HOLD_PRICE = 25;
 
 function parseDevice(ua?: string | null): string {
   if (!ua) return '';
@@ -99,6 +89,12 @@ function gardenSummary(items: GardenItem[]) {
   const counts: Record<string, number> = {};
   for (const it of items) counts[it.plantType] = (counts[it.plantType] || 0) + 1;
   return Object.entries(counts).map(([t, n]) => `${GARDEN_LABELS[t] || t} ×${n}`).join(', ');
+}
+function householdDietarySummary(guests: GuestEntry[]) {
+  return guests
+    .filter((g) => g.dietaryRestrictions.trim())
+    .map((g) => `${g.firstName || 'Guest'}: ${g.dietaryRestrictions}`)
+    .join('; ');
 }
 
 // ── UI primitives ─────────────────────────────────────────────────────────────
@@ -147,7 +143,7 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
   const rsvpColor = h.attendance === 'yes' ? PRIMARY : h.attendance === 'no' ? RED : MUTED;
   const rsvpLabel = h.attendance === 'yes' ? 'Attending' : h.attendance === 'no' ? 'Declined' : 'Pending';
   const uniqueLoggedIn = Array.from(new Map(h.sessions.map(s => [s.email, s])).values());
-  const stats = h.stats ?? { venmoClicks: 0, zelleViews: 0, moonboardAmount: 0, pageViews: 0 };
+  const stats = h.stats ?? { venmoClicks: 0, zelleViews: 0, pageViews: 0 };
 
   const clickBreakdown: Record<string, number> = {};
   for (const e of h.recentEvents) {
@@ -157,7 +153,7 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
     }
   }
   const pagesVisited = [...new Set(h.recentEvents.filter(e => e.event_type === 'page_view').map(e => e.page))];
-  const totalDonation = h.garden.value + stats.moonboardAmount;
+  const totalDonation = h.garden.value;
 
   return (
     <>
@@ -208,7 +204,7 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
             </div>
           ) : <span className="text-xs text-foreground/30">—</span>}
         </Td>
-        <Td className="text-xs text-foreground/50">{h.dietary_restrictions || '—'}</Td>
+        <Td className="text-xs text-foreground/50">{householdDietarySummary(h.guests) || '—'}</Td>
         <Td className="text-xs text-foreground/50 italic">{h.song_request || '—'}</Td>
       </tr>
 
@@ -272,13 +268,14 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
                   <div className="flex justify-between text-xs"><span className="text-foreground/50">Page views</span><span className="text-foreground/40">{stats.pageViews}</span></div>
                   <div className="flex justify-between text-xs"><span className="text-foreground/50">Venmo clicks</span><span className="text-foreground/40">{stats.venmoClicks}</span></div>
                   <div className="flex justify-between text-xs"><span className="text-foreground/50">Zelle views</span><span className="text-foreground/40">{stats.zelleViews}</span></div>
-                  {stats.moonboardAmount > 0 && <div className="flex justify-between text-xs"><span className="text-foreground/50">Moonboard</span><span style={{ color: GOLD }}>${stats.moonboardAmount}</span></div>}
                 </div>
                 {h.submitted_at && (
                   <>
                     <p className="text-xs tracking-widest uppercase text-foreground/30 mt-4 mb-2">RSVP</p>
-                    <p className="text-xs text-foreground/50">{h.dietary_restrictions || 'No dietary restrictions'}</p>
+                    <p className="text-xs text-foreground/50">{householdDietarySummary(h.guests) || 'No dietary restrictions'}</p>
+                    {h.transportation && <p className="text-xs text-foreground/40 mt-1">Transportation: {h.transportation}</p>}
                     {h.song_request && <p className="text-xs text-foreground/40 italic mt-1">🎵 {h.song_request}</p>}
+                    {h.additional_notes && <p className="text-xs text-foreground/40 mt-1">Notes: {h.additional_notes}</p>}
                     <p className="text-xs text-foreground/30 mt-1">Submitted {fmt(h.submitted_at)}</p>
                   </>
                 )}
@@ -297,8 +294,6 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
   if (!games) return <p className="text-sm text-foreground/40 py-10 text-center">Loading game data…</p>;
 
   const escape = games.escape ?? [];
-  const climb = games.climb ?? [];
-  const moonboard = games.moonboard ?? [];
   const dance = games.dance ?? [];
   const allDanceRounds = games.allDanceRounds ?? [];
 
@@ -547,7 +542,11 @@ export function AdminDashboard() {
   const totalGardenValue = households.reduce((sum, h) => sum + h.garden.value, 0);
   const allDanceRounds = games?.allDanceRounds ?? [];
   const dance = games?.dance ?? [];
-  const dietaryList = households.filter(h => h.attendance === 'yes' && h.dietary_restrictions).map(h => ({ name: h.informal_name || h.party_name, restriction: h.dietary_restrictions }));
+  const dietaryList = households
+    .filter(h => h.attendance === 'yes')
+    .flatMap(h => h.guests
+      .filter(g => g.dietaryRestrictions.trim())
+      .map(g => ({ name: h.informal_name || h.party_name, guest: `${g.firstName} ${g.lastName}`.trim(), restriction: g.dietaryRestrictions })));
 
   const rsvpDonut = [
     { name: 'Attending', value: stats?.rsvpYes ?? 0, color: PRIMARY },
@@ -732,13 +731,13 @@ export function AdminDashboard() {
             )}
 
             {dietaryList.length > 0 && (
-              <Section title={`Dietary restrictions — ${dietaryList.length} attending households`}>
+              <Section title={`Dietary restrictions — ${dietaryList.length} guests`}>
                 <div className="border border-foreground/10 rounded-sm overflow-x-auto">
                   <table className="w-full">
-                    <thead><tr><Th>Household</Th><Th>Restriction</Th></tr></thead>
+                    <thead><tr><Th>Household</Th><Th>Guest</Th><Th>Restriction</Th></tr></thead>
                     <tbody>
                       {dietaryList.map((d, i) => (
-                        <tr key={i}><Td className="font-normal">{d.name}</Td><Td className="text-foreground/60">{d.restriction}</Td></tr>
+                        <tr key={i}><Td className="font-normal">{d.name}</Td><Td className="text-foreground/60">{d.guest}</Td><Td className="text-foreground/60">{d.restriction}</Td></tr>
                       ))}
                     </tbody>
                   </table>

@@ -29,6 +29,7 @@ export function ZelleButton({ amount, note, sessionToken, className = '' }: Prop
     try {
       await navigator.clipboard.writeText(text);
       setCopied(type);
+      trackClick({ sessionToken, label: 'zelle_copy', metadata: { type, amount, note } });
       setTimeout(() => setCopied(null), 2000);
     } catch {
       setCopyBlocked(true);

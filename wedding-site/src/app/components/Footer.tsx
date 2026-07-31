@@ -1,4 +1,8 @@
+import { useGuestIdentity } from '../context/GuestIdentityContext';
+import { trackClick } from '../lib/auth';
+
 export function Footer() {
+  const { identity } = useGuestIdentity();
   return (
     <footer className="bg-background border-t border-foreground/5 py-16 px-4">
       <div className="max-w-4xl mx-auto text-center">
@@ -9,7 +13,11 @@ export function Footer() {
 
         <div className="text-xs font-light text-foreground/40 space-y-3">
           <p>
-            <a href="mailto:bellabenbao@gmail.com" className="text-primary/70 hover:text-primary transition-colors">
+            <a
+              href="mailto:bellabenbao@gmail.com"
+              onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'footer_email_click' })}
+              className="text-primary/70 hover:text-primary transition-colors"
+            >
               bellabenbao@gmail.com
             </a>
           </p>

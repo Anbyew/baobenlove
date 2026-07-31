@@ -7,20 +7,45 @@ import {
   AccordionTrigger,
 } from '../components/ui/accordion';
 import { useLang } from '../context/LanguageContext';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
+import { trackClick } from '../lib/auth';
 
-function renderAnswer(text: string) {
+function renderAnswer(text: string, sessionToken: string | undefined) {
   // Handles [label](url) links and bare email addresses
   const parts = text.split(/(\[[^\]]+\]\([^)]+\)|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
   return parts.map((part, i) => {
     if (i % 2 === 0) return part;
     const md = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (md) return <a key={i} href={md[2]} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">{md[1]}</a>;
-    return <a key={i} href={`mailto:${part}`} className="text-primary hover:text-primary/80 transition-colors">{part}</a>;
+    if (md) {
+      return (
+        <a
+          key={i}
+          href={md[2]}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackClick({ sessionToken, label: 'faq_link_click', metadata: { target: md[1] } })}
+          className="text-primary hover:text-primary/80 transition-colors"
+        >
+          {md[1]}
+        </a>
+      );
+    }
+    return (
+      <a
+        key={i}
+        href={`mailto:${part}`}
+        onClick={() => trackClick({ sessionToken, label: 'faq_email_click', metadata: { email: part } })}
+        className="text-primary hover:text-primary/80 transition-colors"
+      >
+        {part}
+      </a>
+    );
   });
 }
 
 export function FAQ() {
   const { t } = useLang();
+  const { identity } = useGuestIdentity();
   const sections = t.faqSections;
   return (
     <div className="min-h-screen relative">
@@ -73,7 +98,7 @@ export function FAQ() {
                           {item.q}
                         </AccordionTrigger>
                         <AccordionContent className="text-base font-light text-foreground/75 leading-relaxed pb-5">
-                          {renderAnswer(item.a)}
+                          {renderAnswer(item.a, identity?.sessionToken)}
                         </AccordionContent>
                       </AccordionItem>
                     </Reveal>

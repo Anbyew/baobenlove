@@ -641,12 +641,12 @@ export function Escape() {
                           <button
                             type="button"
                             onClick={() => {
-                              setPlayingId(selected.id);
                               trackClick({
                                 sessionToken: identity?.sessionToken,
                                 label: 'escape_play_game',
                                 metadata: { obstacle: selected.id, amount: selected.price },
                               });
+                              setPlayingId(selected.id);
                             }}
                             className="w-full px-4 py-2.5 rounded-full border border-foreground/15 hover:border-foreground/30 text-foreground/60 text-xs tracking-[0.2em] uppercase font-light transition-colors bg-white"
                           >

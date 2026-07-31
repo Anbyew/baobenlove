@@ -7,10 +7,8 @@ import { Schedule } from "./pages/Schedule";
 import { RSVPPage } from "./pages/RSVPPage";
 import { Travel } from "./pages/Travel";
 import { Registry } from "./pages/Registry";
-import { Moonboard } from "./pages/Moonboard";
 import { Garden } from "./pages/Garden";
 import { Escape } from "./pages/Escape";
-import { Climb } from "./pages/Climb";
 import { FAQ } from "./pages/FAQ";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -27,11 +25,9 @@ export const router = createBrowserRouter([
       { path: "rsvp", Component: RSVPPage },
       { path: "travel", Component: Travel },
       { path: "registry", Component: Registry },
-      { path: "moonboard", Component: Moonboard },
       { path: "garden", Component: Garden },
       { path: "dance", Component: Escape },
       { path: "escape", Component: Escape },
-      { path: "climb", Component: Climb },
       { path: "faq", Component: FAQ },
       { path: "profile", Component: ProfilePage },
     ],

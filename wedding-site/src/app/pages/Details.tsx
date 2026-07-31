@@ -4,6 +4,8 @@ import { Calendar, Clock, MapPin, QrCode } from 'lucide-react';
 import { Reveal } from '../components/Reveal';
 import { useLang } from '../context/LanguageContext';
 import { useGuestSession } from '../context/GuestSessionContext';
+import { useGuestIdentity } from '../context/GuestIdentityContext';
+import { trackClick } from '../lib/auth';
 import { Switch } from '../components/ui/switch';
 
 // Sum of the couple illustration widths below (840) plus their gaps (6 × 4px)
@@ -20,7 +22,10 @@ const MEGA_USER_EMAIL = 'baobaoyuwei@gmail.com';
 export function Details() {
   const { t } = useLang();
   const { invite } = useGuestSession();
+  const { identity } = useGuestIdentity();
   const [devOverride, setDevOverride] = useState<boolean | null>(null);
+  const track = (target: string) =>
+    trackClick({ sessionToken: identity?.sessionToken, label: 'details_map_click', metadata: { target } });
 
   const isMegaUser = invite?.emails?.some(e => e.toLowerCase() === MEGA_USER_EMAIL) ?? false;
   const showDevToggle = import.meta.env.DEV && isMegaUser;
@@ -97,7 +102,7 @@ export function Details() {
                           <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
                           <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
                           {item.href ? (
-                            <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                            <a href={item.href} target="_blank" rel="noreferrer" onClick={() => track('Welcome Dinner')} className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
                           ) : (
                             <div className="text-lg font-light text-foreground">{item.value}</div>
                           )}
@@ -132,7 +137,7 @@ export function Details() {
                       <item.icon className="w-7 h-7 text-primary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-primary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
                       {item.href ? (
-                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-primary transition-colors duration-200">{item.value}</a>
+                        <a href={item.href} target="_blank" rel="noreferrer" onClick={() => track('Ceremony')} className="text-lg font-light text-foreground hover:text-primary transition-colors duration-200">{item.value}</a>
                       ) : (
                         <div className="text-lg font-light text-foreground">{item.value}</div>
                       )}
@@ -165,7 +170,7 @@ export function Details() {
                       <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
                       {item.href ? (
-                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                        <a href={item.href} target="_blank" rel="noreferrer" onClick={() => track('Reception')} className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
                       ) : (
                         <div className="text-lg font-light text-foreground">{item.value}</div>
                       )}
@@ -218,7 +223,7 @@ export function Details() {
                       <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
                       {item.href ? (
-                        <a href={item.href} target="_blank" rel="noreferrer" className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
+                        <a href={item.href} target="_blank" rel="noreferrer" onClick={() => track('Sunday Bonus Parking')} className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
                       ) : (
                         <div className="text-lg font-light text-foreground">{item.value}</div>
                       )}

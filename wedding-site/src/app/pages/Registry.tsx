@@ -137,8 +137,9 @@ export function Registry() {
             <div className="text-center mt-32 animate-elegant-fade-in" style={{ animationDelay: '1.4s' }}>
               <p className="text-sm font-light text-foreground/70">
                 {t.registryContact}{' '}
-                <a 
+                <a
                   href="mailto:bellabenbao@gmail.com"
+                  onClick={() => trackClick({ sessionToken: identity?.sessionToken, label: 'registry_email_click' })}
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
                   bellabenbao@gmail.com

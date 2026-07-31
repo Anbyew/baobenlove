@@ -20,8 +20,6 @@ import {
   validateSession,
   updateSession,
   logEvent,
-  getMoonboardHolds,
-  placeMoonboardHold,
   getGardenItems,
   setGardenItems,
   archiveGarden,
@@ -35,8 +33,6 @@ import {
   saveDanceRound,
   getDanceLeaderboard,
   upsertDanceScore,
-  getClimbCleared,
-  clearClimbBoost,
   getAdminGames,
 } from './db.js';
 
@@ -132,9 +128,6 @@ app.post('/send-otp', async (req, res) => {
     const email = String(req.body?.email ?? '').trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Please enter a valid email address.' });
-
-    if (!ALLOWED_EMAILS.has(email))
-      return res.status(403).json({ error: 'This site is currently in private preview. Please contact bellabenbao@gmail.com if you need access.' });
 
     const { GMAIL_APP_PASSWORD, OTP_SECRET } = process.env;
     if (!GMAIL_APP_PASSWORD || !OTP_SECRET)
@@ -237,13 +230,45 @@ app.post('/guest-session', (req, res) => {
   }
 });
 
+const AGE_GROUPS = new Set(['under21', 'over21']);
+const MAIN_COURSES = new Set(['cod', 'duck', 'wellington', 'childrens', 'other']);
+const TRANSPORTATION_OPTIONS = new Set(['yes', 'no', 'tbd']);
+
+function sanitizeGuest(raw) {
+  const g = raw ?? {};
+  const firstName = String(g.firstName ?? '').trim().slice(0, 100);
+  const lastName = String(g.lastName ?? '').trim().slice(0, 100);
+  const ageGroup = AGE_GROUPS.has(g.ageGroup) ? g.ageGroup : null;
+  const mainCourse = MAIN_COURSES.has(g.mainCourse) ? g.mainCourse : null;
+  const mainCourseOther = String(g.mainCourseOther ?? '').trim().slice(0, 100);
+  const dietaryRestrictions = String(g.dietaryRestrictions ?? '').trim().slice(0, 500);
+  const languageEnglish = [0, 1, 2, 3].includes(g.languageEnglish) ? g.languageEnglish : 3;
+  const languageChinese = [0, 1, 2, 3].includes(g.languageChinese) ? g.languageChinese : 0;
+
+  if (!firstName || !lastName) return { error: 'Please enter each guest’s first and last name.' };
+  if (!ageGroup) return { error: 'Please select an age group for each guest.' };
+  if (!mainCourse) return { error: 'Please select a main course for each guest.' };
+  if (mainCourse === 'other' && !mainCourseOther) return { error: 'Please specify the main course for each guest who selected "Other".' };
+
+  return {
+    guest: {
+      id: String(g.id ?? '').trim().slice(0, 40) || undefined,
+      firstName, lastName, ageGroup, mainCourse,
+      mainCourseOther: mainCourse === 'other' ? mainCourseOther : '',
+      dietaryRestrictions, languageEnglish, languageChinese,
+    },
+  };
+}
+
 app.post('/rsvp', (req, res) => {
   try {
     const payload = req.body ?? {};
     const token = String(payload.token ?? '').trim();
     const attendance = payload.attendance === 'yes' || payload.attendance === 'no' ? payload.attendance : null;
-    const dietaryRestrictions = String(payload.dietaryRestrictions ?? '').trim().slice(0, 1000);
     const songRequest = String(payload.songRequest ?? '').trim().slice(0, 250);
+    const transportation = TRANSPORTATION_OPTIONS.has(payload.transportation) ? payload.transportation : '';
+    const additionalNotes = String(payload.additionalNotes ?? '').trim().slice(0, 1000);
+    const welcomeDinnerAttendance = payload.welcomeDinnerAttendance === 'yes' || payload.welcomeDinnerAttendance === 'no' ? payload.welcomeDinnerAttendance : '';
 
     if (!token) return res.status(400).json({ error: 'Missing invitation token.' });
     if (!attendance) return res.status(400).json({ error: 'Please let us know whether you will be attending.' });
@@ -251,16 +276,31 @@ app.post('/rsvp', (req, res) => {
     const invite = getInviteByToken(token);
     if (!invite) return res.status(404).json({ error: 'We could not find that invitation.' });
 
-    const guestCount = attendance === 'yes' ? Number.parseInt(String(payload.guestCount ?? ''), 10) : 0;
-    if (attendance === 'yes' && (!Number.isInteger(guestCount) || guestCount < 1))
-      return res.status(400).json({ error: 'Please enter how many guests from your household will attend.' });
-    if (attendance === 'yes' && guestCount > invite.maxGuests)
-      return res.status(400).json({ error: `Your invitation is reserved for ${invite.maxGuests} guest${invite.maxGuests === 1 ? '' : 's'}.` });
+    if (invite.rehearsalDinner && attendance === 'yes' && !welcomeDinnerAttendance)
+      return res.status(400).json({ error: 'Please let us know whether you will be attending the Welcome Dinner.' });
+
+    let guests = [];
+    if (attendance === 'yes') {
+      const rawGuests = Array.isArray(payload.guests) ? payload.guests : [];
+      if (rawGuests.length < 1)
+        return res.status(400).json({ error: 'Please add at least one guest.' });
+      if (rawGuests.length > invite.maxGuests)
+        return res.status(400).json({ error: `Your invitation is reserved for ${invite.maxGuests} guest${invite.maxGuests === 1 ? '' : 's'}.` });
+
+      for (const rawGuest of rawGuests) {
+        const { guest, error } = sanitizeGuest(rawGuest);
+        if (error) return res.status(400).json({ error });
+        guests.push(guest);
+      }
+    }
 
     const updated = updateInviteRsvp(token, {
       attendance,
-      guest_count: guestCount,
-      dietary_restrictions: attendance === 'yes' ? dietaryRestrictions : '',
+      guest_count: attendance === 'yes' ? guests.length : 0,
+      guests: JSON.stringify(attendance === 'yes' ? guests : []),
+      transportation: attendance === 'yes' ? transportation : '',
+      additional_notes: attendance === 'yes' ? additionalNotes : '',
+      welcome_dinner_attendance: invite.rehearsalDinner && attendance === 'yes' ? welcomeDinnerAttendance : '',
       song_request: attendance === 'yes' ? songRequest : '',
       submitted_at: new Date().toISOString(),
     });
@@ -427,8 +467,6 @@ app.post('/events', (req, res) => {
   }
 });
 
-// --- Moonboard ---
-
 // --- Admin endpoints (all require x-admin-secret header) ---
 
 function requireAdmin(req, res) {
@@ -490,50 +528,6 @@ app.get('/admin/games', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-const MOONBOARD_COLS = 11;
-const MOONBOARD_ROWS = 18;
-const MOONBOARD_SHAPES = ['jug', 'crimp', 'sloper', 'pinch', 'pocket'];
-
-app.get('/moonboard', (req, res) => {
-  try {
-    res.json({ holds: getMoonboardHolds() });
-  } catch (err) {
-    console.error('moonboard GET error:', err);
-    res.status(500).json({ error: 'Could not load the moonboard.' });
-  }
-});
-
-app.post('/moonboard', (req, res) => {
-  try {
-    const { row, col, guestName, message, shape, color, sessionToken } = req.body ?? {};
-    const r = Number(row);
-    const c = Number(col);
-
-    if (!Number.isInteger(r) || r < 0 || r >= MOONBOARD_ROWS || !Number.isInteger(c) || c < 0 || c >= MOONBOARD_COLS)
-      return res.status(400).json({ error: 'Invalid board position.' });
-
-    const name = String(guestName ?? '').trim().slice(0, 60);
-    if (!name) return res.status(400).json({ error: 'Please enter your name.' });
-
-    if (!MOONBOARD_SHAPES.includes(shape))
-      return res.status(400).json({ error: 'Invalid hold shape.' });
-
-    if (!/^#[0-9A-Fa-f]{6}$/.test(String(color ?? '')))
-      return res.status(400).json({ error: 'Invalid hold color.' });
-
-    const msg = String(message ?? '').trim().slice(0, 80);
-
-    const hold = placeMoonboardHold({ row: r, col: c, guestName: name, message: msg, shape, color });
-    if (!hold) return res.status(409).json({ error: 'That spot was just taken — please pick another.' });
-
-    const session = sessionToken ? validateSession(String(sessionToken)) : null;
-    logEvent({ sessionToken: session?.sessionToken || null, inviteId: session?.invite?.id || null, eventType: 'moonboard_hold_placed', page: '/moonboard', metadata: { guestName: name, row: r, col: c, shape, amount: 25 } });
-    res.json({ hold });
-  } catch (err) {
-    console.error('moonboard POST error:', err);
-    res.status(500).json({ error: 'Could not place your hold. Please try again.' });
-  }
-});
 
 // --- Garden ---
 
@@ -762,38 +756,6 @@ app.get('/dance/leaderboard', (req, res) => {
     res.json({ leaderboard: getDanceLeaderboard() });
   } catch (err) {
     res.status(500).json({ error: 'Could not load dance leaderboard.' });
-  }
-});
-
-// --- Drag Ben Up the Mountain ---
-
-const CLIMB_BOOST_IDS = ['energybar', 'poles', 'coffee', 'boots', 'yell', 'donut', 'sherpa', 'selfiestick'];
-
-app.get('/climb', (req, res) => {
-  try {
-    res.json({ cleared: getClimbCleared() });
-  } catch (err) {
-    console.error('climb GET error:', err);
-    res.status(500).json({ error: 'Could not load the mountain.' });
-  }
-});
-
-app.post('/climb', (req, res) => {
-  try {
-    const { boostId, note, sessionToken } = req.body ?? {};
-    if (!CLIMB_BOOST_IDS.includes(boostId))
-      return res.status(400).json({ error: 'Invalid boost.' });
-
-    const n = String(note ?? '').trim().slice(0, 120);
-    const result = clearClimbBoost({ boostId, note: n });
-    if (!result) return res.status(409).json({ error: 'Someone already sent that boost.', cleared: getClimbCleared() });
-
-    const session = sessionToken ? validateSession(String(sessionToken)) : null;
-    logEvent({ sessionToken: session?.sessionToken || null, inviteId: session?.invite?.id || null, eventType: 'climb_boost_cleared', page: '/climb', metadata: { boostId } });
-    res.json({ ok: true, cleared: getClimbCleared() });
-  } catch (err) {
-    console.error('climb POST error:', err);
-    res.status(500).json({ error: 'Could not send that boost.' });
   }
 });
 

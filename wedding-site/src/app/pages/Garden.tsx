@@ -698,6 +698,7 @@ export function Garden() {
       link.download = `${gardenerName.trim() || 'my'}-garden.png`;
       link.href = dataUrl;
       link.click();
+      trackClick({ sessionToken: identity?.sessionToken, label: 'garden_download' });
     } catch {
       // ignore — best-effort export
     } finally {

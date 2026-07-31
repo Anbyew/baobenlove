@@ -107,24 +107,6 @@ db.exec(`
     updated_at    TEXT NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS climb_state (
-    boost_id   TEXT PRIMARY KEY,
-    note       TEXT DEFAULT '',
-    cleared_at TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS moonboard_holds (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    row        INTEGER NOT NULL,
-    col        INTEGER NOT NULL,
-    guest_name TEXT NOT NULL,
-    message    TEXT DEFAULT '',
-    shape      TEXT NOT NULL,
-    color      TEXT NOT NULL,
-    placed_at  TEXT NOT NULL,
-    UNIQUE(row, col)
-  );
-
   CREATE TABLE IF NOT EXISTS unmatched_guests (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     token        TEXT UNIQUE NOT NULL,
@@ -158,6 +140,10 @@ for (const sql of [
   'ALTER TABLE unmatched_guests ADD COLUMN country TEXT',
   'ALTER TABLE invites ADD COLUMN nickname TEXT',
   "ALTER TABLE invites ADD COLUMN rehearsal_dinner TEXT DEFAULT ''",
+  "ALTER TABLE invites ADD COLUMN guests TEXT DEFAULT '[]'",
+  "ALTER TABLE invites ADD COLUMN transportation TEXT DEFAULT ''",
+  "ALTER TABLE invites ADD COLUMN additional_notes TEXT DEFAULT ''",
+  "ALTER TABLE invites ADD COLUMN welcome_dinner_attendance TEXT DEFAULT ''",
 ]) { try { db.exec(sql); } catch {} }
 
 // --- Seeding ---
@@ -313,7 +299,10 @@ function toInviteSession(row) {
     rsvp: {
       attendance: row.attendance === 'yes' || row.attendance === 'no' ? row.attendance : '',
       guestCount: row.guest_count == null ? null : Number(row.guest_count),
-      dietaryRestrictions: String(row.dietary_restrictions ?? ''),
+      guests: parseJson(row.guests, []),
+      transportation: row.transportation === 'yes' || row.transportation === 'no' || row.transportation === 'tbd' ? row.transportation : '',
+      additionalNotes: String(row.additional_notes ?? ''),
+      welcomeDinnerAttendance: row.welcome_dinner_attendance === 'yes' || row.welcome_dinner_attendance === 'no' ? row.welcome_dinner_attendance : '',
       songRequest: String(row.song_request ?? ''),
       submittedAt: row.submitted_at || null,
     },
@@ -374,7 +363,9 @@ export function updateInviteRsvp(token, payload) {
   const result = db.prepare(`
     UPDATE invites
     SET attendance = @attendance, guest_count = @guest_count,
-        dietary_restrictions = @dietary_restrictions,
+        guests = @guests, transportation = @transportation,
+        additional_notes = @additional_notes,
+        welcome_dinner_attendance = @welcome_dinner_attendance,
         song_request = @song_request, submitted_at = @submitted_at
     WHERE token = @token
   `).run({ token, ...payload });
@@ -469,44 +460,6 @@ export function updateSession(token, { name, language } = {}) {
   params.push(token);
   const result = db.prepare(`UPDATE sessions SET ${fields.join(', ')} WHERE token = ?`).run(...params);
   return result.changes > 0;
-}
-
-// --- Moonboard ---
-
-function toMoonboardHold(row) {
-  return {
-    id: String(row.id),
-    row: row.row,
-    col: row.col,
-    guestName: row.guest_name,
-    message: row.message || '',
-    shape: row.shape,
-    color: row.color,
-    placedAt: row.placed_at,
-  };
-}
-
-export function getMoonboardHolds() {
-  return db.prepare('SELECT * FROM moonboard_holds ORDER BY id ASC').all().map(toMoonboardHold);
-}
-
-// Returns the new hold, or null if the cell is already taken.
-// The UNIQUE(row, col) constraint makes this an atomic "first write wins" lock.
-export function placeMoonboardHold({ row, col, guestName, message, shape, color }) {
-  const placedAt = new Date().toISOString();
-  try {
-    const result = db.prepare(`
-      INSERT INTO moonboard_holds (row, col, guest_name, message, shape, color, placed_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(row, col, guestName, message, shape, color, placedAt);
-    return toMoonboardHold({
-      id: result.lastInsertRowid, row, col,
-      guest_name: guestName, message, shape, color, placed_at: placedAt,
-    });
-  } catch (err) {
-    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
-    throw err;
-  }
 }
 
 // --- Garden ---
@@ -683,31 +636,6 @@ export function getDanceLeaderboard() {
     }));
 }
 
-// --- Drag Ben Up the Mountain ---
-
-export function getClimbCleared() {
-  const rows = db.prepare('SELECT boost_id, note, cleared_at FROM climb_state').all();
-  const cleared = {};
-  for (const row of rows) {
-    cleared[row.boost_id] = { note: row.note || '', clearedAt: row.cleared_at };
-  }
-  return cleared;
-}
-
-// Returns the cleared entry, or null if this boost was already cleared (first clear wins).
-export function clearClimbBoost({ boostId, note }) {
-  const clearedAt = new Date().toISOString();
-  try {
-    db.prepare(`
-      INSERT INTO climb_state (boost_id, note, cleared_at) VALUES (?, ?, ?)
-    `).run(boostId, note, clearedAt);
-    return { note, clearedAt };
-  } catch (err) {
-    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE' || err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') return null;
-    throw err;
-  }
-}
-
 // --- Admin queries ---
 
 export function getAdminStats() {
@@ -728,10 +656,15 @@ export function getAdminSessions() {
 export function getAdminEvents(limit = 100) {
   return db.prepare(`
     SELECT e.invite_id, e.session_token, e.event_type, e.page, e.metadata, e.created_at,
-           s.name as session_name, s.email as session_email, s.user_agent as session_ua, s.city as session_city, s.country as session_country,
+           COALESCE(s.name, ug.name) as session_name,
+           COALESCE(s.email, ug.email) as session_email,
+           COALESCE(s.user_agent, ug.user_agent) as session_ua,
+           COALESCE(s.city, ug.city) as session_city,
+           COALESCE(s.country, ug.country) as session_country,
            i.party_name, i.informal_name
     FROM events e
     LEFT JOIN sessions s ON s.token = e.session_token
+    LEFT JOIN unmatched_guests ug ON ug.token = e.session_token AND s.token IS NULL
     LEFT JOIN invites i ON i.id = e.invite_id
     ORDER BY e.created_at DESC LIMIT ?
   `).all(limit)
@@ -739,7 +672,8 @@ export function getAdminEvents(limit = 100) {
 }
 
 export function getAdminRsvps() {
-  return db.prepare("SELECT party_name, attendance, guest_count, dietary_restrictions, song_request, submitted_at FROM invites WHERE attendance != '' ORDER BY submitted_at DESC").all();
+  return db.prepare("SELECT party_name, attendance, guest_count, guests, transportation, additional_notes, welcome_dinner_attendance, song_request, submitted_at FROM invites WHERE attendance != '' ORDER BY submitted_at DESC").all()
+    .map(r => ({ ...r, guests: parseJson(r.guests, []) }));
 }
 
 export function getAdminHouseholds() {
@@ -747,7 +681,7 @@ export function getAdminHouseholds() {
   const sessions = db.prepare('SELECT invite_id, email, name, language, created_at, last_seen_at, user_agent, city, country FROM sessions ORDER BY created_at DESC').all();
   const gardens = db.prepare('SELECT invite_id, items, updated_at FROM garden_state').all();
   const events = db.prepare(
-    "SELECT invite_id, event_type, page, metadata, created_at FROM events WHERE event_type IN ('click','login','login_unmatched') ORDER BY created_at DESC"
+    "SELECT invite_id, event_type, page, metadata, created_at FROM events WHERE event_type IN ('click','login','login_unmatched','page_view') ORDER BY created_at DESC"
   ).all().map(r => ({ ...r, metadata: parseJson(r.metadata, {}) }));
 
   const GARDEN_PRICES = { grass: 2, bush: 8, sunflower: 16, cherryTree: 32 };
@@ -762,8 +696,6 @@ export function getAdminHouseholds() {
     // Estimate donation amounts from click events
     const venmoClicks = invEvents.filter(e => e.event_type === 'click' && String(e.metadata?.label || '').includes('pay_venmo'));
     const zelleViews = invEvents.filter(e => e.event_type === 'click' && e.metadata?.label === 'zelle_view');
-    const moonboardHolds = invEvents.filter(e => e.event_type === 'click' && e.metadata?.label === 'moonboard_hold_submitted');
-    const moonboardAmount = moonboardHolds.reduce((sum, e) => sum + (Number(e.metadata?.amount) || 0), 0);
     const pageViews = invEvents.filter(e => e.event_type === 'page_view').length;
 
     return {
@@ -774,7 +706,11 @@ export function getAdminHouseholds() {
       max_guests: inv.max_guests,
       attendance: inv.attendance,
       guest_count: inv.guest_count,
-      dietary_restrictions: inv.dietary_restrictions,
+      guests: parseJson(inv.guests, []),
+      transportation: inv.transportation,
+      additional_notes: inv.additional_notes,
+      welcome_dinner_attendance: inv.welcome_dinner_attendance,
+      rehearsal_dinner: inv.rehearsal_dinner,
       song_request: inv.song_request,
       submitted_at: inv.submitted_at,
       emails: parseJson(inv.emails, []),
@@ -783,18 +719,16 @@ export function getAdminHouseholds() {
       recentEvents: invEvents.slice(0, 30),
       lastSeen: invSessions[0]?.last_seen_at || invSessions[0]?.created_at || null,
       hasLoggedIn: invSessions.length > 0,
-      stats: { venmoClicks: venmoClicks.length, zelleViews: zelleViews.length, moonboardAmount, pageViews },
+      stats: { venmoClicks: venmoClicks.length, zelleViews: zelleViews.length, pageViews },
     };
   });
 }
 
 export function getAdminGames() {
   const escape = db.prepare('SELECT obstacle_id, note, cleared_at FROM escape_state').all();
-  const climb = db.prepare('SELECT boost_id, note, cleared_at FROM climb_state').all();
-  const moonboard = db.prepare('SELECT id, row, col, guest_name, message, shape, color, placed_at FROM moonboard_holds ORDER BY placed_at ASC').all();
   const dance = getDanceLeaderboard();
   const allDanceRounds = db.prepare('SELECT invite_id, player_name, total_score, total_restarts, completed_at FROM dance_rounds ORDER BY completed_at DESC').all();
-  return { escape, climb, moonboard, dance, allDanceRounds };
+  return { escape, dance, allDanceRounds };
 }
 
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {
