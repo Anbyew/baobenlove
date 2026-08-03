@@ -60,6 +60,25 @@ const ESCAPE_LABELS: Record<string, { label: string; price: number }> = {
 };
 const GARDEN_PRICES: Record<string, number> = { grass: 2, bush: 8, sunflower: 16, cherryTree: 32 };
 const GARDEN_LABELS: Record<string, string> = { grass: 'Grass', bush: 'Bush', sunflower: 'Sunflower', cherryTree: 'Cherry Tree' };
+const MAIN_COURSE_LABELS: Record<string, string> = {
+  cod: 'Sesame Roasted Black Cod',
+  duck: 'Pan Seared PA Duck Breast',
+  wellington: 'Heirloom Carrot & Leek Wellington (veg)',
+  childrens: "Children's Meal",
+  other: 'Other',
+};
+const AGE_GROUP_LABELS: Record<string, string> = { under21: 'Under 21', over21: '21 or over' };
+const LANGUAGE_LEVEL_LABELS = ['Not at all', 'Some', 'Good', 'Native'];
+
+function isRehearsalInvited(h: Household) {
+  return String(h.rehearsal_dinner || '').trim().toLowerCase() === 'yes';
+}
+function welcomeDinnerLabel(v: string) {
+  return v === 'yes' ? 'Attending' : v === 'no' ? 'Not attending' : 'Pending';
+}
+function attendanceLabel(v: string) {
+  return v === 'yes' ? 'Attending' : v === 'no' ? 'Declined' : 'Pending';
+}
 
 function parseDevice(ua?: string | null): string {
   if (!ua) return '';
@@ -288,6 +307,273 @@ function HouseholdRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: b
   );
 }
 
+// ── RSVP row ──────────────────────────────────────────────────────────────────
+
+function RSVPRow({ h, isExpanded, onToggle }: { h: Household; isExpanded: boolean; onToggle: () => void }) {
+  const rsvpColor = h.attendance === 'yes' ? PRIMARY : h.attendance === 'no' ? RED : MUTED;
+  return (
+    <>
+      <tr className="hover:bg-foreground/[0.02] cursor-pointer select-none" onClick={onToggle}>
+        <Td className="w-6 text-foreground/20">{isExpanded ? '▾' : '▸'}</Td>
+        <Td>
+          <div className="font-normal text-foreground">{h.informal_name || h.party_name}</div>
+          {h.affiliation && <div className="text-xs text-foreground/30">{h.affiliation}</div>}
+        </Td>
+        <Td><Badge label={attendanceLabel(h.attendance)} color={rsvpColor} /></Td>
+        <Td className="text-foreground/60">{h.attendance === 'yes' ? `${h.guest_count} of ${h.max_guests}` : '—'}</Td>
+        <Td className="text-foreground/40 whitespace-nowrap">{h.submitted_at ? fmt(h.submitted_at) : '—'}</Td>
+      </tr>
+      {isExpanded && (
+        <tr>
+          <td colSpan={5} className="bg-foreground/[0.015] border-b border-foreground/10 px-6 py-5">
+            {h.attendance === '' ? (
+              <div className="text-xs">
+                <p className="text-foreground/30 tracking-widest uppercase mb-2">Awaiting response</p>
+                <p><span className="text-foreground/40">Emails:</span> <span className="text-foreground/60">{h.emails.join(', ') || '—'}</span></p>
+              </div>
+            ) : h.attendance === 'no' ? (
+              <div className="text-xs space-y-1.5">
+                <p className="text-foreground/30 tracking-widest uppercase mb-1">Declined</p>
+                {h.additional_notes && <p><span className="text-foreground/40">Notes:</span> <span className="text-foreground/60">{h.additional_notes}</span></p>}
+                <p><span className="text-foreground/40">Emails:</span> <span className="text-foreground/60">{h.emails.join(', ') || '—'}</span></p>
+                <p><span className="text-foreground/40">Submitted:</span> <span className="text-foreground/60">{h.submitted_at ? fmt(h.submitted_at) : '—'}</span></p>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs tracking-widest uppercase text-foreground/30 mb-3">Guests ({h.guests.length})</p>
+                {h.guests.length > 0 ? (
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
+                    {h.guests.map((g, i) => {
+                      const fullName = `${g.firstName} ${g.lastName}`.trim() || `Guest ${i + 1}`;
+                      return (
+                        <div key={i} className="border border-foreground/10 rounded-sm p-3 bg-foreground/[0.01]">
+                          <div className="font-normal text-foreground text-sm mb-2">{fullName}</div>
+                          <div className="space-y-1 text-xs">
+                            <div className="flex justify-between gap-2"><span className="text-foreground/40 flex-shrink-0">Age</span><span className="text-foreground/70 text-right">{AGE_GROUP_LABELS[g.ageGroup] || '—'}</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-foreground/40 flex-shrink-0">Main course</span><span className="text-foreground/70 text-right">{g.mainCourse === 'other' ? (g.mainCourseOther || 'Other') : MAIN_COURSE_LABELS[g.mainCourse] || '—'}</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-foreground/40 flex-shrink-0">Dietary</span><span className="text-foreground/70 text-right">{g.dietaryRestrictions || '—'}</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-foreground/40 flex-shrink-0">English</span><span className="text-foreground/70 text-right">{LANGUAGE_LEVEL_LABELS[g.languageEnglish] || '—'}</span></div>
+                            <div className="flex justify-between gap-2"><span className="text-foreground/40 flex-shrink-0">Chinese</span><span className="text-foreground/70 text-right">{LANGUAGE_LEVEL_LABELS[g.languageChinese] || '—'}</span></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-foreground/30 mb-5">No guest details on file</p>
+                )}
+                <div className="grid sm:grid-cols-2 gap-2 text-xs">
+                  {isRehearsalInvited(h) && <p><span className="text-foreground/40">Welcome Dinner:</span> <span className="text-foreground/70">{welcomeDinnerLabel(h.welcome_dinner_attendance)}</span></p>}
+                  <p><span className="text-foreground/40">Transportation:</span> <span className="text-foreground/70 capitalize">{h.transportation || 'Not specified'}</span></p>
+                  {h.song_request && <p><span className="text-foreground/40">Song request:</span> <span className="italic text-foreground/70">{h.song_request}</span></p>}
+                  {h.additional_notes && <p><span className="text-foreground/40">Notes:</span> <span className="text-foreground/70">{h.additional_notes}</span></p>}
+                  <p><span className="text-foreground/40">Emails:</span> <span className="text-foreground/70">{h.emails.join(', ') || '—'}</span></p>
+                  <p><span className="text-foreground/40">Submitted:</span> <span className="text-foreground/70">{h.submitted_at ? fmt(h.submitted_at) : '—'}</span></p>
+                </div>
+              </>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
+// ── RSVP tab ──────────────────────────────────────────────────────────────────
+
+function RSVPTab({ households }: { households: Household[] }) {
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+  const [filter, setFilter] = useState<'all' | 'yes' | 'no' | 'pending'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const responded = households.filter(h => h.attendance === 'yes' || h.attendance === 'no');
+  const attending = households.filter(h => h.attendance === 'yes');
+  const declined = households.filter(h => h.attendance === 'no');
+  const pending = households.filter(h => !h.attendance);
+
+  const attendingGuests = attending.flatMap(h => h.guests);
+  const totalGuestsAttending = attendingGuests.length;
+
+  const ageCounts: Record<string, number> = {};
+  const courseCounts: Record<string, number> = {};
+  const otherCourses: { name: string; detail: string }[] = [];
+  const englishLevels = [0, 0, 0, 0];
+  const chineseLevels = [0, 0, 0, 0];
+  let dietaryCount = 0;
+  for (const g of attendingGuests) {
+    if (g.ageGroup) ageCounts[g.ageGroup] = (ageCounts[g.ageGroup] || 0) + 1;
+    const course = g.mainCourse || 'unspecified';
+    courseCounts[course] = (courseCounts[course] || 0) + 1;
+    if (course === 'other' && g.mainCourseOther) otherCourses.push({ name: `${g.firstName} ${g.lastName}`.trim(), detail: g.mainCourseOther });
+    if (g.languageEnglish != null) englishLevels[g.languageEnglish]++;
+    if (g.languageChinese != null) chineseLevels[g.languageChinese]++;
+    if (g.dietaryRestrictions.trim()) dietaryCount++;
+  }
+
+  const transportCounts: Record<string, number> = { yes: 0, no: 0, tbd: 0 };
+  for (const h of attending) if (h.transportation) transportCounts[h.transportation] = (transportCounts[h.transportation] || 0) + 1;
+
+  const rehearsalInvited = households.filter(isRehearsalInvited);
+  const welcomeYes = rehearsalInvited.filter(h => h.welcome_dinner_attendance === 'yes');
+  const welcomeNo = rehearsalInvited.filter(h => h.welcome_dinner_attendance === 'no');
+  const welcomePending = rehearsalInvited.filter(h => h.welcome_dinner_attendance !== 'yes' && h.welcome_dinner_attendance !== 'no');
+
+  const songCount = attending.filter(h => h.song_request?.trim()).length;
+
+  const filtered = households.filter(h => {
+    const matchesFilter = filter === 'yes' ? h.attendance === 'yes'
+      : filter === 'no' ? h.attendance === 'no'
+      : filter === 'pending' ? !h.attendance
+      : true;
+    const matchesSearch = !searchQuery || [h.party_name, h.informal_name, h.affiliation, ...h.emails].join(' ').toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  const toggle = (id: number) => setExpanded(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  return (
+    <div className="space-y-10">
+      {/* ── Aggregated overview ── */}
+      <Section title="RSVP overview">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
+          <StatCard label="Responded" value={responded.length} sub={`of ${households.length} households`} />
+          <StatCard label="Attending" value={attending.length} color={GREEN} />
+          <StatCard label="Declined" value={declined.length} color={RED} />
+          <StatCard label="Pending" value={pending.length} color={MUTED} />
+          <StatCard label="Guests attending" value={totalGuestsAttending} color={PRIMARY} />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard label="Under 21" value={ageCounts.under21 ?? 0} color={PURPLE} />
+          <StatCard label="21 or over" value={ageCounts.over21 ?? 0} />
+          <StatCard label="Dietary needs" value={dietaryCount} color={AMBER} />
+          <StatCard label="Song requests" value={songCount} color={GOLD} />
+        </div>
+      </Section>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <Card>
+          <ChartTitle title="Menu selections" sub={`${totalGuestsAttending} attending guests`} />
+          {totalGuestsAttending === 0 ? <p className="text-xs text-foreground/30 text-center py-8">No selections yet</p> : (
+            <div className="space-y-2 mt-2">
+              {Object.entries(MAIN_COURSE_LABELS).map(([id, label]) => {
+                const count = courseCounts[id] || 0;
+                const pct = Math.round((count / totalGuestsAttending) * 100);
+                return (
+                  <div key={id}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-foreground/60">{label}</span>
+                      <span className="text-foreground/40">{count}</span>
+                    </div>
+                    <div className="h-1.5 bg-foreground/5 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: PRIMARY }} />
+                    </div>
+                  </div>
+                );
+              })}
+              {otherCourses.length > 0 && (
+                <div className="pt-2 mt-2 border-t border-foreground/10 space-y-1">
+                  {otherCourses.map((o, i) => (
+                    <div key={i} className="text-xs"><span className="text-foreground/60">{o.name}:</span> <span className="text-foreground/40 italic">{o.detail}</span></div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <ChartTitle title="Language proficiency" sub="Self-reported, among attending guests" />
+          {totalGuestsAttending === 0 ? <p className="text-xs text-foreground/30 text-center py-8">No data yet</p> : (
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <p className="text-xs text-foreground/40 mb-2">English</p>
+                {LANGUAGE_LEVEL_LABELS.map((label, i) => (
+                  <div key={i} className="flex justify-between text-xs mb-1">
+                    <span className="text-foreground/60">{label}</span><span className="text-foreground/40">{englishLevels[i]}</span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <p className="text-xs text-foreground/40 mb-2">Chinese</p>
+                {LANGUAGE_LEVEL_LABELS.map((label, i) => (
+                  <div key={i} className="flex justify-between text-xs mb-1">
+                    <span className="text-foreground/60">{label}</span><span className="text-foreground/40">{chineseLevels[i]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {rehearsalInvited.length > 0 && (
+          <Card>
+            <ChartTitle title="Welcome Dinner" sub={`Fri, Oct 2 · ${rehearsalInvited.length} households invited`} />
+            <div className="grid grid-cols-3 gap-3 mt-2">
+              <StatCard label="Attending" value={welcomeYes.length} color={GREEN} />
+              <StatCard label="Not attending" value={welcomeNo.length} color={RED} />
+              <StatCard label="Pending" value={welcomePending.length} color={MUTED} />
+            </div>
+          </Card>
+        )}
+        <Card className={rehearsalInvited.length === 0 ? 'lg:col-span-2' : ''}>
+          <ChartTitle title="Transportation" sub={`${attending.length} attending households`} />
+          <div className="grid grid-cols-3 gap-3 mt-2">
+            <StatCard label="Needs it" value={transportCounts.yes} color={AMBER} />
+            <StatCard label="Doesn't need it" value={transportCounts.no} color={GREEN} />
+            <StatCard label="TBD" value={transportCounts.tbd} color={MUTED} />
+          </div>
+        </Card>
+      </div>
+
+      {/* ── Individual breakdown ── */}
+      <Section title={`Household breakdown — ${filtered.length} of ${households.length}`}>
+        <div className="flex flex-wrap gap-2 mb-3 items-center">
+          {(['all', 'yes', 'no', 'pending'] as const).map(val => {
+            const label = val === 'all' ? 'All' : val === 'yes' ? `Attending (${attending.length})` : val === 'no' ? `Declined (${declined.length})` : `Pending (${pending.length})`;
+            const color = val === 'yes' ? GREEN : val === 'no' ? RED : val === 'pending' ? MUTED : PRIMARY;
+            return (
+              <button key={val} type="button" onClick={() => setFilter(val)}
+                className="text-xs px-3 py-1 rounded-full border transition-all"
+                style={filter === val ? { background: color, color: '#fff', borderColor: color } : { borderColor: '#e5e7eb', color: '#9ca3af' }}>
+                {label}
+              </button>
+            );
+          })}
+          <input
+            type="text" placeholder="Search name, email, affiliation…" value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="ml-auto text-xs border border-foreground/15 rounded px-3 py-1.5 bg-transparent outline-none focus:border-primary/50 w-56"
+          />
+          <button type="button" onClick={() => setExpanded(expanded.size ? new Set() : new Set(filtered.map(h => h.id)))}
+            className="text-xs text-foreground/30 hover:text-foreground/60 transition-colors">
+            {expanded.size ? 'Collapse all' : 'Expand all'}
+          </button>
+        </div>
+
+        <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-foreground/[0.02]">
+              <tr><Th></Th><Th>Household</Th><Th>Status</Th><Th>Guests</Th><Th>Submitted</Th></tr>
+            </thead>
+            <tbody>
+              {filtered.map(h => (
+                <RSVPRow key={h.id} h={h} isExpanded={expanded.has(h.id)} onToggle={() => toggle(h.id)} />
+              ))}
+              {filtered.length === 0 && <tr><td colSpan={5} className="text-center text-xs text-foreground/30 py-8">No households match</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+    </div>
+  );
+}
+
 // ── Games tab ─────────────────────────────────────────────────────────────────
 
 function GamesTab({ games, households }: { games: Games | null; households: Household[] }) {
@@ -446,7 +732,7 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
 
 // ── Main dashboard ─────────────────────────────────────────────────────────────
 
-type Tab = 'overview' | 'households' | 'games' | 'activity';
+type Tab = 'overview' | 'rsvp' | 'households' | 'games' | 'activity';
 
 export function AdminDashboard() {
   const [secret, setSecret] = useState(() => sessionStorage.getItem('admin_secret') || '');
@@ -542,11 +828,6 @@ export function AdminDashboard() {
   const totalGardenValue = households.reduce((sum, h) => sum + h.garden.value, 0);
   const allDanceRounds = games?.allDanceRounds ?? [];
   const dance = games?.dance ?? [];
-  const dietaryList = households
-    .filter(h => h.attendance === 'yes')
-    .flatMap(h => h.guests
-      .filter(g => g.dietaryRestrictions.trim())
-      .map(g => ({ name: h.informal_name || h.party_name, guest: `${g.firstName} ${g.lastName}`.trim(), restriction: g.dietaryRestrictions })));
 
   const rsvpDonut = [
     { name: 'Attending', value: stats?.rsvpYes ?? 0, color: PRIMARY },
@@ -589,6 +870,7 @@ export function AdminDashboard() {
 
   const TABS: { id: Tab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
+    { id: 'rsvp', label: `RSVP (${(stats?.rsvpYes ?? 0) + (stats?.rsvpNo ?? 0)})` },
     { id: 'households', label: `Households (${households.length})` },
     { id: 'games', label: 'Games & Donations' },
     { id: 'activity', label: 'Activity Log' },
@@ -730,21 +1012,6 @@ export function AdminDashboard() {
               </Section>
             )}
 
-            {dietaryList.length > 0 && (
-              <Section title={`Dietary restrictions — ${dietaryList.length} guests`}>
-                <div className="border border-foreground/10 rounded-sm overflow-x-auto">
-                  <table className="w-full">
-                    <thead><tr><Th>Household</Th><Th>Guest</Th><Th>Restriction</Th></tr></thead>
-                    <tbody>
-                      {dietaryList.map((d, i) => (
-                        <tr key={i}><Td className="font-normal">{d.name}</Td><Td className="text-foreground/60">{d.guest}</Td><Td className="text-foreground/60">{d.restriction}</Td></tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </Section>
-            )}
-
             {unmatched.length > 0 && (
               <Section title={`Action needed — ${unmatched.length} unmatched guests`}>
                 <div className="border border-amber-200 bg-amber-50/40 rounded-sm overflow-x-auto">
@@ -764,6 +1031,9 @@ export function AdminDashboard() {
             )}
           </>
         )}
+
+        {/* ── RSVP TAB ── */}
+        {tab === 'rsvp' && <RSVPTab households={households} />}
 
         {/* ── HOUSEHOLDS TAB ── */}
         {tab === 'households' && (
