@@ -726,9 +726,10 @@ export function getAdminHouseholds() {
 
 export function getAdminGames() {
   const escape = db.prepare('SELECT obstacle_id, note, cleared_at FROM escape_state').all();
+  const escapeSessions = getEscapeSessions();
   const dance = getDanceLeaderboard();
   const allDanceRounds = db.prepare('SELECT invite_id, player_name, total_score, total_restarts, completed_at FROM dance_rounds ORDER BY completed_at DESC').all();
-  return { escape, dance, allDanceRounds };
+  return { escape, escapeSessions, dance, allDanceRounds };
 }
 
 export function logEvent({ sessionToken, inviteId, eventType, page, referrer, userAgent, metadata }) {

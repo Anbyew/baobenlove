@@ -42,9 +42,11 @@ interface Household {
   stats: HouseholdStats;
 }
 interface EscapeCleared { obstacle_id: string; note: string; cleared_at: string; }
+interface EscapeSessionObstacle { id: string; note: string; clearedAt: string; amount: number; }
+interface EscapeSession { id: number; session_number: number; obstacles: EscapeSessionObstacle[]; started_at: string; archived_at: string; total_raised: number; }
 interface DanceEntry { playerName: string; totalScore: number; totalRestarts: number; completedAt: string; }
 interface AllDanceRound { player_name: string; total_score: number; total_restarts: number; completed_at: string; }
-interface Games { escape: EscapeCleared[]; dance: DanceEntry[]; allDanceRounds: AllDanceRound[]; }
+interface Games { escape: EscapeCleared[]; escapeSessions: EscapeSession[]; dance: DanceEntry[]; allDanceRounds: AllDanceRound[]; }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -93,6 +95,77 @@ function fmt(iso: string) {
 }
 function fmtDay(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Who fired this event — a matched guest's session name, their party name, an
+// unmatched guest's self-reported name, or a best-effort fallback to their email.
+function resolveWho(e: RawEvent): string | null {
+  const metaEmail = e.metadata?.email ? String(e.metadata.email) : null;
+  const metaName = e.metadata?.name ? String(e.metadata.name) : null;
+  return e.session_name
+    || e.informal_name
+    || e.party_name
+    || metaName
+    || (e.session_email ? e.session_email.split('@')[0] : null)
+    || (metaEmail ? metaEmail.split('@')[0] : null);
+}
+
+// Pages and click labels that count as "playing a game" or "engaging with a donation ask" —
+// used to build the Games tab's live activity feed from the raw events log, so browsing/
+// clicking shows up even before anything is actually completed or paid.
+const GAME_DONATION_PAGES = new Set(['/dance', '/escape', '/garden']);
+const GAME_DONATION_LABELS = new Set(['registry_wwf_donate', 'registry_visit_garden', 'registry_visit_dance']);
+
+function isGameOrDonationEvent(e: RawEvent): boolean {
+  const label = typeof e.metadata?.label === 'string' ? e.metadata.label : '';
+  return GAME_DONATION_PAGES.has(e.page) || GAME_DONATION_LABELS.has(label);
+}
+
+function describeGameEvent(e: RawEvent): { action: string; detail: string } {
+  const label = typeof e.metadata?.label === 'string' ? e.metadata.label : '';
+  const m = e.metadata || {};
+  const obstacle = (id: unknown) => ESCAPE_LABELS[String(id)];
+
+  switch (label) {
+    case 'escape_view_obstacle': {
+      const ob = obstacle(m.obstacle);
+      return { action: 'Viewed obstacle', detail: ob ? `"${ob.label}" · $${ob.price}` : String(m.obstacle ?? '—') };
+    }
+    case 'escape_clear_obstacle': {
+      const ob = obstacle(m.obstacle);
+      return { action: 'Cleared obstacle 🎉', detail: ob ? `"${ob.label}" · $${ob.price} pledged` : String(m.obstacle ?? '—') };
+    }
+    case 'escape_pay_venmo': {
+      const ob = obstacle(m.obstacle);
+      return { action: 'Opened Venmo to pay', detail: `$${m.amount ?? '—'}${ob ? ` for "${ob.label}"` : ''}` };
+    }
+    case 'escape_play_game':
+      return { action: 'Played the dance mini-game', detail: '' };
+    case 'garden_plant':
+      return { action: 'Planted', detail: `${m.plants ?? '—'} · $${m.value ?? 0} (garden now $${m.total_value ?? 0})` };
+    case 'garden_pay_venmo':
+      return { action: 'Opened Venmo to pay', detail: `$${m.amount ?? '—'} · ${m.qty ?? '—'}× ${GARDEN_LABELS[String(m.plantType)] || m.plantType || ''}` };
+    case 'garden_reset':
+      return { action: 'Reset their garden', detail: `${m.plants_archived ?? 0} plants · $${m.value_archived ?? 0} archived` };
+    case 'garden_download':
+      return { action: 'Downloaded garden image', detail: '' };
+    case 'zelle_view':
+      return { action: 'Viewed Zelle details', detail: m.amount ? `$${m.amount}` : '' };
+    case 'zelle_copy':
+      return { action: `Copied Zelle ${m.type ?? ''}`.trim(), detail: m.amount ? `$${m.amount}` : '' };
+    case 'registry_wwf_donate':
+      return { action: 'Clicked the WWF donate link', detail: '' };
+    case 'registry_visit_garden':
+      return { action: 'Clicked through to the Garden Fund', detail: '' };
+    case 'registry_visit_dance':
+      return { action: "Clicked through to SOS: Ben Can't Dance", detail: '' };
+    default:
+      if (e.event_type === 'page_view') {
+        const pageLabel = e.page === '/dance' || e.page === '/escape' ? "SOS: Ben Can't Dance" : e.page === '/garden' ? 'Garden Fund' : e.page;
+        return { action: 'Viewed page', detail: pageLabel };
+      }
+      return { action: e.event_type, detail: label || e.page || '—' };
+  }
 }
 function daysAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -576,30 +649,133 @@ function RSVPTab({ households }: { households: Household[] }) {
 
 // ── Games tab ─────────────────────────────────────────────────────────────────
 
-function GamesTab({ games, households }: { games: Games | null; households: Household[] }) {
+function GamesTab({ games, households, events, inviteMap }: { games: Games | null; households: Household[]; events: RawEvent[]; inviteMap: Map<number, Household> }) {
   if (!games) return <p className="text-sm text-foreground/40 py-10 text-center">Loading game data…</p>;
 
-  const escape = games.escape ?? [];
-  const dance = games.dance ?? [];
-  const allDanceRounds = games.allDanceRounds ?? [];
+  const engagementEvents = events.filter(isGameOrDonationEvent).slice(0, 60);
 
+  const escape = games.escape ?? [];
+  const escapeSessions = games.escapeSessions ?? [];
+  const dance = games.dance ?? [];
+
+  // Current (unreset) round only.
   const escapeTotal = escape.reduce((sum, e) => sum + (ESCAPE_LABELS[e.obstacle_id]?.price || 0), 0);
   const escapeMax = Object.values(ESCAPE_LABELS).reduce((sum, v) => sum + v.price, 0);
+  // Every completed round gets archived (and its obstacles reset) so a new round can be played —
+  // the current-round total above misses everything raised before the last reset. Fold it back in.
+  const escapeArchivedTotal = escapeSessions.reduce((sum, s) => sum + s.total_raised, 0);
+  const escapeLifetimeTotal = escapeTotal + escapeArchivedTotal;
+  const escapeCompletedRounds = escapeSessions.filter(s => s.obstacles.length >= Object.keys(ESCAPE_LABELS).length).length;
   const gardenTotal = households.reduce((sum, h) => sum + h.garden.value, 0);
-  const grandTotal = escapeTotal + gardenTotal;
+  const grandTotal = escapeLifetimeTotal + gardenTotal;
 
-  // Dance: plays per player
-  const playsByPlayer: Record<string, number> = {};
-  for (const r of allDanceRounds) {
-    playsByPlayer[r.player_name] = (playsByPlayer[r.player_name] || 0) + 1;
+  // Dance: everyone who has played — sourced from actual "Play to Clear" clicks, not just
+  // dance_rounds (which only ever gets a row when someone finishes all 8 obstacles in one
+  // sitting — a bar almost nobody clears). This way, anyone who's played at all shows up,
+  // whether or not they ever landed a win.
+  interface PlayerActivity { name: string; inviteId?: number; plays: number; lastPlayedAt: string }
+  const playsByPlayer = new Map<string, PlayerActivity>();
+  for (const e of events) {
+    const label = typeof e.metadata?.label === 'string' ? e.metadata.label : '';
+    if (label !== 'escape_play_game') continue;
+    const name = resolveWho(e);
+    if (!name) continue;
+    const existing = playsByPlayer.get(name);
+    if (existing) {
+      existing.plays += 1;
+      if (e.invite_id) existing.inviteId = e.invite_id;
+      if (e.created_at > existing.lastPlayedAt) existing.lastPlayedAt = e.created_at;
+    } else {
+      playsByPlayer.set(name, { name, inviteId: e.invite_id, plays: 1, lastPlayedAt: e.created_at });
+    }
   }
+
+  // Merge in real scores where they exist. Most players who've clicked "Play to
+  // Clear" never land in `dance` at all — that only gets a row once someone
+  // actually wins an obstacle's mini-game — so they show up here with no score yet
+  // rather than not showing up at all.
+  interface LeaderboardRow { name: string; householdLabel: string | null; totalScore: number | null; totalRestarts: number | null; plays: number; lastPlayedAt: string }
+  const leaderboardRows = new Map<string, LeaderboardRow>();
+  for (const [name, info] of playsByPlayer) {
+    const household = info.inviteId ? inviteMap.get(info.inviteId) : undefined;
+    leaderboardRows.set(name, {
+      name,
+      householdLabel: household ? (household.informal_name || household.party_name) : null,
+      totalScore: null,
+      totalRestarts: null,
+      plays: info.plays,
+      lastPlayedAt: info.lastPlayedAt,
+    });
+  }
+  for (const d of dance) {
+    const existing = leaderboardRows.get(d.playerName);
+    if (existing) {
+      existing.totalScore = d.totalScore;
+      existing.totalRestarts = d.totalRestarts;
+    } else {
+      // Has a saved score but no matching click on record (predates this tracking) —
+      // still belongs on the leaderboard.
+      leaderboardRows.set(d.playerName, {
+        name: d.playerName, householdLabel: null, totalScore: d.totalScore,
+        totalRestarts: d.totalRestarts, plays: 1, lastPlayedAt: d.completedAt,
+      });
+    }
+  }
+  const leaderboard = [...leaderboardRows.values()].sort((a, b) => {
+    if (a.totalScore != null && b.totalScore != null) return b.totalScore - a.totalScore || (a.totalRestarts ?? 0) - (b.totalRestarts ?? 0);
+    if (a.totalScore != null) return -1;
+    if (b.totalScore != null) return 1;
+    return b.plays - a.plays || a.name.localeCompare(b.name);
+  });
+  const totalPlays = [...playsByPlayer.values()].reduce((s, p) => s + p.plays, 0);
 
   return (
     <div className="space-y-10">
+      {/* Live engagement — everyone browsing/clicking, whether or not they've completed or paid */}
+      <Section title={`Live Engagement — ${engagementEvents.length} recent action${engagementEvents.length === 1 ? '' : 's'}`}>
+        <p className="text-xs text-foreground/40 mb-3">
+          Every game and donation click, including guests who are only browsing, haven't finished, or aren't matched to an invite yet.
+        </p>
+        <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+          <table className="w-full">
+            <thead><tr><Th>Time</Th><Th>Who</Th><Th>Action</Th><Th>Detail</Th></tr></thead>
+            <tbody>
+              {engagementEvents.length === 0
+                ? <tr><td colSpan={4} className="text-center text-xs text-foreground/30 py-8">No game or donation activity yet</td></tr>
+                : engagementEvents.map((e, i) => {
+                    const who = resolveWho(e);
+                    const inviteHousehold = e.invite_id ? inviteMap.get(e.invite_id) : undefined;
+                    const householdLabel = inviteHousehold ? (inviteHousehold.informal_name || inviteHousehold.party_name) : null;
+                    const unmatched = !!e.session_token && !e.invite_id;
+                    const { action, detail } = describeGameEvent(e);
+                    return (
+                      <tr key={i} className="hover:bg-foreground/[0.02]">
+                        <Td className="text-foreground/40 whitespace-nowrap">{fmt(e.created_at)}</Td>
+                        <Td>
+                          {who
+                            ? <div>
+                                <span className="text-xs font-normal text-foreground/80">{who}</span>
+                                {householdLabel && householdLabel !== who && (
+                                  <div className="text-[10px] text-foreground/35 mt-0.5">{householdLabel}</div>
+                                )}
+                                {unmatched && <div className="mt-1"><Badge label="Not on guest list" color={AMBER} /></div>}
+                              </div>
+                            : <span className="text-xs text-foreground/25">—</span>}
+                        </Td>
+                        <Td className="font-normal">{action}</Td>
+                        <Td className="text-foreground/50">{detail || '—'}</Td>
+                      </tr>
+                    );
+                  })}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
       {/* Donation summary */}
       <Section title="Donation overview">
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <StatCard label="Dance raised" value={`$${escapeTotal}`} sub={`of $${escapeMax} possible`} color={PRIMARY} />
+          <StatCard label="Dance raised" value={`$${escapeLifetimeTotal}`} sub={`${escapeCompletedRounds} round${escapeCompletedRounds === 1 ? '' : 's'} completed all-time`} color={PRIMARY} />
           <StatCard label="Garden pledged" value={`$${gardenTotal}`} sub={`${households.filter(h => h.garden.items.length > 0).length} households`} color={GREEN} />
         </div>
         <Card>
@@ -609,7 +785,8 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
       </Section>
 
       {/* Escape — SOS: Ben Can't Dance */}
-      <Section title={`SOS: Ben Can't Dance — ${escape.length}/8 obstacles cleared · $${escapeTotal} raised`}>
+      <Section title={`SOS: Ben Can't Dance — ${escape.length}/8 cleared this round · $${escapeLifetimeTotal} raised all-time`}>
+        <p className="text-xs text-foreground/40 mb-3">Current round: ${escapeTotal} of ${escapeMax} possible.</p>
         <div className="border border-foreground/10 rounded-sm overflow-x-auto">
           <table className="w-full">
             <thead><tr><Th>Obstacle</Th><Th>Amount</Th><Th>Status</Th><Th>Note</Th><Th>Cleared</Th></tr></thead>
@@ -629,6 +806,27 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
             </tbody>
           </table>
         </div>
+        {escapeSessions.length > 0 && (
+          <div className="mt-4 border border-foreground/10 rounded-sm overflow-x-auto">
+            <div className="px-4 pt-4 pb-2">
+              <p className="text-xs tracking-widest uppercase text-foreground/30">Past rounds (reset & archived)</p>
+            </div>
+            <table className="w-full">
+              <thead><tr><Th>Round</Th><Th>Obstacles cleared</Th><Th>Raised</Th><Th>Started</Th><Th>Archived</Th></tr></thead>
+              <tbody>
+                {[...escapeSessions].reverse().map(s => (
+                  <tr key={s.id}>
+                    <Td className="font-normal">#{s.session_number}</Td>
+                    <Td>{s.obstacles.length}/{Object.keys(ESCAPE_LABELS).length}</Td>
+                    <Td><span className="font-normal" style={{ color: PRIMARY }}>${s.total_raised}</span></Td>
+                    <Td className="text-foreground/40">{daysAgo(s.started_at)}</Td>
+                    <Td className="text-foreground/40">{daysAgo(s.archived_at)}</Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Section>
 
       {/* Garden */}
@@ -676,54 +874,37 @@ function GamesTab({ games, households }: { games: Games | null; households: Hous
       })()}
 
       {/* Dance leaderboard */}
-      <Section title={`Dance Leaderboard — ${allDanceRounds.length} total rounds played`}>
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div className="border border-foreground/10 rounded-sm overflow-x-auto">
-            <div className="px-4 pt-4 pb-2">
-              <p className="text-xs tracking-widest uppercase text-foreground/30">Best scores (one per player)</p>
-            </div>
-            <table className="w-full">
-              <thead><tr><Th>Rank</Th><Th>Player</Th><Th>Score</Th><Th>Restarts</Th><Th>Date</Th></tr></thead>
-              <tbody>
-                {dance.length === 0
-                  ? <tr><td colSpan={5} className="text-center text-xs text-foreground/30 py-6">No rounds yet</td></tr>
-                  : dance.map((d, i) => (
-                      <tr key={i} className={i < 3 ? 'bg-amber-50/20' : ''}>
-                        <Td><span className="text-foreground/40">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span></Td>
-                        <Td className="font-normal">{d.playerName}</Td>
-                        <Td><span className="font-normal" style={{ color: i < 3 ? GOLD : undefined }}>{d.totalScore.toLocaleString()}</span></Td>
-                        <Td className="text-foreground/40">{d.totalRestarts}</Td>
-                        <Td className="text-foreground/40">{daysAgo(d.completedAt)}</Td>
-                      </tr>
-                    ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="border border-foreground/10 rounded-sm overflow-x-auto">
-            <div className="px-4 pt-4 pb-2">
-              <p className="text-xs tracking-widest uppercase text-foreground/30">Most frequent players</p>
-            </div>
-            <table className="w-full">
-              <thead><tr><Th>Player</Th><Th>Rounds played</Th><Th>Best score</Th></tr></thead>
-              <tbody>
-                {Object.entries(playsByPlayer).length === 0
-                  ? <tr><td colSpan={3} className="text-center text-xs text-foreground/30 py-6">No rounds yet</td></tr>
-                  : Object.entries(playsByPlayer)
-                      .sort((a, b) => b[1] - a[1])
-                      .map(([name, count], i) => {
-                        const best = dance.find(d => d.playerName === name);
-                        return (
-                          <tr key={i}>
-                            <Td className="font-normal">{name}</Td>
-                            <Td><span style={{ color: count >= 3 ? PRIMARY : undefined }}>{count}</span></Td>
-                            <Td className="text-foreground/40">{best ? best.totalScore.toLocaleString() : '—'}</Td>
-                          </tr>
-                        );
-                      })}
-              </tbody>
-            </table>
-          </div>
+      <Section title={`Dance Leaderboard — ${totalPlays} play${totalPlays === 1 ? '' : 's'} across ${leaderboard.length} guest${leaderboard.length === 1 ? '' : 's'}`}>
+        <p className="text-xs text-foreground/40 mb-3">
+          Everyone who's clicked "Play to Clear" shows up here — a score appears once they've actually won an obstacle's mini-game; "Played, no win yet" just means they're still trying (or gave the obstacle to someone else).
+        </p>
+        <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+          <table className="w-full">
+            <thead><tr><Th>Rank</Th><Th>Player</Th><Th>Score</Th><Th>Restarts</Th><Th>Plays</Th><Th>Last played</Th></tr></thead>
+            <tbody>
+              {leaderboard.length === 0
+                ? <tr><td colSpan={6} className="text-center text-xs text-foreground/30 py-8">No one has played yet</td></tr>
+                : leaderboard.map((row, i) => (
+                    <tr key={row.name} className={i < 3 && row.totalScore != null ? 'bg-amber-50/20' : ''}>
+                      <Td><span className="text-foreground/40">{row.totalScore != null && i === 0 ? '🥇' : row.totalScore != null && i === 1 ? '🥈' : row.totalScore != null && i === 2 ? '🥉' : `#${i + 1}`}</span></Td>
+                      <Td>
+                        <span className="font-normal">{row.name}</span>
+                        {row.householdLabel && row.householdLabel !== row.name && (
+                          <div className="text-[10px] text-foreground/35 mt-0.5">{row.householdLabel}</div>
+                        )}
+                      </Td>
+                      <Td>
+                        {row.totalScore != null
+                          ? <span className="font-normal" style={{ color: i < 3 ? GOLD : undefined }}>{row.totalScore.toLocaleString()}</span>
+                          : <span className="text-foreground/30 italic">Played, no win yet</span>}
+                      </Td>
+                      <Td className="text-foreground/40">{row.totalRestarts ?? '—'}</Td>
+                      <Td><span style={{ color: row.plays >= 3 ? PRIMARY : undefined }}>{row.plays}</span></Td>
+                      <Td className="text-foreground/40">{daysAgo(row.lastPlayedAt)}</Td>
+                    </tr>
+                  ))}
+            </tbody>
+          </table>
         </div>
       </Section>
     </div>
@@ -826,8 +1007,11 @@ export function AdminDashboard() {
   const visitedCount = households.filter(h => h.hasLoggedIn).length;
   const gardenCount = households.filter(h => h.garden.items.length > 0).length;
   const totalGardenValue = households.reduce((sum, h) => sum + h.garden.value, 0);
-  const allDanceRounds = games?.allDanceRounds ?? [];
   const dance = games?.dance ?? [];
+  // "Rounds played" (dance_rounds) only ever gets a row when someone finishes all 8
+  // obstacles in one sitting — nearly nobody does. Count actual "Play to Clear" clicks
+  // instead so this caption reflects real engagement, matching the Games tab.
+  const totalDancePlays = events.filter(e => typeof e.metadata?.label === 'string' && e.metadata.label === 'escape_play_game').length;
 
   const rsvpDonut = [
     { name: 'Attending', value: stats?.rsvpYes ?? 0, color: PRIMARY },
@@ -977,7 +1161,7 @@ export function AdminDashboard() {
               })()}
 
               <Card>
-                <ChartTitle title="Dance leaderboard" sub={`${allDanceRounds.length} rounds played`} />
+                <ChartTitle title="Dance leaderboard" sub={`${totalDancePlays} play${totalDancePlays === 1 ? '' : 's'}`} />
                 {dance.length === 0
                   ? <p className="text-xs text-foreground/30 text-center py-10">No rounds yet</p>
                   : <div className="mt-2 space-y-2">
@@ -1088,7 +1272,7 @@ export function AdminDashboard() {
         )}
 
         {/* ── GAMES TAB ── */}
-        {tab === 'games' && <GamesTab games={games} households={households} />}
+        {tab === 'games' && <GamesTab games={games} households={households} events={events} inviteMap={inviteMap} />}
 
         {/* ── ACTIVITY TAB ── */}
         {tab === 'activity' && (
@@ -1108,14 +1292,7 @@ export function AdminDashboard() {
                 <tbody>
                   {filteredEvents.map((e, i) => {
                     const inviteHousehold = e.invite_id ? inviteMap.get(e.invite_id) : undefined;
-                    const metaEmail = e.metadata?.email ? String(e.metadata.email) : null;
-                    const metaName = e.metadata?.name ? String(e.metadata.name) : null;
-                    const who = e.session_name
-                      || e.informal_name
-                      || e.party_name
-                      || metaName
-                      || (e.session_email ? e.session_email.split('@')[0] : null)
-                      || (metaEmail ? metaEmail.split('@')[0] : null);
+                    const who = resolveWho(e);
                     const householdLabel = inviteHousehold
                       ? (inviteHousehold.informal_name || inviteHousehold.party_name)
                       : null;
