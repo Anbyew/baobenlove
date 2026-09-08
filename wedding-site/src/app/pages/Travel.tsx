@@ -125,6 +125,11 @@ export function Travel() {
                     <h2 className="text-3xl font-light text-foreground">{t.whereToStayTitle}</h2>
                   </div>
                 </Reveal>
+                <Reveal delay={0.04}>
+                  <p className="text-sm font-light text-foreground/75 bg-secondary/15 border-l-2 border-secondary rounded-sm pl-3 pr-3 py-2 mb-8">
+                    {t.hotelBlockNote}
+                  </p>
+                </Reveal>
                 <div className="space-y-8">
                   {hotels.map((hotel, i) => (
                     <Reveal key={hotel.name} delay={i * 0.1}>
