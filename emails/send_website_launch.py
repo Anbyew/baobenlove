@@ -23,8 +23,6 @@ from datetime import datetime
 from pathlib import Path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-
 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -52,7 +50,7 @@ TEST_EMAILS: list[str] = [
     "melissa.touger@gmail.com","juliet4816@gmail.com","davidtouger@hotmail.com",
     "murphyluzi@gmail.com","awf7@columbia.edu","harryahill@gmail.com",
     "laurabrooksbrown@gmail.com","marctlaurab@gmail.com","chris.rhodes45@gmail.com",
-    "sharonleerhodes@gmail.com","jane.e.stein66@gmail.com","marciamcham@aol.com",
+    "sharonleerhodes@gmail.com","jane.e.stein66@gmail.com",
     "dorothee_newbern@hotmail.com","joymendenhall@gmail.com","aj3@princeton.edu",
     "essbeard@gmail.com","megabyteification@gmail.com","obrnmrk@gmail.com",
     "samcookie9@gmail.com","xuan.e.wu@gmail.com","cranberrylobster@gmail.com",
@@ -74,7 +72,6 @@ LOG_PATH        = Path(__file__).parent / "send_log.csv"
 SCOPES          = ["https://www.googleapis.com/auth/gmail.send"]
 EMAIL_SUBJECT   = "With All Our Love, Before October 3rd"
 WEBSITE_BASE_URL = "https://www.baoben.love/"
-SEAL_PATH       = BASE_DIR / "assets" / "AI" / "seal_sm.png"
 
 
 def get_gmail_service():
@@ -99,20 +96,18 @@ def build_html_body(name: str, website_url: str) -> str:
 
 <p>Dear {name},</p>
 
-<p>As we joyfully count down to October 3, 2026, we are delighted to share something we've been quietly tending with love &#8212; our wedding website, created in anticipation of our celebration at Longwood Gardens.</p>
+<p>As we count down to October 3, 2026, we are delighted to share our wedding website, created in anticipation of our celebration at Longwood Gardens.</p>
 
 <p style="margin: 24px 0;">
-  <strong>Website:</strong> <a href="{website_url}" style="color: #78B7D0;">baoben.love</a><br>
-  <strong>Password:</strong> BellaBenBao2026
+  <a href="{website_url}" style="color: #78B7D0;">baoben.love</a> &mdash; enter <strong>BellaBenBao2026</strong> when prompted to begin.
 </p>
 
-<p>Within its pages, you'll find travel and accommodation details, a few glimpses into our story, and a small preview of the weekend we so look forward to sharing with you.</p>
+<p>Within its pages, you'll find travel and accommodation details, a few glimpses into our story, and a small preview of the weekend we look forward to sharing with you.</p>
 
-<p>Formal invitations and RSVP details will arrive by mail in the coming months. Until then, please consider this our heartfelt early welcome. We cannot wait for us all to gather and for this beautiful day to blossom together.</p>
+<p>Formal invitations and RSVP details will arrive by mail in the coming weeks. Until then, please consider this our heartfelt early welcome.</p>
 
-<p>With all our love and warm anticipation,<br>
-Yuwei &amp; Ben<br>
-<img src="cid:seal" alt="" width="48" style="margin-top: 8px; display: block;">
+<p>With all our love,<br>
+Yuwei &amp; Ben
 </p>
 
 </body>
@@ -123,16 +118,18 @@ Yuwei &amp; Ben<br>
 def build_plain_body(name: str, website_url: str) -> str:
     return f"""Dear {name},
 
-As we joyfully count down to October 3, 2026, we are delighted to share something we've been quietly tending with love — our wedding website, created in anticipation of our celebration at Longwood Gardens.
+As we count down to October 3, 2026, we are delighted to share our wedding website, created in anticipation of our celebration at Longwood Gardens.
 
-Website: {website_url}
-Password: BellaBenBao2026
+Visit: {website_url}
+Enter BellaBenBao2026 when prompted to begin.
 
-Within its pages, you'll find travel and accommodation details, a few glimpses into our story, and a small preview of the weekend we so look forward to sharing with you.
+Within its pages, you'll find travel and accommodation details, a few glimpses into our story, and a small preview of the weekend we look forward to sharing with you.
 
-Formal invitations and RSVP details will arrive by mail in the coming months. Until then, please consider this our heartfelt early welcome. We cannot wait for us all to gather and for this beautiful day to blossom together.
+Formal invitations and RSVP details will arrive by mail in the coming weeks. Until then, please consider this our heartfelt early welcome.
 
-With all our love and warm anticipation,
+To make sure our future notes reach you, you're welcome to add bellabenbao@gmail.com to your contacts.
+
+With all our love,
 Yuwei & Ben
 """
 
@@ -226,22 +223,12 @@ def write_send_log(recipients: list, batch_label: str):
 
 
 def build_message(name: str, email: str, website_url: str) -> MIMEMultipart:
-    msg = MIMEMultipart("related")
+    msg = MIMEMultipart("alternative")
     msg["Subject"] = EMAIL_SUBJECT
     msg["From"]    = SENDER_EMAIL
     msg["To"]      = email
-
-    alt = MIMEMultipart("alternative")
-    alt.attach(MIMEText(build_plain_body(name, website_url), "plain"))
-    alt.attach(MIMEText(build_html_body(name, website_url), "html"))
-    msg.attach(alt)
-
-    with open(SEAL_PATH, "rb") as f:
-        img = MIMEImage(f.read())
-        img.add_header("Content-ID", "<seal>")
-        img.add_header("Content-Disposition", "inline", filename="seal.png")
-        msg.attach(img)
-
+    msg.attach(MIMEText(build_plain_body(name, website_url), "plain"))
+    msg.attach(MIMEText(build_html_body(name, website_url), "html"))
     return msg
 
 

@@ -1,18 +1,14 @@
 """
-RSVP Nudge Email Sender — Gmail API / OAuth2
-Short, elegant follow-up reminder with the September 1 deadline restated,
-sent only to households that have not yet RSVPed, fetched live from the
-production database (via SSH to the EC2 host).
+RSVP Reminder Email Sender — Gmail API / OAuth2
+Sends the RSVP-deadline reminder only to households that have not yet RSVPed,
+fetched live from the production database (via SSH to the EC2 host).
 
 Usage:
-  python send_rsvp_nudge.py            # dry run — lists recipients, sends nothing
-  python send_rsvp_nudge.py --preview  # browser preview (first recipient)
-  python send_rsvp_nudge.py --test <email>  # send one real email to a specific address
-  python send_rsvp_nudge.py --send     # actually send
+  python send_rsvp_reminder.py            # dry run — lists recipients, sends nothing
+  python send_rsvp_reminder.py --preview  # browser preview (first recipient)
+  python send_rsvp_reminder.py --send     # actually send
 """
 
-import base64
-import csv
 import json
 import subprocess
 import sys
@@ -33,20 +29,18 @@ SENDER_EMAIL = "bellabenbao@gmail.com"
 BASE_DIR     = Path(__file__).parent.parent
 CREDS_PATH   = BASE_DIR / "emails" / "credentials.json"
 TOKEN_PATH   = BASE_DIR / "emails" / "token.json"
-LOG_PATH     = Path(__file__).parent / "rsvp_nudge_log.csv"
+LOG_PATH     = Path(__file__).parent / "rsvp_reminder_log.csv"
 
 SSH_HOST        = "baobenlove"
 DB_PATH_REMOTE  = "/home/ubuntu/app/server/data/wedding.db"
 
 SCOPES        = ["https://www.googleapis.com/auth/gmail.send"]
-EMAIL_SUBJECT = "A Gentle RSVP Reminder"
+EMAIL_SUBJECT = "Our Invitation Is on Its Way"
 RSVP_URL      = "https://baoben.love/rsvp"
 
 # Addresses to skip even though the household shows as pending in the database.
 EXCLUDE_EMAILS = {
-    "bellabenbao@gmail.com",       # same inbox the reminder sends from
-    "marciamcham@aol.com",         # Mrs. Marcia McHam — excluded per request
-    "info@kellyaltierweddings.com",# Ms. Kelly Altier — vendor address, excluded per request
+    "bellabenbao@gmail.com",  # same inbox the reminder sends from
 }
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -97,35 +91,40 @@ def build_html_body(name: str) -> str:
 
 <p style="margin: 0 0 22px;">Dear {name},</p>
 
-<p style="margin: 0 0 22px;">We hope this note finds you well.</p>
+<p style="margin: 0 0 22px;">
+  Our invitation is on its way to you by mail, a small keepsake we put together with
+  great care. We hope it brings you as much delight in the opening as it brought us
+  in the making.
+</p>
 
 <p style="margin: 0 0 22px;">
-  As our wedding at Longwood Gardens draws near, we find that we have not yet had
-  the pleasure of receiving your reply. We would be most grateful to hear from you
-  by <strong>September 1, 2026, at 11:59 PM AOE</strong>.
+  Alongside it travels a date worth knowing in advance, in case the post moves slower
+  than we do.
 </p>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 26px; border-left: 2px solid #FFDC7F; background-color: #fbfaf7;">
   <tr>
     <td style="padding: 16px 22px;">
       <p style="margin: 0; font-size: 15px; color: #2a2a2a;">
-        Kindly send your response at
-        <a href="{RSVP_URL}" style="color: #78B7D0; text-decoration: none; border-bottom: 1px solid #78B7D0;">baoben.love/rsvp</a>,
-        using <strong>BellaBenBao2026</strong> to enter.
+        We would be honored to hear from you by <strong>September 1, 2026</strong>, 11:59&nbsp;PM AOE,
+        Anywhere on Earth, so there is time enough no matter where you find yourself.
       </p>
     </td>
   </tr>
 </table>
 
+<p style="margin: 0 0 26px;">
+  You may reply at <a href="{RSVP_URL}" style="color: #78B7D0; text-decoration: none; border-bottom: 1px solid #78B7D0;">baoben.love</a>,
+  with <strong>BellaBenBao2026</strong> to enter. Should the timing or the travel prove
+  difficult, we would still be glad to hear from you, and we will gladly find what works.
+</p>
+
 <p style="margin: 0 0 30px;">
-  If our invitation has, by some misadventure of the post, not reached you, please
-  do let us know and we shall gladly send another. Likewise, should the website
-  prove less accommodating than we hope, a reply to this note will find us readily
-  at hand.
+  We hold you dear, and we hope to see you at Longwood Gardens on October 3, 2026.
 </p>
 
 <p style="margin: 0 0 4px;">
-  With our warmest affection,<br>
+  With love,<br>
   Yuwei &amp; Ben
 </p>
 
@@ -141,15 +140,15 @@ def build_html_body(name: str) -> str:
 def build_plain_body(name: str) -> str:
     return f"""Dear {name},
 
-We hope this note finds you well.
+Our invitation is on its way to you by mail, a small keepsake we put together with great care. We hope it brings you as much delight in the opening as it brought us in the making.
 
-As our wedding at Longwood Gardens draws near, we find that we have not yet had the pleasure of receiving your reply. We would be most grateful to hear from you by September 1, 2026, at 11:59 PM AOE.
+Alongside it travels a date worth knowing in advance, in case the post moves slower than we do. We would be honored to hear from you by September 1, 2026, 11:59 PM AOE, Anywhere on Earth, so there is time enough no matter where you find yourself.
 
-Kindly send your response at {RSVP_URL}, using BellaBenBao2026 to enter.
+You may reply at {RSVP_URL} (enter BellaBenBao2026 when asked). Should the timing or the travel prove difficult, we would still be glad to hear from you, and we will gladly find what works.
 
-If our invitation has, by some misadventure of the post, not reached you, please do let us know and we shall gladly send another. Likewise, should the website prove less accommodating than we hope, a reply to this note will find us readily at hand.
+We hold you dear, and we hope to see you at Longwood Gardens on October 3, 2026.
 
-With our warmest affection,
+With love,
 Yuwei & Ben
 
 Optimum attingitur. Amor infinitus est.
@@ -181,6 +180,7 @@ def print_recipient_list(recipients: list):
 def write_send_log(recipients: list):
     fieldnames = ["timestamp", "name", "email"]
     write_header = not LOG_PATH.exists()
+    import csv
     with open(LOG_PATH, "a", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if write_header:
@@ -227,6 +227,7 @@ def send_test(to_email: str):
         return
     service = get_gmail_service()
     msg = build_message(name, to_email)
+    import base64
     raw = {"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}
     service.users().messages().send(userId="me", body=raw).execute()
     print(f"Test email sent → {to_email} (addressed to \"{name}\")")
@@ -240,7 +241,7 @@ def main():
     if "--test" in sys.argv:
         i = sys.argv.index("--test")
         if i + 1 >= len(sys.argv):
-            print("Usage: python send_rsvp_nudge.py --test <email>")
+            print("Usage: python send_rsvp_reminder.py --test <email>")
             return
         send_test(sys.argv[i + 1])
         return
@@ -261,7 +262,7 @@ def main():
     for r in recipients:
         try:
             msg = build_message(r["name"], r["email"])
-            raw = {"raw": base64.urlsafe_b64encode(msg.as_bytes()).decode()}
+            raw = {"raw": __import__("base64").urlsafe_b64encode(msg.as_bytes()).decode()}
             service.users().messages().send(userId="me", body=raw).execute()
             sent += 1
             print(f"Sent → {r['name']} <{r['email']}>")

@@ -23,3 +23,8 @@ assets/backgrounds/vid4.mp4
 # Large local asset folders
 assets/Wedding Cherries/
 local-assets/
+assets/Invitations/
+assets/AI/B&W print.png
+
+# Local backups
+guests.tsv.bak-*
