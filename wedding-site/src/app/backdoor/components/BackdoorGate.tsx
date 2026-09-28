@@ -6,17 +6,12 @@ import { BACKDOOR_AUTH_KEY, BACKDOOR_PASSWORD } from '../lib/backdoor';
 
 // The backdoor hub and every owner-only page under it skip the site's guest
 // password + RSVP-email login (see App.tsx) and are wrapped in BackdoorGate
-// instead: a dedicated password, then the same email-login flow guests use —
-// restricted to the owner emails below. Same
-// client-side-only mechanism as the rest of the site's gates: a deterrent
-// for whoever has the link, not a security boundary.
-
-const ADMIN_EMAILS = new Set([
-  'baobaoyuwei@gmail.com',
-  'bellabenbao@gmail.com',
-  'yuweibao@umich.edu',
-  'bkrakoff@gmail.com',
-]);
+// instead: a dedicated password, then the same email-login flow guests use.
+// The password is the actual gate — anyone who has it can get in with any
+// email; the email step isn't an allowlist, it's just so the "Backdoor
+// Activity" tab on the RSVP Dashboard can show who came through and when.
+// Same client-side-only mechanism as the rest of the site's gates: a
+// deterrent for whoever has the link, not a security boundary.
 
 function BackdoorPasswordGate({ children }: { children: React.ReactNode }) {
   const [authed, setAuthed] = useState(() => localStorage.getItem(BACKDOOR_AUTH_KEY) === 'true');
@@ -59,33 +54,12 @@ function BackdoorPasswordGate({ children }: { children: React.ReactNode }) {
   );
 }
 
-function NotAuthorized() {
-  const { identity, clearIdentity } = useGuestIdentity();
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center px-4 w-full max-w-xs">
-        <p className="text-sm font-light text-foreground/70 mb-4">
-          {identity?.email} isn't on the owner list for this page.
-        </p>
-        <button
-          type="button"
-          onClick={clearIdentity}
-          className="text-xs font-light text-foreground/50 hover:text-foreground/80 underline"
-        >
-          Log in with a different email
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function OwnerGate({ children }: { children: React.ReactNode }) {
   const { identity } = useGuestIdentity();
   if (!identity) return null;
-  if (!ADMIN_EMAILS.has(identity.email)) return <NotAuthorized />;
   return (
     <>
-      {/* Logs a page_view event (with this owner's session/email) for every
+      {/* Logs a page_view event (with this person's session/email) for every
           page under /backdoor, same mechanism as guest-page analytics — see
           the "Backdoor Activity" tab on the RSVP Dashboard. */}
       <AnalyticsTracker />
