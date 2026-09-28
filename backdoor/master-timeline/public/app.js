@@ -638,6 +638,124 @@ el('eventForm').addEventListener('submit', (e) => {
   closeForm();
 });
 
+// ---------- PDF export ----------
+// Builds a print-friendly agenda (not a recreation of the calendar grid —
+// colored blocks in narrow columns don't survive print) for whichever
+// people are currently selected, across every day that has something for at
+// least one of them, and hands it to the browser's own print-to-PDF.
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function exportPdf() {
+  const selected = visibleColumnPeople();
+  if (!selected.length) {
+    alert('Select at least one person in the sidebar first — the export covers whoever is currently checked.');
+    return;
+  }
+  const selectedIds = new Set(selected.map((p) => p.id));
+
+  const dayBlocks = state.days
+    .map((day) => {
+      const dayEvents = state.events.filter((ev) => ev.day === day && ev.people.some((id) => selectedIds.has(id)));
+      if (!dayEvents.length) return null;
+
+      const withWho = dayEvents.map((ev) => ({
+        ev,
+        who: selected.filter((p) => ev.people.includes(p.id)),
+      }));
+      const flexible = withWho.filter((x) => !x.ev.time);
+      const timed = withWho
+        .filter((x) => x.ev.time)
+        .sort((a, b) => (a.ev.time < b.ev.time ? -1 : a.ev.time > b.ev.time ? 1 : 0));
+
+      return { day, flexible, timed };
+    })
+    .filter(Boolean);
+
+  if (!dayBlocks.length) {
+    alert('No events found for the selected people.');
+    return;
+  }
+
+  const whoTags = (who) =>
+    who
+      .map((p) => `<span class="who-tag" style="background:${personColor(p.id).bg};color:${personColor(p.id).fg}">${escapeHtml(p.name)}</span>`)
+      .join('');
+
+  const rowHtml = ({ ev, who }) => `
+    <div class="agenda-row">
+      <div class="agenda-time">${ev.time ? escapeHtml(formatTime(ev.time)) + (ev.endTime ? '–' + escapeHtml(formatTime(ev.endTime)) : '') : '—'}</div>
+      <div class="agenda-body">
+        <div class="agenda-title">${escapeHtml(ev.activity)}</div>
+        ${ev.location ? `<div class="agenda-loc">${escapeHtml(ev.location)}</div>` : ''}
+        ${ev.notes ? `<div class="agenda-notes">${escapeHtml(ev.notes)}</div>` : ''}
+        <div class="agenda-who">${whoTags(who)}</div>
+      </div>
+    </div>`;
+
+  const daysHtml = dayBlocks
+    .map(
+      ({ day, flexible, timed }) => `
+      <section class="agenda-day">
+        <h2>${escapeHtml(formatDayLabel(day))}</h2>
+        ${
+          flexible.length
+            ? `<div class="agenda-flex-label">Flexible / no fixed time</div>` + flexible.map(rowHtml).join('')
+            : ''
+        }
+        ${timed.map(rowHtml).join('')}
+      </section>`,
+    )
+    .join('');
+
+  const names = selected.map((p) => p.name).join(', ');
+  const html = `<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Wedding Schedule — ${escapeHtml(names)}</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #2a2a2a; margin: 32px; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  .subtitle { font-size: 0.85rem; color: #666; margin: 0 0 28px; }
+  .agenda-day { break-inside: avoid-page; margin-bottom: 26px; }
+  .agenda-day + .agenda-day { break-before: page; padding-top: 8px; }
+  .agenda-day h2 { font-size: 1.05rem; border-bottom: 2px solid #2a2a2a; padding-bottom: 4px; margin: 0 0 10px; }
+  .agenda-flex-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a3791f; margin: 10px 0 4px; }
+  .agenda-row { display: flex; gap: 14px; padding: 7px 0; border-bottom: 1px solid #e3e6ea; break-inside: avoid; }
+  .agenda-time { flex: 0 0 108px; font-size: 0.8rem; font-weight: 600; color: #333; }
+  .agenda-body { flex: 1; }
+  .agenda-title { font-size: 0.86rem; font-weight: 600; }
+  .agenda-loc { font-size: 0.78rem; color: #666; margin-top: 1px; }
+  .agenda-notes { font-size: 0.76rem; color: #777; margin-top: 2px; }
+  .agenda-who { margin-top: 4px; }
+  .who-tag { display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 1px 7px; border-radius: 999px; margin: 0 4px 4px 0; }
+  @media print { body { margin: 14mm; } }
+</style>
+</head>
+<body>
+  <h1>Bao · Krakoff Wedding Schedule</h1>
+  <p class="subtitle">For: ${escapeHtml(names)}</p>
+  ${daysHtml}
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Your browser blocked the print window — allow pop-ups for this site and try again.');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 250);
+}
+
+el('exportPdfBtn').addEventListener('click', exportPdf);
+
 // ---------- bulk selection / column order ----------
 
 el('selectAllBtn').addEventListener('click', () => {

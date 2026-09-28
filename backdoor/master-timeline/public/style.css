@@ -115,6 +115,14 @@ body {
 }
 .sidebar-link-btn:hover { text-decoration: underline; }
 
+.sidebar-export-btn {
+  display: block; width: 100%; margin: 0 0 10px;
+  border: 1px solid var(--border); background: #fff; cursor: pointer;
+  font-size: 0.76rem; font-weight: 600; color: var(--fg);
+  padding: 7px 10px; border-radius: 7px; text-align: left;
+}
+.sidebar-export-btn:hover { background: #f5f6f8; border-color: var(--primary); }
+
 .sidebar-group { margin-bottom: 4px; }
 .sidebar-group-row {
   display: flex; align-items: center; gap: 7px;
