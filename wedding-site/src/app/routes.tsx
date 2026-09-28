@@ -11,7 +11,14 @@ import { Garden } from "./pages/Garden";
 import { Escape } from "./pages/Escape";
 import { FAQ } from "./pages/FAQ";
 import { ProfilePage } from "./pages/ProfilePage";
-import { AdminDashboard } from "./pages/AdminDashboard";
+import { SeatingChart } from "./backdoor/pages/SeatingChart";
+import { Backdoor } from "./backdoor/pages/Backdoor";
+import { MasterTimeline } from "./backdoor/pages/MasterTimeline";
+import { SetupChecklist } from "./backdoor/pages/SetupChecklist";
+import { KeyInfo } from "./backdoor/pages/KeyInfo";
+import { AdminDashboard } from "./backdoor/pages/admin/AdminDashboard";
+import { AdminSeatingChart } from "./backdoor/pages/admin/SeatingChart";
+import { PackingList } from "./backdoor/pages/admin/PackingList";
 
 export const router = createBrowserRouter([
   {
@@ -32,5 +39,18 @@ export const router = createBrowserRouter([
       { path: "profile", Component: ProfilePage },
     ],
   },
-  { path: "/yb-dashboard", Component: AdminDashboard },
+  { path: "/backdoor", Component: Backdoor },
+  { path: "/backdoor/timeline", Component: MasterTimeline },
+  { path: "/backdoor/setup", Component: SetupChecklist },
+  { path: "/backdoor/info", Component: KeyInfo },
+  // Admin group — each of these is wrapped in BackdoorGate + AdminGate
+  // (its own two gates), so none of them is reachable without both the
+  // backdoor password/email login AND the Admin password, even by direct URL.
+  { path: "/backdoor/admin/dashboard", Component: AdminDashboard },
+  { path: "/backdoor/admin/seating", Component: AdminSeatingChart },
+  { path: "/backdoor/admin/packing", Component: PackingList },
+  // Vendor-facing path — no backdoor/admin gate at all, just the seating
+  // chart's own vendor password, so an outside florist/coordinator can use
+  // it without owner access.
+  { path: "/vendor/seating", Component: SeatingChart },
 ]);

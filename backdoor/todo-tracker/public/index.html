@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Our Wedding To-Dos</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="password-gate" id="passwordGate">
+  <div class="password-gate-card">
+    <p class="password-gate-eyebrow">baoben.love</p>
+    <h1 class="password-gate-title">Admin</h1>
+    <input type="password" id="passwordGateInput" placeholder="Password" autocomplete="off" autofocus />
+    <p class="password-gate-error hidden" id="passwordGateError">Incorrect password.</p>
+    <button type="button" class="btn btn-primary" id="passwordGateSubmit" style="width:100%">Enter</button>
+  </div>
+</div>
+
+<div class="layout hidden" id="appLayout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span>Jump to day</span>
+      <button id="sidebarCollapseBtn" title="Collapse">«</button>
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <button class="sidebar-expand-btn hidden" id="sidebarExpandBtn" title="Show days">»</button>
+
+  <div class="main">
+  <div class="wrap">
+
+  <header class="header">
+    <div class="header-top">
+      <h1>Our Wedding To-Dos</h1>
+      <div class="countdown" id="countdown"></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-label" id="progressLabel"></div>
+    </div>
+  </header>
+
+  <section class="quickadd">
+    <form id="quickAddForm" class="quickadd-form">
+      <input type="text" id="quickAddInput" placeholder="Quick add to Inbox… (press Enter)" autocomplete="off" />
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+    <div class="quickadd-actions">
+      <button class="btn btn-ghost" id="openFormBtn">+ Detailed task</button>
+      <button class="btn btn-ghost" id="openDumpBtn">🗑️ Brain dump</button>
+    </div>
+  </section>
+
+  <section class="dump-panel hidden" id="dumpPanel">
+    <textarea id="dumpTextarea" rows="6" placeholder="Paste a bunch of things, one per line. They'll land in Inbox to sort later."></textarea>
+    <div class="dump-actions">
+      <button class="btn btn-primary" id="dumpSubmit">Add all to Inbox</button>
+      <button class="btn btn-ghost" id="dumpCancel">Cancel</button>
+    </div>
+  </section>
+
+  <section class="form-panel hidden" id="formPanel">
+    <form id="taskForm">
+      <input type="hidden" id="taskId" />
+      <div class="form-row">
+        <label for="taskText">What needs doing?</label>
+        <input type="text" id="taskText" required autocomplete="off" />
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="taskCategory">Category</label>
+          <select id="taskCategory">
+            <option value="">Unsorted</option>
+          </select>
+          <input type="text" id="newCategoryInput" class="hidden" placeholder="New category name" />
+        </div>
+        <div class="form-row">
+          <label for="taskDate">Date</label>
+          <input type="date" id="taskDate" />
+        </div>
+        <div class="form-row">
+          <label for="taskTime">Time</label>
+          <input type="time" id="taskTime" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="taskNotes">Notes</label>
+        <textarea id="taskNotes" rows="2"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="taskChecklist">Checklist <span class="label-hint">— one item per line, indent 2 spaces to nest, prefix [x] if done</span></label>
+        <textarea id="taskChecklist" rows="4" spellcheck="false"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="formSubmitBtn">Add task</button>
+        <button type="button" class="btn btn-ghost" id="formCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-danger hidden" id="formDeleteBtn">Delete</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="controls">
+    <div class="tabs">
+      <button class="tab active" data-view="category">By Category</button>
+      <button class="tab" data-view="timeline">By Date</button>
+    </div>
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Search…" />
+      <label class="checkbox-label">
+        <input type="checkbox" id="hideCompleted" />
+        Hide completed
+      </label>
+    </div>
+  </section>
+
+  <main id="content"></main>
+
+  <div class="empty-state hidden" id="emptyState">
+    <p>Nothing here yet. Quick-add something above, or paste a brain dump and I'll help you sort it later.</p>
+  </div>
+
+  </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

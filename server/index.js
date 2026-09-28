@@ -34,11 +34,29 @@ import {
   getDanceLeaderboard,
   upsertDanceScore,
   getAdminGames,
+  getSeatingState,
+  setSeatingState,
+  logSeatingActivity,
+  getSeatingActivity,
+  getPackingItems,
+  seedPackingItems,
+  upsertPackingItem,
+  deletePackingItem,
+  getAdminDoc,
+  setAdminDoc,
 } from './db.js';
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Raised from the 100kb default: the setup checklist is saved as one document.
+app.use(express.json({ limit: '1mb' }));
+
+function clientIp(req) {
+  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || req.headers['x-real-ip']
+    || req.ip
+    || null;
+}
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const VERIFY_TICKET_TTL_MS = 10 * 60 * 1000;
@@ -129,8 +147,10 @@ app.post('/send-otp', async (req, res) => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return res.status(400).json({ error: 'Please enter a valid email address.' });
 
-    const { GMAIL_APP_PASSWORD, OTP_SECRET } = process.env;
-    if (!GMAIL_APP_PASSWORD || !OTP_SECRET)
+    // DEV_LOG_OTP=1 is for a local server with no Gmail credentials: the code
+    // is printed to the server log instead of emailed. Never set in production.
+    const { GMAIL_APP_PASSWORD, OTP_SECRET, DEV_LOG_OTP } = process.env;
+    if ((!GMAIL_APP_PASSWORD && DEV_LOG_OTP !== '1') || !OTP_SECRET)
       return res.status(500).json({ error: 'Email service is not configured.' });
 
     const code = String(randomInt(100000, 1000000));
@@ -139,7 +159,8 @@ app.post('/send-otp', async (req, res) => {
       .update(`${email}:${code}:${expiresAt}`)
       .digest('hex');
 
-    await sendGmail(email, 'Your verification code — baoben.love', buildEmailHtml(code));
+    if (DEV_LOG_OTP === '1') console.log(`[DEV_LOG_OTP] login code for ${email}: ${code}`);
+    else await sendGmail(email, 'Your verification code — baoben.love', buildEmailHtml(code));
 
     res.json({ token, expiresAt });
   } catch (err) {
@@ -528,6 +549,14 @@ app.get('/admin/games', (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.get('/admin/seating-activity', (req, res) => {
+  try {
+    if (!requireAdmin(req, res)) return;
+    const limit = Math.min(parseInt(req.query.limit || '500'), 2000);
+    res.json({ activity: getSeatingActivity(limit) });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 
 // --- Garden ---
 
@@ -543,6 +572,197 @@ function isValidGardenItem(item) {
     && Number.isFinite(item.x) && Number.isFinite(item.y)
     && Number.isFinite(item.rotation) && Number.isFinite(item.scale);
 }
+
+// --- Seating chart (one shared floor plan, gated by its own vendor/couple
+// password rather than a guest session — a caterer has no RSVP invite) ---
+
+function requireSeatingSecret(req, res) {
+  const secret = req.headers['x-seating-secret'];
+  if (!secret || secret !== process.env.SEATING_SECRET) {
+    res.status(401).json({ error: 'Unauthorized.' });
+    return false;
+  }
+  return true;
+}
+
+app.get('/seating', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    logSeatingActivity({
+      ip: clientIp(req),
+      userAgent: req.headers['user-agent'] || null,
+      eventType: 'view',
+      label: 'Opened the seating tool',
+    });
+    res.json(getSeatingState() ?? { tables: null, assignments: null, updatedAt: null });
+  } catch (err) {
+    console.error('seating GET error:', err);
+    res.status(500).json({ error: 'Could not load the seating chart.' });
+  }
+});
+
+app.put('/seating', (req, res) => {
+  // sendBeacon (used to flush on tab-close) can't set custom headers, so the
+  // secret is accepted from the body too, not just the x-seating-secret header.
+  if (req.headers['x-seating-secret'] !== process.env.SEATING_SECRET
+    && req.body?.secret !== process.env.SEATING_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized.' });
+  }
+  try {
+    const { tables, assignments } = req.body ?? {};
+    if (!Array.isArray(tables) || typeof assignments !== 'object' || assignments === null) {
+      return res.status(400).json({ error: 'Invalid seating data.' });
+    }
+    const updatedAt = setSeatingState({ tables, assignments });
+    res.json({ ok: true, updatedAt });
+  } catch (err) {
+    console.error('seating PUT error:', err);
+    res.status(500).json({ error: 'Could not save the seating chart.' });
+  }
+});
+
+// Fire-and-forget log of a specific action taken in the tool (seat a guest,
+// add/remove a seat, export, etc.) — separate from the autosave above so a
+// click is logged with a human label, not just a raw before/after diff.
+app.post('/seating/activity', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    const { eventType, label, metadata } = req.body ?? {};
+    if (!eventType || typeof eventType !== 'string') {
+      return res.status(400).json({ error: 'Missing eventType.' });
+    }
+    logSeatingActivity({
+      ip: clientIp(req),
+      userAgent: req.headers['user-agent'] || null,
+      eventType: String(eventType).slice(0, 40),
+      label: label ? String(label).slice(0, 300) : null,
+      metadata,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('seating activity error:', err);
+    res.status(500).json({ error: 'Could not log activity.' });
+  }
+});
+
+// --- Packing checklist (owner-only, reached from /backdoor). Reuses the
+// seating chart's secret — the backdoor already unlocks that one, and this
+// list isn't meant for anyone who can't get into the backdoor. ---
+
+function isValidPackingItem(it) {
+  return it && typeof it.id === 'string' && it.id.length <= 64
+    && typeof it.section === 'string' && it.section.length <= 120
+    && typeof it.group === 'string' && it.group.length <= 120
+    && typeof it.label === 'string' && it.label.length <= 300
+    && (it.note === undefined || (typeof it.note === 'string' && it.note.length <= 1000))
+    && Number.isFinite(it.position);
+}
+
+app.get('/packing', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    res.json({ items: getPackingItems() });
+  } catch (err) {
+    console.error('packing GET error:', err);
+    res.status(500).json({ error: 'Could not load the packing list.' });
+  }
+});
+
+app.post('/packing/seed', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    const items = req.body?.items;
+    if (!Array.isArray(items) || items.length > 2000 || !items.every(isValidPackingItem)) {
+      return res.status(400).json({ error: 'Invalid packing items.' });
+    }
+    const seeded = seedPackingItems(items);
+    res.json({ seeded, items: getPackingItems() });
+  } catch (err) {
+    console.error('packing seed error:', err);
+    res.status(500).json({ error: 'Could not seed the packing list.' });
+  }
+});
+
+app.put('/packing/items/:id', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    const item = { ...req.body, id: req.params.id };
+    if (!isValidPackingItem(item)) return res.status(400).json({ error: 'Invalid packing item.' });
+    upsertPackingItem(item);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('packing PUT error:', err);
+    res.status(500).json({ error: 'Could not save the item.' });
+  }
+});
+
+app.delete('/packing/items/:id', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    deletePackingItem(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('packing DELETE error:', err);
+    res.status(500).json({ error: 'Could not delete the item.' });
+  }
+});
+
+// --- Setup checklist (owner-only, reached from /backdoor). One shared JSON
+// document; like the packing list, it reuses the seating chart's secret. ---
+
+app.get('/setup', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    res.json(getAdminDoc('setup') ?? { data: null, updatedAt: null });
+  } catch (err) {
+    console.error('setup GET error:', err);
+    res.status(500).json({ error: 'Could not load the setup checklist.' });
+  }
+});
+
+// Key info (locations + people directory) — same admin_docs storage and
+// optimistic-concurrency rule as /setup below.
+app.get('/keyinfo', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    res.json(getAdminDoc('keyinfo') ?? { data: null, updatedAt: null });
+  } catch (err) {
+    console.error('keyinfo GET error:', err);
+    res.status(500).json({ error: 'Could not load key info.' });
+  }
+});
+
+app.put('/keyinfo', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    const { data, baseUpdatedAt } = req.body ?? {};
+    if (!data || !Array.isArray(data.locations) || !Array.isArray(data.people)) {
+      return res.status(400).json({ error: 'Invalid key info data.' });
+    }
+    const result = setAdminDoc('keyinfo', data, baseUpdatedAt ?? null);
+    if (result.conflict) return res.status(409).json(getAdminDoc('keyinfo'));
+    res.json({ ok: true, updatedAt: result.updatedAt });
+  } catch (err) {
+    console.error('keyinfo PUT error:', err);
+    res.status(500).json({ error: 'Could not save key info.' });
+  }
+});
+
+app.put('/setup', (req, res) => {
+  if (!requireSeatingSecret(req, res)) return;
+  try {
+    const { data, baseUpdatedAt } = req.body ?? {};
+    if (!data || !Array.isArray(data.days)) {
+      return res.status(400).json({ error: 'Invalid checklist data.' });
+    }
+    const result = setAdminDoc('setup', data, baseUpdatedAt ?? null);
+    if (result.conflict) return res.status(409).json(getAdminDoc('setup'));
+    res.json({ ok: true, updatedAt: result.updatedAt });
+  } catch (err) {
+    console.error('setup PUT error:', err);
+    res.status(500).json({ error: 'Could not save the setup checklist.' });
+  }
+});
 
 app.get('/garden', (req, res) => {
   try {

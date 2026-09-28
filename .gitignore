@@ -28,3 +28,12 @@ assets/AI/B&W print.png
 
 # Local backups
 guests.tsv.bak-*
+
+# Key Info PDF exports — contain phone numbers & emails (regenerate with backdoor/key-info/export-pdf.ts)
+backdoor/key-info/*.pdf
+
+# RSVP data exports — full guest PII (names, dietary restrictions, meal choices,
+# transportation needs). Kept local-only; this repo is public.
+backdoor/RSVP/guest_name_cards.pdf
+backdoor/RSVP/rsvp_seating_list.csv
+backdoor/RSVP/welcome_dinner_list.csv

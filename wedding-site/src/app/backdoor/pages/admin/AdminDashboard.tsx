@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router';
+import { BackdoorGate } from '../../components/BackdoorGate';
+import { AdminGate } from '../../components/AdminGate';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend,
 } from 'recharts';
-import type { GuestEntry } from '../lib/invite';
+import type { GuestEntry } from '../../../lib/invite';
 
 const API = import.meta.env.VITE_API_BASE ?? '/api';
 
@@ -913,14 +916,15 @@ function GamesTab({ games, households, events, inviteMap }: { games: Games | nul
 
 // ── Main dashboard ─────────────────────────────────────────────────────────────
 
-type Tab = 'overview' | 'rsvp' | 'households' | 'games' | 'activity';
+type Tab = 'overview' | 'rsvp' | 'households' | 'games' | 'activity' | 'backdoor';
 
-export function AdminDashboard() {
+function AdminDashboardInner() {
   const [secret, setSecret] = useState(() => sessionStorage.getItem('admin_secret') || '');
   const [authed, setAuthed] = useState(false);
   const [input, setInput] = useState('');
   const [stats, setStats] = useState<Stats | null>(null);
   const [events, setEvents] = useState<RawEvent[]>([]);
+  const [backdoorEvents, setBackdoorEvents] = useState<RawEvent[]>([]);
   const [unmatched, setUnmatched] = useState<UnmatchedGuest[]>([]);
   const [households, setHouseholds] = useState<Household[]>([]);
   const [games, setGames] = useState<Games | null>(null);
@@ -947,7 +951,12 @@ export function AdminDashboard() {
       if (sr.status === 401) { setError('Wrong password.'); setLoading(false); return; }
       setStats(await sr.json());
       const allEvents: RawEvent[] = (await er.json()).events || [];
+      // Owner visits to /backdoor/* aren't guest activity — pull them into
+      // their own bucket (see the "Backdoor Activity" tab) instead of the
+      // guest Activity Log.
+      setBackdoorEvents(allEvents.filter(e => (e.page || '').startsWith('/backdoor')));
       setEvents(allEvents.filter(e => {
+        if ((e.page || '').startsWith('/backdoor')) return false;
         const meta = e.metadata || {};
         return !ADMIN_EMAILS.has(String(meta.email || ''));
       }));
@@ -996,6 +1005,9 @@ export function AdminDashboard() {
             className="w-full bg-primary text-white py-3 text-xs tracking-widest uppercase font-light disabled:opacity-50">
             {loading ? 'Loading…' : 'Enter'}
           </button>
+          <Link to="/backdoor" className="mt-8 inline-block text-xs tracking-[0.25em] uppercase text-foreground/40 hover:text-foreground/70">
+            ← Backdoor
+          </Link>
         </div>
       </div>
     );
@@ -1052,12 +1064,28 @@ export function AdminDashboard() {
   const eventTypes = [...new Set(events.map(e => e.event_type))].sort();
   const filteredEvents = events.filter(e => activityFilter === 'all' || e.event_type === activityFilter).slice(0, 200);
 
+  // Who has ever come through /backdoor, and how much — most-recent-first.
+  const backdoorVisitors = (() => {
+    const byEmail = new Map<string, { email: string; visits: number; firstSeen: string; lastSeen: string; pages: Set<string> }>();
+    for (const e of backdoorEvents) {
+      const email = e.session_email || '(unknown)';
+      const entry = byEmail.get(email) || { email, visits: 0, firstSeen: e.created_at, lastSeen: e.created_at, pages: new Set<string>() };
+      entry.visits += 1;
+      entry.pages.add(e.page || '—');
+      if (e.created_at > entry.lastSeen) entry.lastSeen = e.created_at;
+      if (e.created_at < entry.firstSeen) entry.firstSeen = e.created_at;
+      byEmail.set(email, entry);
+    }
+    return [...byEmail.values()].sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1));
+  })();
+
   const TABS: { id: Tab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'rsvp', label: `RSVP (${(stats?.rsvpYes ?? 0) + (stats?.rsvpNo ?? 0)})` },
     { id: 'households', label: `Households (${households.length})` },
     { id: 'games', label: 'Games & Donations' },
     { id: 'activity', label: 'Activity Log' },
+    { id: 'backdoor', label: `Backdoor Activity (${backdoorVisitors.length})` },
   ];
 
   return (
@@ -1075,6 +1103,9 @@ export function AdminDashboard() {
             className="text-xs tracking-widest uppercase text-foreground/40 hover:text-primary transition-colors disabled:opacity-40">
             {loading ? 'Refreshing…' : 'Refresh'}
           </button>
+          <Link to="/backdoor" className="text-xs tracking-widest uppercase text-foreground/40 hover:text-foreground/70 transition-colors">
+            ← Backdoor
+          </Link>
         </div>
       </div>
 
@@ -1339,7 +1370,66 @@ export function AdminDashboard() {
           </Section>
         )}
 
+        {/* ── BACKDOOR ACTIVITY TAB ── */}
+        {tab === 'backdoor' && (
+          <>
+            <Section title={`Who's logged into /backdoor — ${backdoorVisitors.length} ${backdoorVisitors.length === 1 ? 'person' : 'people'}`}>
+              <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+                <table className="w-full">
+                  <thead><tr><Th>Email</Th><Th>Page views</Th><Th>Pages visited</Th><Th>First seen</Th><Th>Last seen</Th></tr></thead>
+                  <tbody>
+                    {backdoorVisitors.map((v) => (
+                      <tr key={v.email} className="hover:bg-foreground/[0.02]">
+                        <Td className="text-xs font-normal text-foreground/80">{v.email}</Td>
+                        <Td>{v.visits}</Td>
+                        <Td className="text-foreground/50 text-xs">{[...v.pages].sort().join(', ')}</Td>
+                        <Td className="text-foreground/40 whitespace-nowrap">{fmt(v.firstSeen)}</Td>
+                        <Td className="text-foreground/40 whitespace-nowrap">{fmt(v.lastSeen)}</Td>
+                      </tr>
+                    ))}
+                    {backdoorVisitors.length === 0 && (
+                      <tr><td colSpan={5} className="text-center text-xs text-foreground/30 py-8">Nobody's logged into /backdoor yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Section>
+
+            <Section title={`Full visit log — ${backdoorEvents.length} page views`}>
+              <div className="border border-foreground/10 rounded-sm overflow-x-auto">
+                <table className="w-full">
+                  <thead><tr><Th>Time</Th><Th>Who</Th><Th>Page</Th><Th>Device</Th></tr></thead>
+                  <tbody>
+                    {backdoorEvents.slice(0, 300).map((e, i) => (
+                      <tr key={i} className="hover:bg-foreground/[0.02]">
+                        <Td className="text-foreground/40 whitespace-nowrap">{fmt(e.created_at)}</Td>
+                        <Td className="text-xs font-normal text-foreground/80">{e.session_email || '—'}</Td>
+                        <Td className="text-foreground/50">{e.page || '—'}</Td>
+                        <Td className="text-foreground/40 text-xs">{parseDevice(e.session_ua) || '—'}</Td>
+                      </tr>
+                    ))}
+                    {backdoorEvents.length === 0 && (
+                      <tr><td colSpan={4} className="text-center text-xs text-foreground/30 py-8">No visits yet</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              {backdoorEvents.length > 300 && <p className="text-xs text-foreground/30 mt-2 text-center">Showing 300 of {backdoorEvents.length} page views</p>}
+            </Section>
+          </>
+        )}
+
       </div>
     </div>
+  );
+}
+
+export function AdminDashboard() {
+  return (
+    <BackdoorGate>
+      <AdminGate>
+        <AdminDashboardInner />
+      </AdminGate>
+    </BackdoorGate>
   );
 }

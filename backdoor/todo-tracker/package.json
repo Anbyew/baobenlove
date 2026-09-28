@@ -1,0 +1,9 @@
+{
+  "name": "wedding-todo-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local, zero-dependency to-do tracker for wedding planning (and everything else) up through the week after the wedding.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

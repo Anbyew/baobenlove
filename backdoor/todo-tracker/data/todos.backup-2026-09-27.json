@@ -1,0 +1,1029 @@
+{
+  "categories": [
+    "Venue & Logistics",
+    "Vendors",
+    "Attire & Beauty",
+    "Guests & Invitations",
+    "Legal & Documents",
+    "Travel & Lodging",
+    "Budget & Finance",
+    "Website & Tech",
+    "Day-Of Details",
+    "Work",
+    "Post-Wedding",
+    "Personal",
+    "Other"
+  ],
+  "todos": [
+    {
+      "id": "t1",
+      "text": "Chase remaining RSVPs / unresolved guests",
+      "category": "Guests & Invitations",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Carried over from last night — most urgent item on the list",
+      "done": true,
+      "createdAt": 1
+    },
+    {
+      "id": "t2",
+      "text": "Florist: reply to email + schedule Zoom ASAP",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Design must be locked before flowers are ordered Tuesday",
+      "done": true,
+      "createdAt": 2
+    },
+    {
+      "id": "t3",
+      "text": "Hair/makeup: follow up to schedule Zoom",
+      "category": "Attire & Beauty",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 3
+    },
+    {
+      "id": "t4",
+      "text": "Start collecting bridesmaids' hair/makeup inspo photos",
+      "category": "Attire & Beauty",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 4
+    },
+    {
+      "id": "t5",
+      "text": "Message Lynn to find an in-person day this week for décor/design",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 5
+    },
+    {
+      "id": "t6",
+      "text": "Message each family household to find times for individual travel calls",
+      "category": "Travel & Lodging",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 6
+    },
+    {
+      "id": "t7",
+      "text": "Message each cousin to schedule timeline/delegation calls",
+      "category": "Day-Of Details",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 7
+    },
+    {
+      "id": "t8",
+      "text": "Prep questions for startup meeting",
+      "category": "Work",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 8
+    },
+    {
+      "id": "t9",
+      "text": "Pick up package",
+      "category": "Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 9
+    },
+    {
+      "id": "t10",
+      "text": "Kitty litter",
+      "category": "Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 10
+    },
+    {
+      "id": "t11",
+      "text": "Cook & eat dinner",
+      "category": "Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 11
+    },
+    {
+      "id": "t12",
+      "text": "Evening self-care: shower, cut nails, face mask",
+      "category": "Personal",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 12
+    },
+    {
+      "id": "t13",
+      "text": "Finalize headcount",
+      "category": "Guests & Invitations",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 13
+    },
+    {
+      "id": "t14",
+      "text": "Pick up wedding dress",
+      "category": "Attire & Beauty",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 14
+    },
+    {
+      "id": "t15",
+      "text": "Florist Zoom: finalize bouquet / personals / chuppah ground pieces / flower choices",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 15
+    },
+    {
+      "id": "t16",
+      "text": "Send hair/makeup inspo + get meeting confirmed",
+      "category": "Attire & Beauty",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 16
+    },
+    {
+      "id": "t17",
+      "text": "Start seating chart",
+      "category": "Day-Of Details",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Once headcount is locked",
+      "done": true,
+      "createdAt": 17
+    },
+    {
+      "id": "t18",
+      "text": "Book nail appointment + facial",
+      "category": "Attire & Beauty",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Pick dates that land right before the wedding",
+      "done": false,
+      "createdAt": 18
+    },
+    {
+      "id": "t19",
+      "text": "Florals completely DONE before florist ordering",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 19
+    },
+    {
+      "id": "t20",
+      "text": "Finish seating chart",
+      "category": "Day-Of Details",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 20
+    },
+    {
+      "id": "t21",
+      "text": "Send videographer inspo-video list",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 21
+    },
+    {
+      "id": "t22",
+      "text": "Send DJ music/song list",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 22
+    },
+    {
+      "id": "t23",
+      "text": "Finalize photo booth layout",
+      "category": "Day-Of Details",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 23
+    },
+    {
+      "id": "t24",
+      "text": "Family household calls: post-wedding lodging + train/car + Sunday travel",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 24
+    },
+    {
+      "id": "t25",
+      "text": "Cousin calls: walk through entire wedding timeline + assign specific jobs",
+      "category": "Day-Of Details",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 25
+    },
+    {
+      "id": "t26",
+      "text": "Extend Longwood-area hotel stay for parents/family",
+      "category": "Travel & Lodging",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 26
+    },
+    {
+      "id": "t27",
+      "text": "Arrange Jersey City hotel/Airbnb + transportation",
+      "category": "Travel & Lodging",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 27
+    },
+    {
+      "id": "t28",
+      "text": "Finalize where groomsmen get ready",
+      "category": "Day-Of Details",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 28
+    },
+    {
+      "id": "t29",
+      "text": "In-person Lynn décor/design session",
+      "category": "Vendors",
+      "date": "2026-09-24",
+      "time": null,
+      "notes": "Move to whichever day she actually confirms",
+      "done": true,
+      "createdAt": 29
+    },
+    {
+      "id": "t30",
+      "text": "Finalize remaining décor / things that need buying",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 30
+    },
+    {
+      "id": "t31",
+      "text": "Ben's dad's birthday dinner plan",
+      "category": "Personal",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 31
+    },
+    {
+      "id": "t32",
+      "text": "Designate someone else to own wedding-day lunch/catering",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 32
+    },
+    {
+      "id": "t33",
+      "text": "Wedding finances: total budget, what's been paid, Ben's parents' spending, outstanding balances, upcoming due dates",
+      "category": "Budget & Finance",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 33
+    },
+    {
+      "id": "t34",
+      "text": "Gather/organize receipts from all the different platforms",
+      "category": "Budget & Finance",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 34
+    },
+    {
+      "id": "t35",
+      "text": "Florist payment",
+      "category": "Budget & Finance",
+      "date": "2026-09-25",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 35
+    },
+    {
+      "id": "t36",
+      "text": "Kick off evaluation run",
+      "category": "Work",
+      "date": "2026-09-25",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 36
+    },
+    {
+      "id": "t37",
+      "text": "Amazon/remote return at Whole Foods",
+      "category": "Other",
+      "date": "2026-09-26",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 37
+    },
+    {
+      "id": "t38",
+      "text": "Pick up jewelry",
+      "category": "Attire & Beauty",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 38
+    },
+    {
+      "id": "t39",
+      "text": "Pick up perfume",
+      "category": "Attire & Beauty",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 39
+    },
+    {
+      "id": "t40",
+      "text": "Cheering/reception/ceremony items + remaining purchases",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 40
+    },
+    {
+      "id": "t41",
+      "text": "Facial/nails",
+      "category": "Attire & Beauty",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Only if appointments make sense this weekend",
+      "done": false,
+      "createdAt": 41
+    },
+    {
+      "id": "t42",
+      "text": "Repot plants / apartment stuff",
+      "category": "Personal",
+      "date": null,
+      "time": null,
+      "notes": "Only if you actually want to",
+      "done": false,
+      "createdAt": 42
+    },
+    {
+      "id": "t43",
+      "text": "Final audit: payments, purchases, vendors, family travel, seating, timeline, packing",
+      "category": "Day-Of Details",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 43
+    },
+    {
+      "id": "t44",
+      "text": "Close out anything still requiring a decision",
+      "category": "Day-Of Details",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 44
+    },
+    {
+      "id": "t45",
+      "text": "No new planning projects this week — just appointments, packing, family, execution, emergencies",
+      "category": "Personal",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Standing reminder for the final week",
+      "done": true,
+      "createdAt": 45
+    },
+    {
+      "id": "t46",
+      "text": "Family arrives",
+      "category": "Travel & Lodging",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 46
+    },
+    {
+      "id": "t47",
+      "text": "Travel to PA",
+      "category": "Travel & Lodging",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 47
+    },
+    {
+      "id": "t48",
+      "text": "Car detailing",
+      "category": "Personal",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "After Sun 9/27, per your note",
+      "done": false,
+      "createdAt": 48
+    },
+    {
+      "id": "t49",
+      "text": "Ben's hair appointment",
+      "category": "Attire & Beauty",
+      "date": null,
+      "time": null,
+      "notes": "Schedule it — no date picked yet",
+      "done": true,
+      "createdAt": 49
+    },
+    {
+      "id": "t50",
+      "text": "Buy uplights",
+      "category": "Day-Of Details",
+      "date": "2026-09-24",
+      "time": null,
+      "notes": "Grouped with décor buying",
+      "done": true,
+      "createdAt": 50
+    },
+    {
+      "id": "t51",
+      "text": "Buy cheer-up stuff",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with Saturday errand run",
+      "done": false,
+      "createdAt": 51
+    },
+    {
+      "id": "t52",
+      "text": "Buy first aid kit",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with Saturday errand run",
+      "done": false,
+      "createdAt": 52
+    },
+    {
+      "id": "t53",
+      "text": "Print: program (English + Chinese, with QR code), seating chart, table numbers, menu (English + Chinese, with allergy info), pastry tags (with allergy info), bar sign",
+      "category": "Day-Of Details",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Set early enough to leave printing turnaround time",
+      "done": false,
+      "createdAt": 53
+    },
+    {
+      "id": "t54",
+      "text": "Australia visa",
+      "category": "Legal & Documents",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Flagged ASAP",
+      "done": false,
+      "createdAt": 54
+    },
+    {
+      "id": "t55",
+      "text": "Buy plants",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with décor buying",
+      "done": false,
+      "createdAt": 55
+    },
+    {
+      "id": "t56",
+      "text": "Buy bucket",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with décor buying",
+      "done": false,
+      "createdAt": 56
+    },
+    {
+      "id": "t57",
+      "text": "Buy plant food/polish",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with décor buying",
+      "done": false,
+      "createdAt": 57
+    },
+    {
+      "id": "t58",
+      "text": "Arrange Thursday food",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "For family arrival day, Thu 10/1",
+      "done": false,
+      "createdAt": 58
+    },
+    {
+      "id": "t59",
+      "text": "Arrange Saturday food",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "For wedding day, Sat 10/3 — ties into designating a lunch/catering owner",
+      "done": false,
+      "createdAt": 59
+    },
+    {
+      "id": "t60",
+      "text": "Email dad's bespoke suit place for appointment",
+      "category": "Attire & Beauty",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 60
+    },
+    {
+      "id": "t61",
+      "text": "Buy makeup",
+      "category": "Attire & Beauty",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 61
+    },
+    {
+      "id": "t62",
+      "text": "Return uplight",
+      "category": "Day-Of Details",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 62
+    },
+    {
+      "id": "mufj0eszh2e50",
+      "done": false,
+      "createdAt": 1790254004723,
+      "text": "Add QR code to website",
+      "category": "Website & Tech",
+      "date": null,
+      "time": null,
+      "notes": ""
+    },
+    {
+      "id": "mufj0lvn2f31r",
+      "done": false,
+      "createdAt": 1790254013891,
+      "text": "Send welcome email",
+      "category": "Guests & Invitations",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Include: reminder timeline, reminder QR code, reminder bus schedule, reminder drop-off parking location"
+    },
+    {
+      "id": "mufj0qko3fvtn",
+      "done": false,
+      "createdAt": 1790254019976,
+      "text": "Linh to come over",
+      "category": "Personal",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": ""
+    },
+    {
+      "id": "mufj11fw759yu",
+      "done": false,
+      "createdAt": 1790254034060,
+      "text": "Drop fans in Philly",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": ""
+    },
+    {
+      "id": "mufj11fw759yu-b",
+      "text": "Buy any last-minute stuff",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790519236508
+    },
+    {
+      "id": "mufj1mhntcc99",
+      "done": false,
+      "createdAt": 1790254061339,
+      "text": "Organize everything: full timeline, all people, who still needs to talk/be notified",
+      "category": "Day-Of Details",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Timeline, things to bring, things to set up, packing, transport to where, who does what at what time, reach out to people if needed — everything before Thursday"
+    },
+    {
+      "id": "l2-1",
+      "text": "Update seating chart: remove yacht +1, update Jenkins",
+      "category": "Day-Of Details",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187726
+    },
+    {
+      "id": "l2-2",
+      "text": "Share latest seating chart with LG (Longwood Gardens)",
+      "category": "Venue & Logistics",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187727
+    },
+    {
+      "id": "l2-3",
+      "text": "Double-check the photo list, update if needed, send to Kelly",
+      "category": "Vendors",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187728
+    },
+    {
+      "id": "l2-4",
+      "text": "Share full logistics with relatives",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Daily timelines, who does what, shuttle drop-off/pick-up times, all addresses (Airbnb), train schedule",
+      "done": false,
+      "createdAt": 1790520187729
+    },
+    {
+      "id": "l2-5",
+      "text": "Share & confirm Airbnb access with bridal party, Kelly, etc.",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187730
+    },
+    {
+      "id": "l2-6",
+      "text": "Buy cooler",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187731
+    },
+    {
+      "id": "l2-7",
+      "text": "Buy ice",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187732
+    },
+    {
+      "id": "l2-8",
+      "text": "Buy broccoli",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "For the broccoli toss",
+      "done": false,
+      "createdAt": 1790520187733
+    },
+    {
+      "id": "l2-9",
+      "text": "Buy batteries",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187734
+    },
+    {
+      "id": "l2-10",
+      "text": "Buy double-sided tape (Staples)",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187735
+    },
+    {
+      "id": "l2-11",
+      "text": "Lynn: Saturday morning décor setup",
+      "category": "Day-Of Details",
+      "date": "2026-10-03",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187736
+    },
+    {
+      "id": "l2-12",
+      "text": "Bao Yujie: Saturday morning — drop off parents at Airbnb",
+      "category": "Day-Of Details",
+      "date": "2026-10-03",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187737
+    },
+    {
+      "id": "l2-13",
+      "text": "Meet with Uncle John: go through timeline again, confirm mic situation",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187738
+    },
+    {
+      "id": "l2-14",
+      "text": "Seating: David & Jessica second row; ring bearer sits after walking down aisle",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187739
+    },
+    {
+      "id": "l2-15",
+      "text": "Try out glasses on grass (stability test at venue)",
+      "category": "Day-Of Details",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187740
+    },
+    {
+      "id": "l2-16",
+      "text": "Follow up with cake/pastry vendor for tasting/experiment pictures",
+      "category": "Vendors",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187741
+    },
+    {
+      "id": "l2-17",
+      "text": "Prep day-of cash: payments + tips",
+      "category": "Budget & Finance",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187742
+    },
+    {
+      "id": "l2-18",
+      "text": "Share details with DJ",
+      "category": "Vendors",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Father-daughter dance song/time, other music cues, broccoli toss explanation + invite, Ben's parents' reception entrance dance routine",
+      "done": false,
+      "createdAt": 1790520187743
+    },
+    {
+      "id": "l2-19",
+      "text": "Share curly-hair prep info with hairdresser",
+      "category": "Vendors",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187744
+    },
+    {
+      "id": "l2-20",
+      "text": "Share hair/makeup prep + timeline with bridal party",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187745
+    },
+    {
+      "id": "l2-21",
+      "text": "Test how long roses stay fresh in the fridge",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187746
+    },
+    {
+      "id": "l2-22",
+      "text": "Buy binder + stapler for the printed materials",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187747
+    },
+    {
+      "id": "l2-23",
+      "text": "Print the full timeline & details packet before traveling",
+      "category": "Day-Of Details",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187748
+    },
+    {
+      "id": "l2-24",
+      "text": "Buy extension cords",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187749
+    },
+    {
+      "id": "l2-25",
+      "text": "Charge torch lighter + all lights",
+      "category": "Day-Of Details",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187750
+    },
+    {
+      "id": "l2-26",
+      "text": "Send Ben's parents the guest name list with pronunciations",
+      "category": "Guests & Invitations",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187751
+    },
+    {
+      "id": "l2-27",
+      "text": "Compile getting-ready people list + dietary restrictions",
+      "category": "Day-Of Details",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187752
+    },
+    {
+      "id": "l2-28",
+      "text": "Book train back to NYC",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187753
+    },
+    {
+      "id": "l2-29",
+      "text": "Book hotel/Airbnb for Sun, Wed, Thu",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187754
+    },
+    {
+      "id": "l2-30",
+      "text": "Book car rental for Longwood Gardens",
+      "category": "Travel & Lodging",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187755
+    },
+    {
+      "id": "l2-31",
+      "text": "Organize everything to bring in the U-Haul, by location/function",
+      "category": "Day-Of Details",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187756
+    },
+    {
+      "id": "w1-1790522032134",
+      "text": "Write Wei's feedback email",
+      "category": "Work",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790522032134
+    },
+    {
+      "id": "w2-1790522032134",
+      "text": "Write reflection for hackathon",
+      "category": "Work",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790522032135
+    }
+  ]
+}

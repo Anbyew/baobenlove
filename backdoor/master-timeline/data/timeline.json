@@ -1,0 +1,2276 @@
+{
+  "groups": [
+    {
+      "id": "us",
+      "label": "Us"
+    },
+    {
+      "id": "planner",
+      "label": "Planner"
+    },
+    {
+      "id": "bride_family",
+      "label": "Bride side family"
+    },
+    {
+      "id": "groom_family",
+      "label": "Groom side family"
+    },
+    {
+      "id": "groom_extended",
+      "label": "Groom's extended family"
+    },
+    {
+      "id": "bridesmaids",
+      "label": "Wedding party — bridesmaids"
+    },
+    {
+      "id": "groomsmen",
+      "label": "Wedding party — groomsmen"
+    },
+    {
+      "id": "kids_plus_ones",
+      "label": "Kids & +1s"
+    },
+    {
+      "id": "helpers",
+      "label": "Helpers"
+    },
+    {
+      "id": "ceremony",
+      "label": "Ceremony"
+    },
+    {
+      "id": "vendors",
+      "label": "Vendors"
+    },
+    {
+      "id": "guests",
+      "label": "Guests (All)"
+    }
+  ],
+  "people": [
+    {
+      "id": "emily",
+      "name": "Emily (Yuwei)",
+      "groups": [
+        "us"
+      ]
+    },
+    {
+      "id": "ben",
+      "name": "Ben",
+      "groups": [
+        "us"
+      ]
+    },
+    {
+      "id": "kelly",
+      "name": "Kelly (Planner)",
+      "groups": [
+        "planner"
+      ]
+    },
+    {
+      "id": "christina",
+      "name": "Christina (Planner)",
+      "groups": [
+        "planner"
+      ]
+    },
+    {
+      "id": "huankang",
+      "name": "Huankang (Dad)",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "shuying",
+      "name": "Shuying (Mom)",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "yujie",
+      "name": "Yujie ★",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "huiqin",
+      "name": "Huiqin",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "yutian",
+      "name": "Yutian ★",
+      "groups": [
+        "bride_family",
+        "bridesmaids"
+      ]
+    },
+    {
+      "id": "guoxin",
+      "name": "Guoxin",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "li",
+      "name": "Li",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "xiaoqi",
+      "name": "Xiaoqi ★",
+      "groups": [
+        "bride_family"
+      ]
+    },
+    {
+      "id": "jonathan",
+      "name": "Jonathan (Dad)",
+      "groups": [
+        "groom_family"
+      ]
+    },
+    {
+      "id": "leslie",
+      "name": "Leslie (Mom)",
+      "groups": [
+        "groom_family"
+      ]
+    },
+    {
+      "id": "emma",
+      "name": "Emma",
+      "groups": [
+        "groom_family",
+        "bridesmaids"
+      ]
+    },
+    {
+      "id": "dmitriy",
+      "name": "Dmitriy",
+      "groups": [
+        "groom_family",
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "noah",
+      "name": "Noah (Best Man)",
+      "groups": [
+        "groom_family",
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "roberta",
+      "name": "Grandma Roberta",
+      "groups": [
+        "groom_extended"
+      ]
+    },
+    {
+      "id": "officiant",
+      "name": "John Carlson (Officiant)",
+      "groups": [
+        "groom_extended"
+      ]
+    },
+    {
+      "id": "sarah",
+      "name": "Sarah Krakoff",
+      "groups": [
+        "groom_extended"
+      ]
+    },
+    {
+      "id": "lucy",
+      "name": "Lucy Carlson-Krakoff",
+      "groups": [
+        "groom_extended"
+      ]
+    },
+    {
+      "id": "marcia",
+      "name": "Marcia",
+      "groups": [
+        "groom_extended"
+      ]
+    },
+    {
+      "id": "luba",
+      "name": "Luba",
+      "groups": [
+        "bridesmaids"
+      ]
+    },
+    {
+      "id": "jungmin",
+      "name": "JungMin",
+      "groups": [
+        "bridesmaids"
+      ]
+    },
+    {
+      "id": "mark",
+      "name": "Mark",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "coulter",
+      "name": "Coulter",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "andrew",
+      "name": "Andrew",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "paul",
+      "name": "Paul",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "jeff",
+      "name": "Jeff",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "hari",
+      "name": "Hari",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "alexander",
+      "name": "Alexander",
+      "groups": [
+        "groomsmen"
+      ]
+    },
+    {
+      "id": "nico",
+      "name": "Nico (Flower Boy)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "ozzy",
+      "name": "Ozzie (Ring Bearer)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "wolfie",
+      "name": "Wolfy (Ring Bearer)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "elizabeth",
+      "name": "Elizabeth",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "rachel",
+      "name": "Rachel (Coulter's +1)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "lauren",
+      "name": "Lauren (Andrew's +1)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "adriana",
+      "name": "Adriana (Jeff's +1)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "ellise",
+      "name": "Ellis (Hari’s +1)",
+      "groups": [
+        "kids_plus_ones"
+      ]
+    },
+    {
+      "id": "linh",
+      "name": "Linh",
+      "groups": [
+        "helpers"
+      ]
+    },
+    {
+      "id": "trenton",
+      "name": "Trenton",
+      "groups": [
+        "helpers"
+      ]
+    },
+    {
+      "id": "tony",
+      "name": "Tony Zhang (Translator)",
+      "groups": [
+        "helpers"
+      ]
+    },
+    {
+      "id": "musicians",
+      "name": "Dan & Katie (Music)",
+      "groups": [
+        "ceremony"
+      ]
+    },
+    {
+      "id": "makeup",
+      "name": "Flawless Finish (Makeup)",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "florist",
+      "name": "Full Bloom (Florist)",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "photographer",
+      "name": "Tati (Photo)",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "videographer",
+      "name": "Silver Shutter (Video)",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "dj",
+      "name": "DJ Jim",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "shuttle",
+      "name": "Delaware Express (Shuttle)",
+      "groups": [
+        "vendors"
+      ]
+    },
+    {
+      "id": "guests",
+      "name": "Guests (All)",
+      "groups": [
+        "guests"
+      ]
+    }
+  ],
+  "days": [
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02",
+    "2026-10-03",
+    "2026-10-04",
+    "2026-10-05",
+    "2026-10-06",
+    "2026-10-07",
+    "2026-10-08",
+    "2026-10-09"
+  ],
+  "events": [
+    {
+      "id": "ev1",
+      "day": "2026-09-29",
+      "time": null,
+      "endTime": null,
+      "activity": "Linh comes over for final arrangements; ask Ben when to leave Thursday",
+      "location": "",
+      "people": [
+        "emily",
+        "linh"
+      ],
+      "notes": "Flexible — no fixed time given"
+    },
+    {
+      "id": "ev2",
+      "day": "2026-09-29",
+      "time": "20:35",
+      "endTime": null,
+      "activity": "Arrive JFK from Hong Kong (CX840)",
+      "location": "JFK Airport",
+      "people": [
+        "shuying",
+        "huankang",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev3",
+      "day": "2026-09-30",
+      "time": "13:35",
+      "endTime": null,
+      "activity": "Arrive EWR from Toronto (AC1504, dep 12:00)",
+      "location": "Newark Airport (EWR)",
+      "people": [
+        "yujie"
+      ],
+      "notes": "Emily may pick up, if she has time"
+    },
+    {
+      "id": "ev4",
+      "day": "2026-10-01",
+      "time": null,
+      "endTime": null,
+      "activity": "Drop off U-Haul at Airbnb, then take Emily's car",
+      "location": "",
+      "people": [
+        "ben",
+        "noah"
+      ],
+      "notes": "Flexible — no fixed time given"
+    },
+    {
+      "id": "ev5",
+      "day": "2026-10-01",
+      "time": "13:00",
+      "endTime": null,
+      "activity": "Arrive Philadelphia Airport",
+      "location": "Philadelphia Airport (PHL)",
+      "people": [
+        "kelly",
+        "christina"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev6",
+      "day": "2026-10-01",
+      "time": "14:40",
+      "endTime": null,
+      "activity": "Arrive Philadelphia Airport",
+      "location": "Philadelphia Airport (PHL)",
+      "people": [
+        "luba"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev7",
+      "day": "2026-10-01",
+      "time": null,
+      "endTime": null,
+      "activity": "Pick up decor/supplies",
+      "location": "",
+      "people": [
+        "kelly",
+        "christina"
+      ],
+      "notes": "Flexible — no fixed time given"
+    },
+    {
+      "id": "ev8",
+      "day": "2026-10-01",
+      "time": null,
+      "endTime": null,
+      "activity": "Arranging flowers & photo booth",
+      "location": "",
+      "people": [
+        "emily",
+        "luba",
+        "kelly",
+        "christina"
+      ],
+      "notes": "Flexible — after Philly arrivals"
+    },
+    {
+      "id": "ev9",
+      "day": "2026-10-01",
+      "time": "15:05",
+      "endTime": "16:55",
+      "activity": "Train NYP → WIL (Northeast Regional 85)",
+      "location": "Amtrak",
+      "people": [
+        "shuying",
+        "huankang",
+        "yujie",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi"
+      ],
+      "notes": "Assumed to be the same 8-person family group named for the P.F. Chang's dinner that evening — confirm if wrong"
+    },
+    {
+      "id": "ev10",
+      "day": "2026-10-01",
+      "time": "16:30",
+      "endTime": null,
+      "activity": "Arrive Philadelphia Airport",
+      "location": "Philadelphia Airport (PHL)",
+      "people": [
+        "leslie",
+        "jonathan"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev11",
+      "day": "2026-10-01",
+      "time": "17:00",
+      "endTime": null,
+      "activity": "Help Yujie pick up rental car",
+      "location": "",
+      "people": [
+        "emily",
+        "yujie"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev12",
+      "day": "2026-10-01",
+      "time": "17:20",
+      "endTime": null,
+      "activity": "Arrive Baltimore Airport",
+      "location": "Baltimore Airport (BWI)",
+      "people": [
+        "emma",
+        "dmitriy"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev13",
+      "day": "2026-10-01",
+      "time": "19:30",
+      "endTime": null,
+      "activity": "Krakoff family dinner",
+      "location": "",
+      "people": [
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "roberta",
+        "marcia"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev14",
+      "day": "2026-10-01",
+      "time": "18:30",
+      "endTime": "20:30",
+      "activity": "Family dinner at P.F. Chang’s",
+      "location": "P.F. Chang’s",
+      "people": [
+        "emily",
+        "huankang",
+        "shuying",
+        "yutian",
+        "yujie",
+        "xiaoqi",
+        "huiqin",
+        "li",
+        "guoxin",
+        "yutian",
+        "luba",
+        "linh"
+      ],
+      "notes": "Approximate time — listed alongside Krakoff dinner"
+    },
+    {
+      "id": "ev15",
+      "day": "2026-10-01",
+      "time": null,
+      "endTime": null,
+      "activity": "In Philadelphia, afternoon through overnight",
+      "location": "",
+      "people": [
+        "ben"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev16",
+      "day": "2026-10-02",
+      "time": "09:00",
+      "endTime": "14:00",
+      "activity": "Longwood Gardens setup",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "shuying",
+        "leslie",
+        "yutian",
+        "emma",
+        "yutian",
+        "emma",
+        "luba",
+        "jungmin",
+        "linh",
+        "kelly",
+        "christina"
+      ],
+      "notes": "Driver TBD"
+    },
+    {
+      "id": "ev17",
+      "day": "2026-10-02",
+      "time": null,
+      "endTime": null,
+      "activity": "Pick up suits in Philadelphia, then return",
+      "location": "Philadelphia",
+      "people": [
+        "ben",
+        "noah",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark"
+      ],
+      "notes": "Flexible — driving Emily’s car"
+    },
+    {
+      "id": "ev18",
+      "day": "2026-10-02",
+      "time": null,
+      "endTime": null,
+      "activity": "Philadelphia day trip",
+      "location": "Philadelphia",
+      "people": [
+        "xiaoqi",
+        "yujie",
+        "huiqin",
+        "huankang",
+        "guoxin",
+        "li"
+      ],
+      "notes": "Flexible — driving: Yujie"
+    },
+    {
+      "id": "ev19",
+      "day": "2026-10-02",
+      "time": "15:00",
+      "endTime": "17:00",
+      "activity": "Rehearsal",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "ben",
+        "huankang",
+        "shuying",
+        "jonathan",
+        "leslie",
+        "yutian",
+        "emma",
+        "dmitriy",
+        "roberta",
+        "yutian",
+        "emma",
+        "luba",
+        "jungmin",
+        "dmitriy",
+        "noah",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "kelly",
+        "christina"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev20",
+      "day": "2026-10-02",
+      "time": "17:00",
+      "endTime": "18:20",
+      "activity": "Rest & change",
+      "location": "Hotel / Airbnb",
+      "people": [
+        "emily",
+        "shuying",
+        "huankang",
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "noah",
+        "luba",
+        "jungmin",
+        "yutian",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "roberta"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev21",
+      "day": "2026-10-02",
+      "time": "17:00",
+      "endTime": "18:00",
+      "activity": "Pick up cake, drop off at Airbnb",
+      "location": "",
+      "people": [
+        "kelly"
+      ],
+      "notes": "Flexible within this window"
+    },
+    {
+      "id": "ev22",
+      "day": "2026-10-02",
+      "time": "18:20",
+      "endTime": null,
+      "activity": "Drive to Welcome Dinner",
+      "location": "",
+      "people": [
+        "yujie",
+        "emily",
+        "ben",
+        "leslie",
+        "jonathan",
+        "emma",
+        "dmitriy"
+      ],
+      "notes": "Driving: Yujie / Ben & Emily / Leslie & Jonathan, Emma & Dmitriy"
+    },
+    {
+      "id": "ev23",
+      "day": "2026-10-02",
+      "time": "19:00",
+      "endTime": "21:00",
+      "activity": "Welcome Dinner",
+      "location": "",
+      "people": [
+        "emily",
+        "ben",
+        "huankang",
+        "shuying",
+        "jonathan",
+        "leslie",
+        "yutian",
+        "emma",
+        "dmitriy",
+        "roberta",
+        "yujie",
+        "xiaoqi",
+        "huiqin",
+        "li",
+        "guoxin",
+        "marcia",
+        "yutian",
+        "emma",
+        "luba",
+        "jungmin",
+        "dmitriy",
+        "noah",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "rachel",
+        "lauren",
+        "adriana",
+        "ellise",
+        "linh",
+        "kelly",
+        "christina"
+      ],
+      "notes": "Bring name LED sign; Grandma speech"
+    },
+    {
+      "id": "ev24",
+      "day": "2026-10-03",
+      "time": "06:45",
+      "endTime": null,
+      "activity": "Arrive at Airbnb",
+      "location": "Airbnb",
+      "people": [
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin",
+        "shuying",
+        "leslie",
+        "trenton",
+        "huankang"
+      ],
+      "notes": "Rooming: Emily / Emma & Yutian / Luba & JungMin / Shuying & Leslie / Trenton & Huankang"
+    },
+    {
+      "id": "ev25",
+      "day": "2026-10-03",
+      "time": "07:00",
+      "endTime": "07:45",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "jungmin"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev26",
+      "day": "2026-10-03",
+      "time": "07:00",
+      "endTime": "07:45",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "luba"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev27",
+      "day": "2026-10-03",
+      "time": "07:30",
+      "endTime": null,
+      "activity": "Arrive bringing breakfast & lunch",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "emma",
+        "leslie"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev28",
+      "day": "2026-10-03",
+      "time": "07:30",
+      "endTime": null,
+      "activity": "Drive Shuying & Huankang to arrive",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "yujie",
+        "shuying",
+        "huankang"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev29",
+      "day": "2026-10-03",
+      "time": "08:30",
+      "endTime": "09:15",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "emma"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev30",
+      "day": "2026-10-03",
+      "time": "08:30",
+      "endTime": "09:15",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "yutian"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev31",
+      "day": "2026-10-03",
+      "time": "09:00",
+      "endTime": "09:30",
+      "activity": "Pick up U-Haul from Airbnb, head to Hartefeld",
+      "location": "Airbnb → Hartefeld National",
+      "people": [
+        "kelly",
+        "christina"
+      ],
+      "notes": "Christina drives U-Haul, Kelly drives her car"
+    },
+    {
+      "id": "ev32",
+      "day": "2026-10-03",
+      "time": "09:30",
+      "endTime": "12:30",
+      "activity": "Hartefeld National setup",
+      "location": "Hartefeld National",
+      "people": [
+        "kelly",
+        "christina",
+        "linh"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev33",
+      "day": "2026-10-03",
+      "time": "10:00",
+      "endTime": "11:00",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "leslie"
+      ],
+      "notes": "MOG"
+    },
+    {
+      "id": "ev34",
+      "day": "2026-10-03",
+      "time": "10:00",
+      "endTime": "14:00",
+      "activity": "On-site — vendor call time",
+      "location": "Best Western Plus",
+      "people": [
+        "photographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev35",
+      "day": "2026-10-03",
+      "time": "10:00",
+      "endTime": "23:00",
+      "activity": "On-site — day-of coordination",
+      "location": "",
+      "people": [
+        "kelly"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev36",
+      "day": "2026-10-03",
+      "time": "10:00",
+      "endTime": "11:30",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "shuying"
+      ],
+      "notes": "MOB"
+    },
+    {
+      "id": "ev37",
+      "day": "2026-10-03",
+      "time": "10:15",
+      "endTime": "10:30",
+      "activity": "Arrive at hotel",
+      "location": "Best Western Plus, Concordville PA",
+      "people": [
+        "ben",
+        "noah",
+        "dmitriy",
+        "mark",
+        "coulter",
+        "andrew",
+        "jeff",
+        "paul",
+        "hari",
+        "alexander",
+        "jonathan"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev38",
+      "day": "2026-10-03",
+      "time": "10:45",
+      "endTime": "11:45",
+      "activity": "Hair & makeup",
+      "location": "181 Ivy Lane, Glen Mills, PA 19342",
+      "people": [
+        "emily"
+      ],
+      "notes": "Bride"
+    },
+    {
+      "id": "ev39",
+      "day": "2026-10-03",
+      "time": "10:45",
+      "endTime": "11:45",
+      "activity": "Lunch",
+      "location": "Best Western Plus",
+      "people": [
+        "ben",
+        "noah",
+        "dmitriy",
+        "mark",
+        "coulter",
+        "andrew",
+        "jeff",
+        "paul",
+        "hari",
+        "alexander",
+        "jonathan"
+      ],
+      "notes": "Ben prepares lunch for groomsmen"
+    },
+    {
+      "id": "ev40",
+      "day": "2026-10-03",
+      "time": "11:00",
+      "endTime": "12:00",
+      "activity": "On-site — setup",
+      "location": "Hartefeld National",
+      "people": [
+        "florist"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev41",
+      "day": "2026-10-03",
+      "time": "11:45",
+      "endTime": "12:45",
+      "activity": "Everyone gets dressed",
+      "location": "Best Western Plus",
+      "people": [
+        "ben",
+        "noah",
+        "dmitriy",
+        "mark",
+        "coulter",
+        "andrew",
+        "jeff",
+        "paul",
+        "hari",
+        "alexander"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev42",
+      "day": "2026-10-03",
+      "time": "12:15",
+      "endTime": "12:45",
+      "activity": "Head back to Airbnb; Christina picks up cake → Longwood via Uber, Kelly stays with bridal party",
+      "location": "Airbnb",
+      "people": [
+        "kelly",
+        "christina"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev43",
+      "day": "2026-10-03",
+      "time": "12:30",
+      "endTime": null,
+      "activity": "Back to Airbnb",
+      "location": "Airbnb",
+      "people": [
+        "kelly",
+        "christina"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev44",
+      "day": "2026-10-03",
+      "time": "12:45",
+      "endTime": "13:15",
+      "activity": "Detail shots — photo & video coverage begins",
+      "location": "Airbnb",
+      "people": [
+        "emily",
+        "photographer",
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev45",
+      "day": "2026-10-03",
+      "time": "12:45",
+      "endTime": "13:15",
+      "activity": "Groom getting ready photos",
+      "location": "Best Western Plus",
+      "people": [
+        "ben",
+        "photographer",
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev46",
+      "day": "2026-10-03",
+      "time": "12:45",
+      "endTime": "21:45",
+      "activity": "On-site — photo coverage",
+      "location": "",
+      "people": [
+        "photographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev47",
+      "day": "2026-10-03",
+      "time": "12:45",
+      "endTime": "21:45",
+      "activity": "On-site — video coverage",
+      "location": "",
+      "people": [
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev49",
+      "day": "2026-10-03",
+      "time": "13:15",
+      "endTime": "13:30",
+      "activity": "Pictures in robes",
+      "location": "Airbnb",
+      "people": [
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev50",
+      "day": "2026-10-03",
+      "time": "13:15",
+      "endTime": "14:00",
+      "activity": "Groomsmen photos around the hotel",
+      "location": "Best Western Plus",
+      "people": [
+        "ben",
+        "noah",
+        "dmitriy",
+        "mark",
+        "coulter",
+        "andrew",
+        "jeff",
+        "paul",
+        "hari",
+        "alexander",
+        "photographer",
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev51",
+      "day": "2026-10-03",
+      "time": "13:30",
+      "endTime": "14:00",
+      "activity": "Everyone gets dressed",
+      "location": "Airbnb",
+      "people": [
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev52",
+      "day": "2026-10-03",
+      "time": "13:30",
+      "endTime": "14:00",
+      "activity": "Bride getting ready photos",
+      "location": "Airbnb",
+      "people": [
+        "emily",
+        "photographer",
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev54",
+      "day": "2026-10-03",
+      "time": "13:30",
+      "endTime": "23:00",
+      "activity": "On-site",
+      "location": "",
+      "people": [
+        "dj"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev55",
+      "day": "2026-10-03",
+      "time": "14:00",
+      "endTime": "14:20",
+      "activity": "Head to ceremony",
+      "location": "Airbnb → Hartefeld National",
+      "people": [
+        "ben",
+        "noah",
+        "dmitriy",
+        "mark",
+        "coulter",
+        "andrew",
+        "jeff",
+        "paul",
+        "hari",
+        "alexander"
+      ],
+      "notes": "Drive or Uber"
+    },
+    {
+      "id": "ev56",
+      "day": "2026-10-03",
+      "time": "14:00",
+      "endTime": "14:45",
+      "activity": "Head to ceremony",
+      "location": "Airbnb → Hartefeld National",
+      "people": [
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin"
+      ],
+      "notes": "Drive or Uber; Christina meets there"
+    },
+    {
+      "id": "ev57",
+      "day": "2026-10-03",
+      "time": "14:00",
+      "endTime": "15:30",
+      "activity": "On-site — sound check",
+      "location": "Hartefeld National",
+      "people": [
+        "musicians"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev58",
+      "day": "2026-10-03",
+      "time": "14:15",
+      "endTime": "15:30",
+      "activity": "On-site",
+      "location": "Hartefeld National",
+      "people": [
+        "officiant"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev59",
+      "day": "2026-10-03",
+      "time": "13:45",
+      "endTime": "14:45",
+      "activity": "Hotel pickups → Hartefeld National",
+      "location": "Holiday Inn Express West Chester → Best Western Plus → Home2Suites Glen Mills → Hartefeld National",
+      "people": [
+        "shuttle",
+        "guests"
+      ],
+      "notes": "1:45 PU Holiday Inn Express West Chester · 2:00 PU Best Western Plus · 2:10 PU Home2Suites Glen Mills · DO by 2:45 & wait at Hartefeld"
+    },
+    {
+      "id": "ev60",
+      "day": "2026-10-03",
+      "time": "15:30",
+      "endTime": "16:00",
+      "activity": "Hartefeld National → Longwood Gardens",
+      "location": "Hartefeld National → Longwood Gardens (back of house, 409 Conservatory Rd)",
+      "people": [
+        "shuttle",
+        "guests"
+      ],
+      "notes": "PU 3:30 PM, DO 4:00 PM — use 409 Conservatory Road for buses"
+    },
+    {
+      "id": "ev61",
+      "day": "2026-10-03",
+      "time": "23:00",
+      "endTime": "23:45",
+      "activity": "Return shuttle to all hotels",
+      "location": "Longwood Gardens (West Lot, 419 Conservatory Rd) → hotels",
+      "people": [
+        "shuttle",
+        "guests"
+      ],
+      "notes": "PU 11:00 PM from West Lot (419 Conservatory Rd, changed from back-of-house per venue request) — finish by 11:45 PM"
+    },
+    {
+      "id": "ev62",
+      "day": "2026-10-03",
+      "time": "14:45",
+      "endTime": "15:00",
+      "activity": "Guests seated — Song: Canon in D",
+      "location": "Hartefeld National",
+      "people": [
+        "guests"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev63",
+      "day": "2026-10-03",
+      "time": "15:00",
+      "endTime": "15:05",
+      "activity": "Processional",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "shuying",
+        "huankang",
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "noah",
+        "luba",
+        "jungmin",
+        "yutian",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "roberta"
+      ],
+      "notes": "Order: Paul, Jeff, Hari, Alexander, Coulter, Andrew, Mark, Dmitriy, Noah, Ben, Emily, Emma, Yutian, JungMin, Luba · Prelude by Dan & Katie · Ring bearers: Ozzy & Wolfie · Flower boy: Nico (with Mark & Elizabeth)"
+    },
+    {
+      "id": "ev64",
+      "day": "2026-10-03",
+      "time": "15:05",
+      "endTime": "15:25",
+      "activity": "Ceremony — breaking of the glass",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "shuying",
+        "huankang",
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "noah",
+        "luba",
+        "jungmin",
+        "yutian",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "roberta"
+      ],
+      "notes": "Song change: Salut d’Amour"
+    },
+    {
+      "id": "ev65",
+      "day": "2026-10-03",
+      "time": "15:25",
+      "endTime": "15:30",
+      "activity": "Recessional — Song: La Rejouissance",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "shuying",
+        "huankang",
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "noah",
+        "luba",
+        "jungmin",
+        "yutian",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "roberta"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev66",
+      "day": "2026-10-03",
+      "time": "15:30",
+      "endTime": "15:40",
+      "activity": "Guests exit",
+      "location": "Hartefeld National",
+      "people": [
+        "guests"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev67",
+      "day": "2026-10-03",
+      "time": "15:30",
+      "endTime": "15:45",
+      "activity": "Extended family photos",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "ben",
+        "huankang",
+        "shuying",
+        "jonathan",
+        "leslie",
+        "yujie",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi",
+        "emma",
+        "dmitriy",
+        "roberta"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev68",
+      "day": "2026-10-03",
+      "time": "15:45",
+      "endTime": "16:05",
+      "activity": "Head to Longwood Gardens",
+      "location": "Hartefeld National → Longwood Gardens",
+      "people": [
+        "emily",
+        "ben",
+        "emma",
+        "dmitriy",
+        "leslie",
+        "jonathan",
+        "noah",
+        "shuying",
+        "huankang",
+        "yutian",
+        "luba",
+        "jungmin",
+        "trenton",
+        "mark",
+        "nico",
+        "elizabeth",
+        "coulter",
+        "rachel",
+        "andrew",
+        "lauren",
+        "jeff",
+        "adriana",
+        "paul",
+        "hari",
+        "ellise",
+        "alexander",
+        "kelly",
+        "photographer",
+        "videographer",
+        "dj"
+      ],
+      "notes": "Car A: Yuwei, Ben, Emma, Dmitriy · Car B: Leslie, Jonathan, Noah · Car C: Shuying, Huankang, Yutian · Car D: Luba, JungMin, Trenton · Car E: Mark, Nico, Elizabeth · Car F: Coulter & Rachel, Andrew & Lauren · Car G: Jeff & Adriana, Paul · Car H: Hari & Ellise, Alexander · plus Kelly's car, photo/video cars, DJ's car"
+    },
+    {
+      "id": "ev69",
+      "day": "2026-10-03",
+      "time": "15:30",
+      "endTime": "16:45",
+      "activity": "Family photo block (shot list)",
+      "location": "Hartefeld National",
+      "people": [
+        "emily",
+        "ben",
+        "guests"
+      ],
+      "notes": "See photo shot list for full permutations"
+    },
+    {
+      "id": "ev70",
+      "day": "2026-10-03",
+      "time": "16:15",
+      "endTime": "16:45",
+      "activity": "Wedding party / family photos — Emily's side",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "huankang",
+        "shuying",
+        "yujie",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi",
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev71",
+      "day": "2026-10-03",
+      "time": "16:45",
+      "endTime": "17:45",
+      "activity": "Bride & Groom photos — wedding party, outside then inside",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben",
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin",
+        "ben",
+        "noah",
+        "dmitriy",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev72",
+      "day": "2026-10-03",
+      "time": "17:45",
+      "endTime": "18:00",
+      "activity": "Family photos — Ben's side",
+      "location": "Longwood Gardens",
+      "people": [
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "roberta",
+        "noah"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev73",
+      "day": "2026-10-03",
+      "time": "18:00",
+      "endTime": "19:00",
+      "activity": "Cocktail hour",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests",
+        "dj"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev74",
+      "day": "2026-10-03",
+      "time": "18:00",
+      "endTime": "18:45",
+      "activity": "Attend cocktail hour",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": "Cheers cam"
+    },
+    {
+      "id": "ev75",
+      "day": "2026-10-03",
+      "time": "18:45",
+      "endTime": "18:55",
+      "activity": "Room reveal",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev76",
+      "day": "2026-10-03",
+      "time": "18:55",
+      "endTime": "19:15",
+      "activity": "Alone time — food, drinks, change dress",
+      "location": "Franklinnea Room",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev77",
+      "day": "2026-10-03",
+      "time": "19:00",
+      "endTime": "19:10",
+      "activity": "Guests invited into reception room",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": "Parents & bridal party find seats"
+    },
+    {
+      "id": "ev78",
+      "day": "2026-10-03",
+      "time": "19:10",
+      "endTime": "19:15",
+      "activity": "Welcome by DJ",
+      "location": "Longwood Gardens",
+      "people": [
+        "dj"
+      ],
+      "notes": "Introduce as Emily – Yuwei"
+    },
+    {
+      "id": "ev79",
+      "day": "2026-10-03",
+      "time": "19:15",
+      "endTime": "19:18",
+      "activity": "Parents & wedding party introduced",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "shuying",
+        "huankang",
+        "ben",
+        "jonathan",
+        "leslie",
+        "emma",
+        "dmitriy",
+        "noah",
+        "luba",
+        "jungmin",
+        "yutian",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "elizabeth",
+        "nico",
+        "roberta"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev80",
+      "day": "2026-10-03",
+      "time": "19:18",
+      "endTime": "19:20",
+      "activity": "Bride & Groom introduced",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": "Song: Theme From New York, New York"
+    },
+    {
+      "id": "ev81",
+      "day": "2026-10-03",
+      "time": "19:20",
+      "endTime": "19:23",
+      "activity": "First dance",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": "Songs: La vie en rose / You Never Can Tell"
+    },
+    {
+      "id": "ev82",
+      "day": "2026-10-03",
+      "time": "19:23",
+      "endTime": "19:25",
+      "activity": "Mother/Son dance",
+      "location": "Longwood Gardens",
+      "people": [
+        "ben",
+        "leslie"
+      ],
+      "notes": "Song: In My Life — Beatles"
+    },
+    {
+      "id": "ev83",
+      "day": "2026-10-03",
+      "time": "19:25",
+      "endTime": "19:27",
+      "activity": "Father/Daughter dance",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "huankang"
+      ],
+      "notes": "Song: Crazy in Love — wedding party joins at end"
+    },
+    {
+      "id": "ev84",
+      "day": "2026-10-03",
+      "time": "19:27",
+      "endTime": "20:00",
+      "activity": "First course served",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev85",
+      "day": "2026-10-03",
+      "time": "19:35",
+      "endTime": "19:40",
+      "activity": "Speech — parents of the groom",
+      "location": "Longwood Gardens",
+      "people": [
+        "jonathan",
+        "leslie"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev86",
+      "day": "2026-10-03",
+      "time": "19:40",
+      "endTime": "19:45",
+      "activity": "Speech — parents of the bride",
+      "location": "Longwood Gardens",
+      "people": [
+        "huankang",
+        "shuying",
+        "tony"
+      ],
+      "notes": "Tony translates"
+    },
+    {
+      "id": "ev87",
+      "day": "2026-10-03",
+      "time": "19:45",
+      "endTime": "19:50",
+      "activity": "Speech — groom's siblings",
+      "location": "Longwood Gardens",
+      "people": [
+        "emma",
+        "noah"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev88",
+      "day": "2026-10-03",
+      "time": "19:50",
+      "endTime": "19:55",
+      "activity": "Speech — bridesmaid",
+      "location": "Longwood Gardens",
+      "people": [
+        "jungmin"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev89",
+      "day": "2026-10-03",
+      "time": "19:55",
+      "endTime": "20:00",
+      "activity": "Speech — bride & groom",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev90",
+      "day": "2026-10-03",
+      "time": "20:00",
+      "endTime": "20:40",
+      "activity": "Main course served",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": "Couple stops at each table"
+    },
+    {
+      "id": "ev91",
+      "day": "2026-10-03",
+      "time": "20:15",
+      "endTime": "20:25",
+      "activity": "Fountain show",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev92",
+      "day": "2026-10-03",
+      "time": "20:25",
+      "endTime": "20:40",
+      "activity": "Vendors eat",
+      "location": "Longwood Gardens",
+      "people": [
+        "kelly",
+        "photographer",
+        "videographer",
+        "dj",
+        "shuttle"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev93",
+      "day": "2026-10-03",
+      "time": "20:40",
+      "endTime": "20:50",
+      "activity": "Shoe game",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev94",
+      "day": "2026-10-03",
+      "time": "20:50",
+      "endTime": "20:55",
+      "activity": "Cake cutting announced",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev95",
+      "day": "2026-10-03",
+      "time": "20:55",
+      "endTime": "21:00",
+      "activity": "Broccoli toss",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests",
+        "ben",
+        "noah",
+        "dmitriy",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark"
+      ],
+      "notes": "Song: Who Let the Dogs Out"
+    },
+    {
+      "id": "ev96",
+      "day": "2026-10-03",
+      "time": "21:00",
+      "endTime": "23:00",
+      "activity": "Dance floor opens",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": "Opens with a hora"
+    },
+    {
+      "id": "ev97",
+      "day": "2026-10-03",
+      "time": "21:30",
+      "endTime": "23:00",
+      "activity": "Dessert station opens",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev98",
+      "day": "2026-10-03",
+      "time": "21:45",
+      "endTime": null,
+      "activity": "Photo & video coverage ends — fake sendoff",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "emma",
+        "yutian",
+        "luba",
+        "jungmin",
+        "ben",
+        "noah",
+        "dmitriy",
+        "paul",
+        "jeff",
+        "hari",
+        "alexander",
+        "coulter",
+        "andrew",
+        "mark",
+        "photographer",
+        "videographer"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev99",
+      "day": "2026-10-03",
+      "time": "22:57",
+      "endTime": "23:00",
+      "activity": "Last dance",
+      "location": "Longwood Gardens",
+      "people": [
+        "emily",
+        "ben",
+        "guests"
+      ],
+      "notes": "Song: First Date — Blink 182"
+    },
+    {
+      "id": "ev100",
+      "day": "2026-10-03",
+      "time": "23:00",
+      "endTime": null,
+      "activity": "Reception ends",
+      "location": "Longwood Gardens",
+      "people": [
+        "guests"
+      ],
+      "notes": "Announce bus leaving 11:15 PM"
+    },
+    {
+      "id": "ev101",
+      "day": "2026-10-04",
+      "time": null,
+      "endTime": null,
+      "activity": "Pack up Airbnb",
+      "location": "Airbnb",
+      "people": [
+        "ben",
+        "emily",
+        "luba",
+        "jungmin",
+        "trenton"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev102",
+      "day": "2026-10-04",
+      "time": null,
+      "endTime": null,
+      "activity": "Return rental car; train back to NYC",
+      "location": "",
+      "people": [
+        "shuying",
+        "huankang",
+        "yujie",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev103",
+      "day": "2026-10-04",
+      "time": "18:00",
+      "endTime": null,
+      "activity": "Return U-Haul",
+      "location": "",
+      "people": [
+        "ben"
+      ],
+      "notes": "Approximate — \"evening\""
+    },
+    {
+      "id": "ev104",
+      "day": "2026-10-04",
+      "time": "19:00",
+      "endTime": null,
+      "activity": "Family dinner",
+      "location": "NYC",
+      "people": [
+        "shuying",
+        "huankang",
+        "yujie",
+        "huiqin",
+        "yutian",
+        "li",
+        "guoxin",
+        "xiaoqi"
+      ],
+      "notes": "Approximate — \"evening\""
+    },
+    {
+      "id": "ev105",
+      "day": "2026-10-05",
+      "time": "09:00",
+      "endTime": "10:40",
+      "activity": "Depart EWR → YYZ (AC1503)",
+      "location": "Newark Airport (EWR)",
+      "people": [
+        "yujie"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev106",
+      "day": "2026-10-05",
+      "time": null,
+      "endTime": null,
+      "activity": "Shopping",
+      "location": "",
+      "people": [
+        "yutian",
+        "guoxin",
+        "li"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev107",
+      "day": "2026-10-05",
+      "time": null,
+      "endTime": null,
+      "activity": "Free time / details TBD",
+      "location": "",
+      "people": [
+        "shuying",
+        "huankang",
+        "huiqin",
+        "xiaoqi"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev108",
+      "day": "2026-10-05",
+      "time": null,
+      "endTime": null,
+      "activity": "Drive to Boston",
+      "location": "",
+      "people": [
+        "emily"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev109",
+      "day": "2026-10-06",
+      "time": "10:00",
+      "endTime": null,
+      "activity": "Depart JFK → HKG (CX841)",
+      "location": "JFK Airport",
+      "people": [
+        "yutian",
+        "guoxin",
+        "li"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev110",
+      "day": "2026-10-07",
+      "time": null,
+      "endTime": null,
+      "activity": "Travel Boston → NYC",
+      "location": "",
+      "people": [
+        "huankang",
+        "shuying",
+        "huiqin",
+        "xiaoqi"
+      ],
+      "notes": "Flexible"
+    },
+    {
+      "id": "ev111",
+      "day": "2026-10-08",
+      "time": "10:00",
+      "endTime": null,
+      "activity": "Depart JFK → HKG (CX841)",
+      "location": "JFK Airport",
+      "people": [
+        "xiaoqi"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev112",
+      "day": "2026-10-09",
+      "time": "10:00",
+      "endTime": null,
+      "activity": "Depart JFK → HKG (CX841)",
+      "location": "JFK Airport",
+      "people": [
+        "huankang",
+        "shuying",
+        "huiqin"
+      ],
+      "notes": ""
+    }
+  ],
+  "columnOrder": [
+    "emily",
+    "ben",
+    "kelly",
+    "christina",
+    "huankang",
+    "shuying",
+    "yujie",
+    "huiqin",
+    "yutian",
+    "guoxin",
+    "li",
+    "xiaoqi",
+    "jonathan",
+    "leslie",
+    "emma",
+    "dmitriy",
+    "noah",
+    "roberta",
+    "officiant",
+    "sarah",
+    "lucy",
+    "marcia",
+    "luba",
+    "jungmin",
+    "mark",
+    "coulter",
+    "andrew",
+    "paul",
+    "jeff",
+    "hari",
+    "alexander",
+    "nico",
+    "ozzy",
+    "wolfie",
+    "elizabeth",
+    "rachel",
+    "lauren",
+    "adriana",
+    "ellise",
+    "linh",
+    "trenton",
+    "tony",
+    "musicians",
+    "makeup",
+    "florist",
+    "photographer",
+    "videographer",
+    "dj",
+    "shuttle",
+    "guests"
+  ],
+  "version": 4
+}

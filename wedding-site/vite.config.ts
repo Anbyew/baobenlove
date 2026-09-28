@@ -23,6 +23,23 @@ export default defineConfig({
 
   server: {
     proxy: {
+      // Local-only: the backdoor Setup, Packing & Key Info pages aren't deployed
+      // yet, so in dev their endpoints go to a local server/ instance
+      // (LOCAL_API, default :3001) while everything else — real RSVP and
+      // seating data, OTP email login — still goes to production. Remove
+      // these entries once /setup, /packing and /keyinfo are live on baoben.love.
+      '/api/setup': {
+        target: process.env.LOCAL_API ?? 'http://localhost:3001',
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      },
+      '/api/keyinfo': {
+        target: process.env.LOCAL_API ?? 'http://localhost:3001',
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      },
+      '/api/packing': {
+        target: process.env.LOCAL_API ?? 'http://localhost:3001',
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      },
       '/api': {
         target: 'https://baoben.love',
         changeOrigin: true,

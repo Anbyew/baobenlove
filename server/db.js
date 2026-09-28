@@ -63,6 +63,14 @@ db.exec(`
     updated_at TEXT NOT NULL
   );
 
+  -- One shared floor plan for the whole wedding — not per-invite like
+  -- garden_state, so it's a singleton row (id is always 1).
+  CREATE TABLE IF NOT EXISTS seating_state (
+    id         INTEGER PRIMARY KEY CHECK (id = 1),
+    data       TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS escape_state (
     obstacle_id TEXT PRIMARY KEY,
     note        TEXT DEFAULT '',
@@ -107,6 +115,40 @@ db.exec(`
     updated_at    TEXT NOT NULL
   );
 
+  -- Owner-only packing checklist (backdoor). One row per item rather than
+  -- one JSON blob so two people checking things off at once never clobber
+  -- each other's edits.
+  CREATE TABLE IF NOT EXISTS packing_items (
+    id          TEXT PRIMARY KEY,
+    section     TEXT NOT NULL,
+    grp         TEXT NOT NULL,
+    label       TEXT NOT NULL,
+    note        TEXT DEFAULT '',
+    checked     INTEGER NOT NULL DEFAULT 0,
+    checked_by  TEXT,
+    position    REAL NOT NULL,
+    updated_at  TEXT NOT NULL
+  );
+
+  -- Free-form owner documents (e.g. the setup checklist), one JSON blob per key.
+  CREATE TABLE IF NOT EXISTS admin_docs (
+    key        TEXT PRIMARY KEY,
+    data       TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS seating_activity (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    ip           TEXT,
+    city         TEXT,
+    country      TEXT,
+    user_agent   TEXT,
+    event_type   TEXT NOT NULL,
+    label        TEXT,
+    metadata     TEXT DEFAULT '{}',
+    created_at   TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS unmatched_guests (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     token        TEXT UNIQUE NOT NULL,
@@ -128,6 +170,7 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_events_created     ON events(created_at);
   CREATE INDEX IF NOT EXISTS idx_dance_rounds_invite ON dance_rounds(invite_id);
   CREATE INDEX IF NOT EXISTS idx_dance_rounds_score  ON dance_rounds(total_score);
+  CREATE INDEX IF NOT EXISTS idx_seating_activity_created ON seating_activity(created_at);
 `);
 
 // --- Migrations ---
@@ -474,6 +517,125 @@ export function setGardenItems(inviteId, items) {
     INSERT INTO garden_state (invite_id, items, updated_at) VALUES (?, ?, ?)
     ON CONFLICT(invite_id) DO UPDATE SET items = excluded.items, updated_at = excluded.updated_at
   `).run(inviteId, JSON.stringify(items), new Date().toISOString());
+}
+
+// --- Seating chart (one shared document, no per-invite scoping) ---
+
+export function getSeatingState() {
+  const row = db.prepare('SELECT data, updated_at FROM seating_state WHERE id = 1').get();
+  return row ? { ...parseJson(row.data, null), updatedAt: row.updated_at } : null;
+}
+
+// Access/activity log for the seating chart's own vendor-password gate —
+// this page bypasses the site's guest sessions entirely, so it has no other
+// record of who's opening it, from where, or what they've changed.
+export function logSeatingActivity({ ip, userAgent, eventType, label, metadata }) {
+  const { city, country } = lookupGeo(ip);
+  db.prepare(`
+    INSERT INTO seating_activity (ip, city, country, user_agent, event_type, label, metadata, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    ip || null,
+    city ?? null,
+    country ?? null,
+    userAgent || null,
+    eventType,
+    label || null,
+    JSON.stringify(metadata || {}),
+    new Date().toISOString(),
+  );
+}
+
+export function getSeatingActivity(limit = 500) {
+  return db.prepare(`
+    SELECT id, ip, city, country, user_agent, event_type, label, metadata, created_at
+    FROM seating_activity ORDER BY created_at DESC LIMIT ?
+  `).all(limit).map((r) => ({ ...r, metadata: parseJson(r.metadata, {}) }));
+}
+
+export function setSeatingState(data) {
+  const updatedAt = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO seating_state (id, data, updated_at) VALUES (1, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
+  `).run(JSON.stringify(data), updatedAt);
+  return updatedAt;
+}
+
+// --- Packing checklist (shared, owner-only) ---
+
+function toPackingItem(row) {
+  return {
+    id: row.id,
+    section: row.section,
+    group: row.grp,
+    label: row.label,
+    note: row.note || '',
+    checked: !!row.checked,
+    checkedBy: row.checked_by || null,
+    position: row.position,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function getPackingItems() {
+  return db.prepare('SELECT * FROM packing_items ORDER BY position').all().map(toPackingItem);
+}
+
+// Seeds the default list only while the table is still empty, inside one
+// transaction — two browsers opening the page for the first time at once
+// can't both seed and end up with every item twice.
+export const seedPackingItems = db.transaction((items) => {
+  const { n } = db.prepare('SELECT COUNT(*) AS n FROM packing_items').get();
+  if (n > 0) return false;
+  const now = new Date().toISOString();
+  const insert = db.prepare(`
+    INSERT INTO packing_items (id, section, grp, label, note, checked, position, updated_at)
+    VALUES (?, ?, ?, ?, ?, 0, ?, ?)
+  `);
+  for (const it of items) insert.run(it.id, it.section, it.group, it.label, it.note || '', it.position, now);
+  return true;
+});
+
+export function upsertPackingItem(item) {
+  db.prepare(`
+    INSERT INTO packing_items (id, section, grp, label, note, checked, checked_by, position, updated_at)
+    VALUES (@id, @section, @group, @label, @note, @checked, @checkedBy, @position, @updatedAt)
+    ON CONFLICT(id) DO UPDATE SET
+      section = excluded.section, grp = excluded.grp, label = excluded.label,
+      note = excluded.note, checked = excluded.checked, checked_by = excluded.checked_by,
+      position = excluded.position, updated_at = excluded.updated_at
+  `).run({
+    ...item,
+    note: item.note || '',
+    checked: item.checked ? 1 : 0,
+    checkedBy: item.checkedBy || null,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+export function deletePackingItem(id) {
+  db.prepare('DELETE FROM packing_items WHERE id = ?').run(id);
+}
+
+// --- Owner documents (setup checklist, ...) ---
+
+export function getAdminDoc(key) {
+  const row = db.prepare('SELECT data, updated_at FROM admin_docs WHERE key = ?').get(key);
+  return row ? { data: parseJson(row.data, null), updatedAt: row.updated_at } : null;
+}
+
+// Optimistic concurrency: the write only lands if the caller saw the latest
+// version (baseUpdatedAt), so two editors can't silently clobber each other.
+export function setAdminDoc(key, data, baseUpdatedAt) {
+  const current = db.prepare('SELECT updated_at FROM admin_docs WHERE key = ?').get(key);
+  if (current && current.updated_at !== baseUpdatedAt) return { conflict: true };
+  const updatedAt = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO admin_docs (key, data, updated_at) VALUES (?, ?, ?)
+    ON CONFLICT(key) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
+  `).run(key, JSON.stringify(data), updatedAt);
+  return { updatedAt };
 }
 
 // --- Garden sessions ---

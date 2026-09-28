@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bao / Krakoff Wedding — Vendor & Budget Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600&display=swap');
+
+  :root{
+    --bg:#f0f2f5; --card:#ffffff; --fg:#2a2a2a; --muted:#6c757d;
+    --primary:#1A7A9C; --secondary:#B8860B;
+    --border:rgba(26,122,156,0.16); --border-strong:rgba(26,122,156,0.32);
+    --green:#2f8f5b; --green-bg:#e7f5ee;
+    --amber:#b8860b; --amber-bg:#fbf2df;
+    --red:#c0392b; --red-bg:#fbeae8;
+    --grey-bg:#eceef1;
+    --shadow: 0 1px 2px rgba(20,30,40,0.04), 0 6px 18px rgba(20,30,40,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--fg); font-family:'Jost',system-ui,-apple-system,sans-serif; font-weight:300; }
+  h1,h2,h3,h4{ font-family:'Cormorant Garamond', Georgia, serif; font-weight:600; margin:0; }
+  a{ color:var(--primary); }
+  ul{ margin:0; padding:0; list-style:none; }
+  button{ font-family:'Jost',sans-serif; cursor:pointer; }
+  input,select,textarea{ font-family:'Jost',sans-serif; }
+
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 24px 80px; }
+
+  header.hero{
+    background: linear-gradient(160deg, #1A7A9C 0%, #14607d 100%);
+    color:#fff; padding:40px 24px 30px; text-align:center; border-bottom: 4px solid var(--secondary);
+  }
+  header.hero .names{ font-size:clamp(1.9rem,5vw,2.7rem); }
+  header.hero .names em{ font-style:normal; color:#FFE9B0; }
+  header.hero .sub{ margin-top:6px; font-size:0.92rem; opacity:0.9; letter-spacing:0.02em; }
+  header.hero .asof{ margin-top:10px; font-size:0.7rem; letter-spacing:0.06em; text-transform:uppercase; opacity:0.65; }
+
+  nav.tabs{
+    position:sticky; top:0; z-index:20; background:rgba(240,242,245,0.94); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border); display:flex; justify-content:center; gap:4px; padding:9px 24px; flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-weight:500; font-size:0.88rem; background:transparent; border:1px solid transparent; color:var(--muted);
+    padding:7px 15px; border-radius:999px; transition:all .15s ease;
+  }
+  nav.tabs button:hover{ color:var(--primary); }
+  nav.tabs button.active{ background:var(--primary); color:#fff; }
+
+  section{ padding-top:32px; }
+  section.hidden{ display:none; }
+  .section-head{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .section-head p{ margin:0; font-size:0.82rem; color:var(--muted); }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:18px; }
+  .stat{ background:var(--card); border-radius:14px; padding:14px 18px; box-shadow:var(--shadow); border:1px solid var(--border); }
+  .stat .num{ font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:700; color:var(--primary); }
+  .stat .lbl{ font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-top:1px; }
+  .stat.warn .num{ color:var(--amber); }
+
+  .note{
+    margin-top:14px; background:var(--amber-bg); border:1px solid rgba(184,134,11,0.28); border-radius:10px;
+    padding:9px 14px; font-size:0.8rem; color:#6b5310; display:flex; gap:8px; align-items:center;
+  }
+
+  .filter-row{ display:flex; gap:6px; flex-wrap:wrap; margin:18px 0 4px; }
+  .filter-row button{
+    font-size:0.76rem; font-weight:500; padding:5px 12px; border-radius:999px; border:1px solid var(--border-strong);
+    background:#fff; color:var(--primary);
+  }
+  .filter-row button.active{ background:var(--primary); color:#fff; }
+
+  .vendor-groups{ margin-top:10px; }
+  .category-group{ margin-top:22px; }
+  .category-group:first-child{ margin-top:12px; }
+  .category-title{
+    display:flex; align-items:baseline; gap:8px; font-family:'Cormorant Garamond',serif; font-size:1.08rem;
+    color:var(--primary); font-weight:600; padding-bottom:5px; margin-bottom:7px; border-bottom:1px solid var(--border-strong);
+  }
+  .category-title .ccount{ font-size:0.7rem; color:var(--muted); font-family:'Jost',sans-serif; font-weight:400; }
+  .vendor-list{ display:flex; flex-direction:column; gap:6px; }
+
+  .vrow{
+    background:var(--card); border-radius:10px; padding:9px 14px; box-shadow:var(--shadow); border:1px solid var(--border);
+    display:flex; align-items:flex-start; gap:10px; transition:opacity .15s;
+  }
+  .vrow.done{ opacity:0.5; }
+  .vrow.done .vname, .vrow.done .vamount{ text-decoration:line-through; text-decoration-color:var(--muted); }
+  .chk{ width:16px; height:16px; margin-top:4px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+  .vinfo{ flex:1; min-width:0; }
+  .vline1{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .vname{ font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; }
+  .vamount{ margin-left:auto; font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:700; white-space:nowrap; }
+  .vamount .tag{ font-size:0.74rem; color:var(--muted); font-family:'Jost',sans-serif; font-weight:400; }
+  .vline2{ font-size:0.74rem; color:var(--muted); margin-top:2px; }
+  .vline3{ font-size:0.78rem; color:var(--fg); margin-top:2px; }
+  .badge{ font-size:0.65rem; font-weight:500; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
+  .badge.booked{ background:var(--green-bg); color:var(--green); }
+  .badge.progress{ background:var(--amber-bg); color:var(--amber); }
+  .badge.not-booked{ background:var(--grey-bg); color:var(--muted); }
+  .vactions{ display:flex; gap:5px; flex-shrink:0; padding-top:1px; }
+  .icon-btn{
+    border:1px solid var(--border-strong); background:#fff; color:var(--muted); border-radius:7px;
+    font-size:0.72rem; padding:4px 9px; line-height:1.4; white-space:nowrap;
+  }
+  .icon-btn:hover{ color:var(--primary); border-color:var(--primary); }
+  .icon-btn.danger:hover{ color:var(--red); border-color:var(--red); }
+
+  .vrow.edit-form{ flex-direction:column; align-items:stretch; gap:8px; }
+  .vrow.edit-form label{ font-size:0.68rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); display:block; margin-bottom:2px; }
+  .vrow.edit-form input, .vrow.edit-form select, .vrow.edit-form textarea{
+    width:100%; font-size:0.85rem; padding:6px 8px; border:1px solid var(--border-strong); border-radius:7px; background:#fbfcfd; color:var(--fg);
+  }
+  .vrow.edit-form textarea{ min-height:64px; resize:vertical; font-family:'Jost',sans-serif; }
+  .vrow.edit-form .row2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .vrow.edit-form .row3{ display:grid; grid-template-columns:2fr 1fr; gap:8px; }
+  .vrow.edit-form .save-row{ display:flex; gap:8px; margin-top:4px; }
+  .btn{ border-radius:8px; padding:7px 14px; font-size:0.82rem; font-weight:500; border:1px solid transparent; }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-ghost{ background:#fff; border-color:var(--border-strong); color:var(--muted); }
+
+  .add-row{
+    display:flex; align-items:center; justify-content:center; padding:12px; width:100%; border:2px dashed var(--border-strong);
+    border-radius:10px; color:var(--primary); font-size:0.85rem; font-weight:500; background:transparent;
+  }
+  .add-row:hover{ background:rgba(26,122,156,0.05); }
+
+  .archive{ margin-top:18px; background:var(--card); border-radius:14px; border:1px solid var(--border); padding:4px 18px; }
+  .archive summary{ cursor:pointer; padding:11px 0; font-weight:500; color:var(--primary); font-size:0.88rem; }
+  .archive-list{ padding:2px 0 14px; font-size:0.82rem; line-height:1.85; color:var(--muted); }
+  .archive-list b{ color:var(--fg); font-weight:500; }
+
+  .timeline{ position:relative; margin-top:22px; padding-left:24px; }
+  .timeline::before{ content:''; position:absolute; left:5px; top:4px; bottom:4px; width:2px; background:var(--border-strong); }
+  .tl-item{ position:relative; padding-bottom:20px; }
+  .tl-item::before{ content:''; position:absolute; left:-24px; top:4px; width:11px; height:11px; border-radius:50%; background:#fff; border:2px solid var(--primary); }
+  .tl-item.past::before{ background:var(--primary); }
+  .tl-item.today::before{ background:var(--secondary); border-color:var(--secondary); box-shadow:0 0 0 4px rgba(184,134,11,0.16); }
+  .tl-item .date{ font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); }
+  .tl-item.today .date{ color:var(--secondary); font-weight:600; }
+  .tl-item .lbl{ font-size:0.92rem; margin-top:1px; }
+  .tl-item .amt{ font-size:0.78rem; color:var(--primary); margin-top:1px; }
+
+  .addbox{ display:flex; gap:8px; margin:16px 0; flex-wrap:wrap; }
+  .addbox select, .addbox input{ padding:8px 10px; border:1px solid var(--border-strong); border-radius:8px; font-size:0.85rem; background:#fff; }
+  .addbox input[type=text]{ flex:1; min-width:200px; }
+
+  .todo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:16px; }
+  .todo-card{ background:var(--card); border-radius:14px; padding:16px 18px; box-shadow:var(--shadow); border:1px solid var(--border); }
+  .todo-card h4{ font-size:0.98rem; color:var(--primary); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .todo-card h4 .count{ font-size:0.7rem; color:var(--muted); font-family:'Jost',sans-serif; font-weight:400; }
+  .todo-card li{ display:flex; align-items:flex-start; gap:8px; font-size:0.85rem; line-height:1.5; padding:5px 0; border-bottom:1px dashed var(--border); }
+  .todo-card li:last-child{ border-bottom:none; }
+  .todo-card li input[type=checkbox]{ margin-top:3px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+  .todo-card li span.txt{ flex:1; }
+  .todo-card li.done span.txt{ text-decoration:line-through; color:var(--muted); }
+  .todo-card li button.icon-btn{ padding:2px 7px; font-size:0.68rem; }
+  .prio-high{ border-left:4px solid var(--red); }
+  .prio-med{ border-left:4px solid var(--amber); }
+  .prio-low{ border-left:4px solid var(--green); }
+
+  footer{ text-align:center; padding:30px 24px 10px; font-size:0.72rem; color:var(--muted); }
+  footer button{ background:none; border:none; color:var(--red); text-decoration:underline; font-size:0.72rem; padding:0; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="names">Yuwei <em>&amp;</em> Benjamin</div>
+  <div class="sub">Vendor &amp; Budget Tracker · Oct 3, 2026 · Longwood Gardens</div>
+  <div class="asof">From Gmail scrape, Sept 7 2026 · edits below save to this browser</div>
+</header>
+
+<nav class="tabs">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="vendors">Vendors</button>
+  <button data-tab="timeline">Timeline</button>
+  <button data-tab="todos">To-dos</button>
+</nav>
+
+<div class="wrap">
+
+  <section id="overview">
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="note">⚠️ Numbers pulled from emails — several vendors are TBD. Edit any card in the Vendors tab to fill in real numbers.</div>
+    <div class="section-head" style="margin-top:28px;"><h2>Booked vendors</h2></div>
+    <div class="vendor-groups" id="overviewGrid"></div>
+  </section>
+
+  <section id="vendors" class="hidden">
+    <div class="section-head"><h2>All vendors</h2><p>✓ check off · ✎ edit · × remove</p></div>
+    <div class="filter-row" id="filterRow"></div>
+    <div class="vendor-groups" id="vendorGrid"></div>
+
+    <details class="archive">
+      <summary>❌ Considered, not booked (7)</summary>
+      <div class="archive-list">
+        <div>· <b>Kennett Square G&amp;CC</b> — ceremony alt, $1,500 quoted → went with Hartefeld</div>
+        <div>· <b>Mendenhall Inn</b> — rehearsal dinner alt → went with Limestone BBQ</div>
+        <div>· <b>Keri Calabrese Photography</b> — competing photo quote</div>
+        <div>· <b>Daneene Jensen &amp; Associates</b> — competing hair/makeup quote</div>
+        <div>· <b>Sterling Limousine</b> — fully booked that date</div>
+        <div>· <b>Ace Limousine</b> — only had 56-pax coach available</div>
+        <div>· <b>Ashley Castle, Wright House, Cairnwood, Hotel LBI, Bellevue Hall</b> — venues toured before Longwood</div>
+      </div>
+    </details>
+  </section>
+
+  <section id="timeline" class="hidden">
+    <div class="section-head"><h2>Timeline</h2><p>gold dot = today</p></div>
+    <div class="timeline" id="timelineList"></div>
+  </section>
+
+  <section id="todos" class="hidden">
+    <div class="section-head"><h2>To-dos</h2><p>check off · × remove · add below</p></div>
+    <div class="addbox">
+      <select id="addTodoPrio">
+        <option value="prio-high">High</option>
+        <option value="prio-med" selected>Medium</option>
+        <option value="prio-low">Low</option>
+      </select>
+      <input type="text" id="addTodoText" placeholder="New to-do…">
+      <button class="btn btn-primary" id="addTodoBtn">+ Add</button>
+    </div>
+    <div class="todo-grid" id="todoGrid"></div>
+  </section>
+
+</div>
+
+<footer>
+  backdoor/vendors/budget-timeline.html · verify against actual signed contracts
+  <br><button id="resetBtn">reset all edits</button>
+</footer>
+
+<script>
+// ---------- BASE DATA ----------
+const baseVendors = [
+  { id:"hartefeld", name:"Hartefeld National", cat:"Ceremony venue", status:"booked", amount:3000, tag:"ceremony fee",
+    contact:"Brianna Boyens · ClubCorp", date:"Signed 4/30/26",
+    bullets:["1 Hartefeld Dr, Avondale PA","Ceremony 2:00 PM","+$8/pp bar add-on (unconfirmed)","Paid 5/5/26"] },
+
+  { id:"longwood", name:"Longwood Gardens", cat:"Reception venue", status:"booked", amount:20000, tag:"paid in full",
+    contact:"Mary Murphy", date:"Signed 3/2/26",
+    bullets:["409 Conservatory Rd","Reception 6:00 PM","Final balance due 9/21 (florals) — $ TBD"] },
+
+  { id:"restassoc", name:"Restaurant Associates", cat:"Catering", status:"booked", amount:21222.60, tag:"paid so far, total TBD",
+    contact:"Miriam Hughes", date:"Signed 3/16/26",
+    bullets:["Longwood's in-house caterer","More installments referenced — confirm total"] },
+
+  { id:"tatipoly", name:"Tati Poly Photography", cat:"Photography", status:"booked", amount:6200, tag:"Signature Package",
+    contact:"tatipolyphoto@gmail.com", date:"Signed 7/2/26",
+    bullets:["9 hrs, 2 photographers","72-hr sneak peek","6-mo gallery","Travel fee incl."] },
+
+  { id:"silvershutter", name:"Silver Shutter Co", cat:"Videography", status:"booked", amount:3850, tag:"paid so far (3 pmts)",
+    contact:"Kaylee + Kevin", date:"Contract 7/2/26",
+    bullets:["$1,650 + $1,100 + $1,100","Full total TBD"] },
+
+  { id:"eastcoastdj", name:"EastCoast Entertainment", cat:"DJ / entertainment", status:"booked", amount:null, tag:"TBD — in contract PDF",
+    contact:"DJ Pierson · via planner", date:"Approved 4/27/26",
+    bullets:["Booked via Lamiesse Mekdaschi","Terms reviewed, no issues"] },
+
+  { id:"flawless", name:"Flawless Finish Artistry", cat:"Hair & makeup", status:"booked", amount:null, tag:"TBD — quote PDF",
+    contact:"Marisa, Melissa & Tiffany", date:"Signed 8/26/26",
+    bullets:["Bride + 4 bridesmaids + 2 moms","Deposit sent via Venmo"] },
+
+  { id:"kellyaltier", name:"Kelly Altier Weddings", cat:"Planner", status:"booked", amount:null, tag:"TBD",
+    contact:"Kelly Altier", date:"Signed 8/10/26",
+    bullets:["Coordinating nearly every vendor here"] },
+
+  { id:"delexpress", name:"Delaware Express", cat:"Transportation", status:"booked", amount:1661.30, tag:"base total",
+    contact:"Kathy Houghton · Conf# 43189", date:"Deposit 8/11/26",
+    bullets:["$500 deposit paid","+$94.65 early-loop add-on — unconfirmed"] },
+
+  { id:"limestone", name:"Limestone BBQ and Bourbon", cat:"Rehearsal dinner", status:"booked", amount:4792.00, tag:"total",
+    contact:"(302) 274-2085", date:"Deposit 7/14/26",
+    bullets:["Fri Oct 2, 7–10 PM @ Eggspectations","130 guests, BBQ buffet, cash bar","$2,401 deposit paid, ~$2,391 due","2 items priced by Oct 1"] },
+
+  { id:"home2", name:"Home2 Suites (Chadds Ford)", cat:"Room block", status:"booked", amount:0, tag:"courtesy block",
+    contact:"Carla Tomoschuk · Hilton", date:"Signed 5/5/26",
+    bullets:["Check attrition clause"] },
+
+  { id:"bestwestern", name:"Best Western Concordville", cat:"Room block", status:"booked", amount:0, tag:"courtesy block",
+    contact:"Concordville Inn", date:"Signed 5/5/26",
+    bullets:["Check attrition clause"] },
+
+  { id:"hiexpress", name:"Holiday Inn Express West Chester", cat:"Room block", status:"booked", amount:0, tag:"courtesy block",
+    contact:"Jackie Berry", date:"Confirmed 5/15/26",
+    bullets:["Check attrition clause"] },
+
+  { id:"sparkd", name:"Spark'd Creative Pastry", cat:"Cake", status:"progress", amount:null, tag:"TBD — no contract found",
+    contact:"Jennifer Ballintyn", date:"Tasting 5/22/26",
+    bullets:["Hotel du Pont pastry chef","Confirm actually booked"] },
+
+  { id:"florist", name:"Florist — which one?", cat:"Florist", status:"progress", amount:null, tag:"TBD",
+    contact:"Longwood in-house vs. Maria Navarrete-Olvera", date:"Proposals 7/1 &amp; 8/18",
+    bullets:["2 options in play","Confirm which one won","Likely folds into Longwood 9/21 balance"] },
+
+  { id:"bbjlinen", name:"BBJ La Tavola", cat:"Rentals", status:"progress", amount:null, tag:"TBD",
+    contact:"via planner · #R014501", date:"Shipped 6/18/26",
+    bullets:["Looks like a swatch order","Confirm full linen order"] },
+];
+
+const baseTodos = [
+  { id:"t1", prio:"prio-high", text:"DJ price — check contract PDF" },
+  { id:"t2", prio:"prio-high", text:"Planner fee — confirm" },
+  { id:"t3", prio:"prio-high", text:"Hair/makeup total — confirm" },
+  { id:"t4", prio:"prio-high", text:"Catering — confirm full total + balance" },
+  { id:"t5", prio:"prio-high", text:"Longwood final balance (9/21) — get $ amount" },
+  { id:"t6", prio:"prio-high", text:"Florist — confirm which one + price" },
+  { id:"t7", prio:"prio-high", text:"Cake — confirm actually booked" },
+  { id:"t8", prio:"prio-high", text:"Linens — confirm full order + price" },
+  { id:"t9", prio:"prio-med", text:"Limestone BBQ balance (~$2,391) — pay before Oct 2" },
+  { id:"t10", prio:"prio-med", text:"Videography — check for more installments" },
+  { id:"t11", prio:"prio-med", text:"Pay Longwood final balance once confirmed" },
+  { id:"t12", prio:"prio-med", text:"Delaware Express early-loop add-on — decide" },
+  { id:"t13", prio:"prio-med", text:"Hartefeld $8/pp bar add-on — confirm if added" },
+  { id:"t14", prio:"prio-low", text:"Room block attrition clauses — check all 3" },
+  { id:"t15", prio:"prio-low", text:"File signed PDFs in one shared folder" },
+  { id:"t16", prio:"prio-low", text:"Reconnect with Alexa after 9/21 (maternity leave)" },
+];
+
+const timeline = [
+  { date:"2026-03-02", label:"Longwood Gardens contract signed", amt:null },
+  { date:"2026-03-16", label:"Restaurant Associates contract signed", amt:"$21,222.60 authorized" },
+  { date:"2026-04-27", label:"DJ contract approved", amt:null },
+  { date:"2026-04-30", label:"Hartefeld ceremony contract signed", amt:"$3,000" },
+  { date:"2026-05-05", label:"Home2 Suites &amp; Best Western room blocks signed", amt:null },
+  { date:"2026-05-15", label:"Holiday Inn Express room block signed", amt:null },
+  { date:"2026-07-02", label:"Tati Poly Photography signed", amt:"$6,200" },
+  { date:"2026-07-06", label:"Silver Shutter Co — down payment", amt:"$1,650" },
+  { date:"2026-07-14", label:"Limestone BBQ deposit paid", amt:"$2,401 of $4,792" },
+  { date:"2026-07-29", label:"Silver Shutter Co — 2nd payment", amt:"$1,100" },
+  { date:"2026-08-03", label:"Longwood facility fee paid in full", amt:"$20,000 total" },
+  { date:"2026-08-10", label:"Kelly Altier Weddings — planner signed", amt:null },
+  { date:"2026-08-11", label:"Delaware Express deposit charged", amt:"$500 of $1,661.30" },
+  { date:"2026-08-26", label:"Flawless Finish Artistry signed + deposit", amt:null },
+  { date:"2026-08-28", label:"Silver Shutter Co — 3rd payment", amt:"$1,100" },
+  { date:"__TODAY__", label:"Today", amt:null, today:true },
+  { date:"2026-09-21", label:"Longwood final balance due", amt:"TBD" },
+  { date:"2026-10-01", label:"Limestone BBQ — final pricing locked", amt:null },
+  { date:"2026-10-02", label:"Rehearsal dinner @ Eggspectations, 7–10 PM", amt:"~$2,391 due" },
+  { date:"2026-10-03", label:"Wedding day — ceremony 2 PM, reception 6 PM", amt:null },
+];
+
+// ---------- STATE (localStorage) ----------
+const STORE_KEY = "bkTrackerV2";
+function loadState(){
+  try{ return Object.assign({removedVendors:[],doneVendors:[],overrides:{},customVendors:[],removedTodos:[],doneTodos:[],customTodos:[]}, JSON.parse(localStorage.getItem(STORE_KEY)||"{}")); }
+  catch(e){ return {removedVendors:[],doneVendors:[],overrides:{},customVendors:[],removedTodos:[],doneTodos:[],customTodos:[]}; }
+}
+let state = loadState();
+function saveState(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function getVendors(){
+  const all = baseVendors.map(v => Object.assign({}, v, state.overrides[v.id]||{})).concat(state.customVendors);
+  return all.filter(v => !state.removedVendors.includes(v.id));
+}
+function getTodos(){
+  const all = baseTodos.map(t => Object.assign({}, t, state.overrides['todo:'+t.id]||{})).concat(state.customTodos);
+  return all.filter(t => !state.removedTodos.includes(t.id));
+}
+
+let editingVendorId = null; // id currently in edit mode, or "__new__"
+
+// ---------- HELPERS ----------
+const money = (n) => n == null ? null : '$' + n.toLocaleString('en-US', {minimumFractionDigits: (n % 1 ? 2 : 0), maximumFractionDigits: 2});
+const statusBadge = (s) => s === 'booked' ? '<span class="badge booked">Signed</span>' : s === 'progress' ? '<span class="badge progress">In progress</span>' : '<span class="badge not-booked">Not booked</span>';
+const esc = (s) => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ---------- VENDOR ROW RENDER ----------
+const CAT_ORDER = ["Ceremony venue","Reception venue","Catering","Photography","Videography","DJ / entertainment",
+  "Hair & makeup","Planner","Transportation","Rehearsal dinner","Room block","Cake","Florist","Rentals"];
+
+function groupVendors(vendors){
+  const map = new Map();
+  vendors.forEach(v=>{ if(!map.has(v.cat)) map.set(v.cat, []); map.get(v.cat).push(v); });
+  const cats = [...map.keys()].sort((a,b)=>{
+    const ia = CAT_ORDER.indexOf(a), ib = CAT_ORDER.indexOf(b);
+    if(ia===-1 && ib===-1) return a.localeCompare(b);
+    if(ia===-1) return 1;
+    if(ib===-1) return -1;
+    return ia-ib;
+  });
+  return cats.map(c=>({cat:c, items:map.get(c)}));
+}
+
+function vendorRowView(v, interactive){
+  const done = interactive && state.doneVendors.includes(v.id);
+  const amt = money(v.amount);
+  const amtHtml = amt
+    ? `${amt}${v.tag ? ` <span class="tag">— ${esc(v.tag)}</span>` : ''}`
+    : `<span class="tag">TBD${v.tag ? ' — '+esc(v.tag) : ''}</span>`;
+  return `<div class="vrow ${done?'done':''}" data-id="${v.id}">
+    ${interactive ? `<input type="checkbox" class="chk" data-act="done" data-id="${v.id}" ${done?'checked':''}>` : ''}
+    <div class="vinfo">
+      <div class="vline1">
+        <span class="vname">${esc(v.name)}</span>
+        ${statusBadge(v.status)}
+        <span class="vamount">${amtHtml}</span>
+      </div>
+      <div class="vline2">📇 ${esc(v.contact)} &nbsp;·&nbsp; 📅 ${esc(v.date)}</div>
+      ${v.bullets && v.bullets.length ? `<div class="vline3">${v.bullets.map(esc).join(' &nbsp;·&nbsp; ')}</div>` : ''}
+    </div>
+    ${interactive ? `<div class="vactions">
+      <button class="icon-btn" data-act="edit" data-id="${v.id}">✎</button>
+      <button class="icon-btn danger" data-act="remove" data-id="${v.id}">×</button>
+    </div>` : ''}
+  </div>`;
+}
+
+function vendorRowEdit(v){
+  const isNew = v.id === '__new__';
+  return `<div class="vrow edit-form" data-id="${v.id}">
+    <label>Name</label><input type="text" data-f="name" value="${esc(v.name||'')}">
+    <div class="row3">
+      <div><label>Category</label><input type="text" data-f="cat" value="${esc(v.cat||'')}"></div>
+      <div><label>Status</label>
+        <select data-f="status">
+          <option value="booked" ${v.status==='booked'?'selected':''}>Signed</option>
+          <option value="progress" ${v.status==='progress'?'selected':''}>In progress</option>
+          <option value="not-booked" ${v.status==='not-booked'?'selected':''}>Not booked</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div><label>Amount ($)</label><input type="number" step="0.01" data-f="amount" value="${v.amount==null?'':v.amount}"></div>
+      <div><label>Amount tag</label><input type="text" data-f="tag" value="${esc(v.tag||'')}"></div>
+    </div>
+    <div class="row2">
+      <div><label>Contact</label><input type="text" data-f="contact" value="${esc(v.contact||'')}"></div>
+      <div><label>Date</label><input type="text" data-f="date" value="${esc(v.date||'')}"></div>
+    </div>
+    <label>Notes (one per line)</label>
+    <textarea data-f="bullets">${esc((v.bullets||[]).join('\n'))}</textarea>
+    <div class="save-row">
+      <button class="btn btn-primary" data-act="save" data-id="${v.id}" data-new="${isNew}">Save</button>
+      <button class="btn btn-ghost" data-act="cancel">Cancel</button>
+    </div>
+  </div>`;
+}
+
+function renderVendors(){
+  const vendors = getVendors();
+
+  // Overview: booked only, read-only, grouped
+  document.getElementById('overviewGrid').innerHTML = groupVendors(vendors.filter(v=>v.status==='booked')).map(g=>`
+    <div class="category-group">
+      <div class="category-title">${esc(g.cat)} <span class="ccount">${g.items.length}</span></div>
+      <div class="vendor-list">${g.items.map(v=>vendorRowView(v,false)).join('')}</div>
+    </div>`).join('');
+
+  // Vendors tab: everything, interactive, grouped
+  const groups = groupVendors(vendors);
+  let html = groups.map(g=>`
+    <div class="category-group" data-cat="${esc(g.cat)}">
+      <div class="category-title">${esc(g.cat)} <span class="ccount">${g.items.length}</span></div>
+      <div class="vendor-list">${g.items.map(v=> v.id===editingVendorId ? vendorRowEdit(v) : vendorRowView(v,true)).join('')}</div>
+    </div>`).join('');
+  html += `<div class="category-group" data-cat="__add__">${
+    editingVendorId === '__new__'
+      ? `<div class="vendor-list">${vendorRowEdit({id:'__new__', status:'booked', bullets:[]})}</div>`
+      : `<button class="add-row" id="addVendorBtn">+ Add vendor</button>`
+  }</div>`;
+  document.getElementById('vendorGrid').innerHTML = html;
+
+  // filters
+  const cats = ["All", ...groups.map(g=>g.cat)];
+  const prevCat = document.querySelector('#filterRow button.active')?.dataset.cat || "All";
+  const activeCat = cats.includes(prevCat) ? prevCat : "All";
+  document.getElementById('filterRow').innerHTML = cats.map(c=>`<button data-cat="${esc(c)}" class="${c===activeCat?'active':''}">${esc(c)}</button>`).join('');
+  applyFilter(activeCat);
+
+  renderStats(vendors);
+}
+
+function applyFilter(cat){
+  document.querySelectorAll('#vendorGrid .category-group').forEach(g=>{
+    if(g.dataset.cat === '__add__'){ g.style.display=''; return; }
+    g.style.display = (cat==='All' || g.dataset.cat===cat) ? '' : 'none';
+  });
+}
+
+function renderStats(vendors){
+  const totalKnown = vendors.filter(v=>v.amount!=null).reduce((s,v)=>s+v.amount,0);
+  const bookedCount = vendors.filter(v=>v.status==='booked').length;
+  const tbdCount = vendors.filter(v=>v.amount==null).length;
+  const now = new Date();
+  const next = timeline.find(t=>!t.today && new Date(t.date+'T23:59:59') >= now);
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat"><div class="num">$${totalKnown.toLocaleString('en-US',{maximumFractionDigits:0})}</div><div class="lbl">$ found (floor)</div></div>
+    <div class="stat"><div class="num">${bookedCount}</div><div class="lbl">Vendors signed</div></div>
+    <div class="stat warn"><div class="num">${tbdCount}</div><div class="lbl">Costs TBD</div></div>
+    <div class="stat"><div class="num">${next ? next.date.slice(5) : '—'}</div><div class="lbl">Next deadline</div></div>
+  `;
+}
+
+// ---------- TODO RENDER ----------
+function renderTodos(){
+  const todos = getTodos();
+  const groups = [
+    {prio:'prio-high', title:'🔴 High priority'},
+    {prio:'prio-med', title:'🟡 Medium priority'},
+    {prio:'prio-low', title:'🟢 Housekeeping'},
+  ];
+  document.getElementById('todoGrid').innerHTML = groups.map(g=>{
+    const items = todos.filter(t=>t.prio===g.prio);
+    const doneN = items.filter(t=>state.doneTodos.includes(t.id)).length;
+    return `<div class="todo-card ${g.prio}">
+      <h4>${g.title} <span class="count">${doneN}/${items.length}</span></h4>
+      <ul>${items.map(t=>{
+        const done = state.doneTodos.includes(t.id);
+        return `<li class="${done?'done':''}">
+          <input type="checkbox" data-act="todo-done" data-id="${t.id}" ${done?'checked':''}>
+          <span class="txt">${esc(t.text)}</span>
+          <button class="icon-btn danger" data-act="todo-remove" data-id="${t.id}">×</button>
+        </li>`;
+      }).join('') || '<li style="color:var(--muted); border:none;">nothing here</li>'}</ul>
+    </div>`;
+  }).join('');
+}
+
+// ---------- TIMELINE RENDER ----------
+function renderTimeline(){
+  const now = new Date();
+  document.getElementById('timelineList').innerHTML = timeline.map(t=>{
+    const isPast = !t.today && new Date(t.date+'T23:59:59') < now;
+    const cls = t.today ? 'today' : (isPast ? 'past' : '');
+    const dateLabel = t.today ? 'Today' : new Date(t.date+'T12:00:00').toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'});
+    return `<div class="tl-item ${cls}">
+      <div class="date">${dateLabel}</div>
+      <div class="lbl">${t.label}</div>
+      ${t.amt ? `<div class="amt">${t.amt}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ---------- EVENTS ----------
+document.getElementById('vendorGrid').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const act = btn.dataset.act, id = btn.dataset.id;
+
+  if(btn.id === 'addVendorBtn'){ editingVendorId = '__new__'; renderVendors(); return; }
+  if(act === 'edit'){ editingVendorId = id; renderVendors(); return; }
+  if(act === 'cancel'){ editingVendorId = null; renderVendors(); return; }
+  if(act === 'remove'){
+    if(baseVendors.some(v=>v.id===id)) state.removedVendors.push(id);
+    else state.customVendors = state.customVendors.filter(v=>v.id!==id);
+    saveState(); renderVendors(); return;
+  }
+  if(act === 'save'){
+    const card = btn.closest('.vrow');
+    const get = f => card.querySelector(`[data-f="${f}"]`).value;
+    const data = {
+      name:get('name'), cat:get('cat'), status:get('status'),
+      amount: get('amount')==='' ? null : parseFloat(get('amount')),
+      tag:get('tag'), contact:get('contact'), date:get('date'),
+      bullets: get('bullets').split('\n').map(s=>s.trim()).filter(Boolean),
+    };
+    if(btn.dataset.new === 'true'){
+      data.id = 'custom-' + Date.now().toString(36);
+      state.customVendors.push(data);
+    } else if(baseVendors.some(v=>v.id===id)){
+      state.overrides[id] = data;
+    } else {
+      const idx = state.customVendors.findIndex(v=>v.id===id);
+      if(idx>-1) state.customVendors[idx] = Object.assign({id}, data);
+    }
+    editingVendorId = null; saveState(); renderVendors(); return;
+  }
+});
+document.getElementById('vendorGrid').addEventListener('change', e=>{
+  if(e.target.dataset.act === 'done'){
+    const id = e.target.dataset.id;
+    if(e.target.checked) state.doneVendors.push(id);
+    else state.doneVendors = state.doneVendors.filter(x=>x!==id);
+    saveState(); renderVendors();
+  }
+});
+document.getElementById('filterRow').addEventListener('click', e=>{
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  applyFilter(e.target.dataset.cat);
+});
+
+document.getElementById('todoGrid').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-act="todo-remove"]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  if(baseTodos.some(t=>t.id===id)) state.removedTodos.push(id);
+  else state.customTodos = state.customTodos.filter(t=>t.id!==id);
+  saveState(); renderTodos();
+});
+document.getElementById('todoGrid').addEventListener('change', e=>{
+  if(e.target.dataset.act === 'todo-done'){
+    const id = e.target.dataset.id;
+    if(e.target.checked) state.doneTodos.push(id);
+    else state.doneTodos = state.doneTodos.filter(x=>x!==id);
+    saveState(); renderTodos();
+  }
+});
+document.getElementById('addTodoBtn').addEventListener('click', ()=>{
+  const text = document.getElementById('addTodoText').value.trim();
+  if(!text) return;
+  const prio = document.getElementById('addTodoPrio').value;
+  state.customTodos.push({id:'custom-'+Date.now().toString(36), prio, text});
+  document.getElementById('addTodoText').value = '';
+  saveState(); renderTodos();
+});
+document.getElementById('addTodoText').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') document.getElementById('addTodoBtn').click();
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Discard all edits, checks, and added items? This clears everything saved in this browser.')) return;
+  localStorage.removeItem(STORE_KEY);
+  state = loadState();
+  editingVendorId = null;
+  renderVendors(); renderTodos();
+});
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.wrap > section').forEach(s=>s.classList.add('hidden'));
+    document.getElementById(btn.dataset.tab).classList.remove('hidden');
+  });
+});
+
+// ---------- INIT ----------
+renderVendors();
+renderTodos();
+renderTimeline();
+</script>
+</body>
+</html>

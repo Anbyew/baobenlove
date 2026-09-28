@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Master Timeline</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span>Who's shown</span>
+      <button id="sidebarCollapseBtn" title="Collapse">&laquo;</button>
+    </div>
+    <div class="sidebar-bulk-actions">
+      <button type="button" id="selectAllBtn" class="sidebar-link-btn">Select all</button>
+      <button type="button" id="clearAllBtn" class="sidebar-link-btn">Clear all</button>
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <button class="sidebar-expand-btn hidden" id="sidebarExpandBtn" title="Show filters">&raquo;</button>
+
+  <div class="main">
+  <div class="wrap">
+
+    <header class="header">
+      <h1>Master Timeline</h1>
+      <div class="header-actions">
+        <button class="btn btn-ghost" id="resetOrderBtn">Reset column order</button>
+        <button class="btn btn-primary" id="openFormBtn">+ Add event</button>
+      </div>
+    </header>
+
+    <div class="tabs" id="dayTabs"></div>
+
+    <section class="form-panel hidden" id="formPanel">
+      <form id="eventForm">
+        <input type="hidden" id="eventId" />
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="eventDay">Day</label>
+            <select id="eventDay"></select>
+          </div>
+          <div class="form-row">
+            <label for="eventTime">Start time</label>
+            <input type="time" id="eventTime" />
+          </div>
+          <div class="form-row">
+            <label for="eventEndTime">End time</label>
+            <input type="time" id="eventEndTime" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="eventActivity">Activity</label>
+          <input type="text" id="eventActivity" required autocomplete="off" />
+        </div>
+        <div class="form-row">
+          <label for="eventLocation">Location</label>
+          <input type="text" id="eventLocation" autocomplete="off" />
+        </div>
+        <div class="form-row">
+          <label for="eventNotes">Notes</label>
+          <textarea id="eventNotes" rows="2"></textarea>
+        </div>
+        <div class="form-row">
+          <label>Who's involved</label>
+          <div class="people-picker" id="peoplePicker"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="formSubmitBtn">Add event</button>
+          <button type="button" class="btn btn-ghost" id="formCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-danger hidden" id="formDeleteBtn">Delete</button>
+        </div>
+      </form>
+    </section>
+
+    <div class="calendar-wrap" id="calendarWrap"></div>
+
+    <div class="empty-state hidden" id="emptyState">
+      <p>No events for this day yet.</p>
+    </div>
+
+  </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

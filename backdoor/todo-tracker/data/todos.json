@@ -1,0 +1,5359 @@
+{
+  "categories": [
+    "Planning & Comms",
+    "Vendors",
+    "Errands & Appointments",
+    "Shopping",
+    "Printing & Paper",
+    "Packing",
+    "Décor & Flower Prep",
+    "Setup — Longwood Gardens",
+    "Setup — Hartefeld (Ceremony)",
+    "Schedule & Logistics",
+    "Family Travel",
+    "Budget & Finance",
+    "Legal & Documents",
+    "Website & Tech",
+    "Post-Wedding",
+    "Home & Personal",
+    "Work"
+  ],
+  "todos": [
+    {
+      "id": "t1",
+      "text": "Chase remaining RSVPs / unresolved guests",
+      "category": "Planning & Comms",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Carried over from last night — most urgent item on the list",
+      "done": true,
+      "createdAt": 1
+    },
+    {
+      "id": "t2",
+      "text": "Florist: reply to email + schedule Zoom ASAP",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Design must be locked before flowers are ordered Tuesday",
+      "done": true,
+      "createdAt": 2
+    },
+    {
+      "id": "t3",
+      "text": "Hair/makeup: follow up to schedule Zoom",
+      "category": "Errands & Appointments",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 3
+    },
+    {
+      "id": "t4",
+      "text": "Start collecting bridesmaids' hair/makeup inspo photos",
+      "category": "Errands & Appointments",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 4
+    },
+    {
+      "id": "t5",
+      "text": "Message Lynn to find an in-person day this week for décor/design",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 5
+    },
+    {
+      "id": "t6",
+      "text": "Message each family household to find times for individual travel calls",
+      "category": "Family Travel",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 6
+    },
+    {
+      "id": "t7",
+      "text": "Message each cousin to schedule timeline/delegation calls",
+      "category": "Planning & Comms",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 7
+    },
+    {
+      "id": "t8",
+      "text": "Prep questions for startup meeting",
+      "category": "Work",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 8
+    },
+    {
+      "id": "t9",
+      "text": "Pick up package",
+      "category": "Home & Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 9
+    },
+    {
+      "id": "t10",
+      "text": "Kitty litter",
+      "category": "Home & Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 10
+    },
+    {
+      "id": "t11",
+      "text": "Cook & eat dinner",
+      "category": "Home & Personal",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 11
+    },
+    {
+      "id": "t13",
+      "text": "Finalize headcount",
+      "category": "Planning & Comms",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 13
+    },
+    {
+      "id": "t15",
+      "text": "Florist Zoom: finalize bouquet / personals / chuppah ground pieces / flower choices",
+      "category": "Vendors",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 15
+    },
+    {
+      "id": "t16",
+      "text": "Send hair/makeup inspo + get meeting confirmed",
+      "category": "Errands & Appointments",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 16
+    },
+    {
+      "id": "t17",
+      "text": "Start seating chart",
+      "category": "Planning & Comms",
+      "date": "2026-09-21",
+      "time": null,
+      "notes": "Once headcount is locked",
+      "done": true,
+      "createdAt": 17
+    },
+    {
+      "id": "t19",
+      "text": "Florals completely DONE before florist ordering",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 19
+    },
+    {
+      "id": "t20",
+      "text": "Finish seating chart",
+      "category": "Planning & Comms",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 20
+    },
+    {
+      "id": "t21",
+      "text": "Send videographer inspo-video list",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 21
+    },
+    {
+      "id": "t22",
+      "text": "Send DJ music/song list",
+      "category": "Vendors",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 22
+    },
+    {
+      "id": "t23",
+      "text": "Finalize photo booth layout",
+      "category": "Planning & Comms",
+      "date": "2026-09-22",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 23
+    },
+    {
+      "id": "t24",
+      "text": "Family household calls: post-wedding lodging + train/car + Sunday travel",
+      "category": "Family Travel",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 24
+    },
+    {
+      "id": "t25",
+      "text": "Cousin calls: walk through entire wedding timeline + assign specific jobs",
+      "category": "Planning & Comms",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 25
+    },
+    {
+      "id": "t26",
+      "text": "Extend Longwood-area hotel stay for parents/family",
+      "category": "Family Travel",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 26
+    },
+    {
+      "id": "t27",
+      "text": "Arrange Jersey City hotel/Airbnb + transportation",
+      "category": "Family Travel",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 27
+    },
+    {
+      "id": "t28",
+      "text": "Finalize where groomsmen get ready",
+      "category": "Planning & Comms",
+      "date": "2026-09-23",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 28
+    },
+    {
+      "id": "t29",
+      "text": "In-person Lynn décor/design session",
+      "category": "Vendors",
+      "date": "2026-09-24",
+      "time": null,
+      "notes": "Move to whichever day she actually confirms",
+      "done": true,
+      "createdAt": 29
+    },
+    {
+      "id": "t31",
+      "text": "Ben's dad's birthday dinner plan",
+      "category": "Home & Personal",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 31
+    },
+    {
+      "id": "t35",
+      "text": "Florist payment",
+      "category": "Budget & Finance",
+      "date": "2026-09-25",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 35
+    },
+    {
+      "id": "t36",
+      "text": "Kick off evaluation run",
+      "category": "Work",
+      "date": "2026-09-25",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 36
+    },
+    {
+      "id": "t37",
+      "text": "Amazon/remote return at Whole Foods",
+      "category": "Errands & Appointments",
+      "date": "2026-09-26",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 37
+    },
+    {
+      "id": "t45",
+      "text": "No new planning projects this week — just appointments, packing, family, execution, emergencies",
+      "category": "Home & Personal",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Standing reminder for the final week",
+      "done": true,
+      "createdAt": 45
+    },
+    {
+      "id": "t47",
+      "text": "Travel to PA",
+      "category": "Family Travel",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": true,
+      "createdAt": 47
+    },
+    {
+      "id": "t49",
+      "text": "Ben's hair appointment",
+      "category": "Errands & Appointments",
+      "date": null,
+      "time": null,
+      "notes": "Schedule it — no date picked yet",
+      "done": true,
+      "createdAt": 49
+    },
+    {
+      "id": "t50",
+      "text": "Buy uplights",
+      "category": "Planning & Comms",
+      "date": "2026-09-24",
+      "time": null,
+      "notes": "Grouped with décor buying",
+      "done": true,
+      "createdAt": 50
+    },
+    {
+      "id": "mo-1",
+      "text": "Small finance",
+      "category": "Budget & Finance",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000001,
+      "checklist": [
+        {
+          "text": "Total budget, what’s been paid, Ben’s parents’ spending, outstanding balances, upcoming due dates",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Gather/organize receipts from all the different platforms",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "t54",
+      "text": "Australia visa",
+      "category": "Legal & Documents",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 54
+    },
+    {
+      "id": "mo-3",
+      "text": "Book family travel home",
+      "category": "Family Travel",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000003,
+      "checklist": [
+        {
+          "text": "Family return train to NYC (Sun 10/4)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Family return Airbnb/hotel (Sun, Wed, Thu)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Longwood Gardens car rental",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-4",
+      "text": "Clean the apartment",
+      "category": "Home & Personal",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000004
+    },
+    {
+      "id": "mo-5",
+      "text": "Shower + makeup",
+      "category": "Home & Personal",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000005
+    },
+    {
+      "id": "mo-6",
+      "text": "Do laundry after Ben is back",
+      "category": "Home & Personal",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000006
+    },
+    {
+      "id": "mo-7",
+      "text": "Book appointments & final errands",
+      "category": "Errands & Appointments",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Pick dates that land right before the wedding",
+      "done": false,
+      "createdAt": 1790500000007,
+      "checklist": [
+        {
+          "text": "Nail appointment (target Wed 9/30)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Facial appointment (target Mon 9/28)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Car detailing",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Dad’s suit pickup appointment — email the bespoke suit place",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Plan cash pickup (payments + tips)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Decide when to send the welcome email",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-8",
+      "text": "Follow up with my family on details",
+      "category": "Planning & Comms",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Share full logistics with relatives · Daily timelines, who does what, shuttle drop-off/pick-up times, all addresses (Airbnb), train schedule",
+      "done": false,
+      "createdAt": 1790500000008
+    },
+    {
+      "id": "mo-9",
+      "text": "Follow up with Ben’s family on details",
+      "category": "Planning & Comms",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000009,
+      "checklist": [
+        {
+          "text": "Send Ben’s parents the guest name list with pronunciations",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-10",
+      "text": "Follow up with DJ",
+      "category": "Vendors",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Father-daughter dance song/time, other music cues, broccoli toss explanation + invite, Ben's parents' reception entrance dance routine",
+      "done": false,
+      "createdAt": 1790500000010,
+      "checklist": [
+        {
+          "text": "Father-daughter dance song + timing, other music cues",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Broccoli toss explanation",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Shoe game questions (Kelly to hand over)",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-11",
+      "text": "Follow up with cake/pastry chef",
+      "category": "Vendors",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Ask for tasting/experiment pictures",
+      "done": false,
+      "createdAt": 1790500000011
+    },
+    {
+      "id": "mo-12",
+      "text": "Follow up with Longwood Gardens — update seating chart",
+      "category": "Vendors",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000012,
+      "checklist": [
+        {
+          "text": "Remove yacht +1, update Jenkins",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "David & Jessica in second row; ring bearer sits after walking down aisle",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Share latest seating chart with LG",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-13",
+      "text": "Print: program, menus, signs, seating chart",
+      "category": "Printing & Paper",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "E+C = English + Chinese. Menus & pastry tags need allergy info. Leave printing turnaround time. · Set early enough to leave printing turnaround time",
+      "done": false,
+      "createdAt": 1790500000013,
+      "checklist": [
+        {
+          "text": "Program, E+C, QR code",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Menu, E+C",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Pastry menu, E+C",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Bar sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Seating chart, table numbers",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "t14",
+      "text": "Pick up wedding dress",
+      "category": "Errands & Appointments",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 14
+    },
+    {
+      "id": "t43",
+      "text": "Final audit: payments, purchases, vendors, family travel, seating, timeline, packing",
+      "category": "Planning & Comms",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 43
+    },
+    {
+      "id": "t44",
+      "text": "Close out anything still requiring a decision",
+      "category": "Planning & Comms",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 44
+    },
+    {
+      "id": "mufj1mhntcc99",
+      "text": "Organize everything: full timeline, all people, who still needs to talk/be notified",
+      "category": "Planning & Comms",
+      "date": "2026-09-27",
+      "time": null,
+      "notes": "Timeline, things to bring, things to set up, packing, transport to where, who does what at what time, reach out to people if needed — everything before Thursday · Drafted in Master Organizer.docx — imported into this tracker 9/27",
+      "done": false,
+      "createdAt": 1790254061339
+    },
+    {
+      "id": "mo-18",
+      "text": "Facial appointment",
+      "category": "Errands & Appointments",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Only if appointments make sense this weekend",
+      "done": false,
+      "createdAt": 1790500000018
+    },
+    {
+      "id": "mo-19",
+      "text": "Drop off fans to florist (Philly)",
+      "category": "Errands & Appointments",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000019
+    },
+    {
+      "id": "mo-20",
+      "text": "Shopping run: Costco, Home Depot, flowers",
+      "category": "Shopping",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Grouped with Saturday errand run · Grouped with Saturday errand run · Grouped with décor buying · Grouped with décor buying · Grouped with décor buying · For the broccoli toss",
+      "done": false,
+      "createdAt": 1790500000020,
+      "checklist": [
+        {
+          "text": "Costco",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Food & drinks for parents’ arrival",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cooler",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ice",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Broccoli (for the broccoli toss)",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Home Depot",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Plants",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bucket",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Plant food / polish",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Batteries",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Staples",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Double-sided tape",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Binder + stapler for printed materials",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flowers",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Other",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Cheer-up stuff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "First aid kit",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Makeup",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cheering / reception / ceremony items still to buy",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Finalize remaining décor / anything else last-minute",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-21",
+      "text": "Get cash (payments + tips)",
+      "category": "Budget & Finance",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000021
+    },
+    {
+      "id": "mo-22",
+      "text": "Car wash / detailing",
+      "category": "Errands & Appointments",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "After Sun 9/27, per your note",
+      "done": false,
+      "createdAt": 1790500000022
+    },
+    {
+      "id": "t38",
+      "text": "Pick up jewelry",
+      "category": "Errands & Appointments",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 38
+    },
+    {
+      "id": "t39",
+      "text": "Pick up perfume",
+      "category": "Errands & Appointments",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 39
+    },
+    {
+      "id": "mo-25",
+      "text": "Confirm wedding-day food",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "Organizer assigns these — confirm with them · For wedding day, Sat 10/3 — ties into designating a lunch/catering owner",
+      "done": false,
+      "createdAt": 1790500000025,
+      "checklist": [
+        {
+          "text": "Emma & Leslie bring breakfast + lunch to the Airbnb (7:30 am Sat)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ben preps lunch for groomsmen at Best Western",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "l2-27",
+      "text": "Compile getting-ready people list + dietary restrictions",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187752
+    },
+    {
+      "id": "l2-3",
+      "text": "Double-check the photo list, update if needed, send to Kelly",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187728
+    },
+    {
+      "id": "l2-5",
+      "text": "Share & confirm Airbnb access with bridal party, Kelly, etc.",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187730
+    },
+    {
+      "id": "l2-13",
+      "text": "Meet with Uncle John: go through timeline again, confirm mic situation",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187738
+    },
+    {
+      "id": "l2-19",
+      "text": "Share curly-hair prep info with hairdresser",
+      "category": "Vendors",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187744
+    },
+    {
+      "id": "l2-20",
+      "text": "Share hair/makeup prep + timeline with bridal party",
+      "category": "Planning & Comms",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187745
+    },
+    {
+      "id": "l2-21",
+      "text": "Test how long roses stay fresh in the fridge",
+      "category": "Décor & Flower Prep",
+      "date": "2026-09-28",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187746
+    },
+    {
+      "id": "mufj0qko3fvtn",
+      "text": "Linh comes over: final arrangements",
+      "category": "Décor & Flower Prep",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": "Ask Ben when to leave on Thu",
+      "done": false,
+      "createdAt": 1790254019976
+    },
+    {
+      "id": "mo-34",
+      "text": "Print all documents (timeline & details packet)",
+      "category": "Printing & Paper",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000034
+    },
+    {
+      "id": "mo-35",
+      "text": "Final prep packing",
+      "category": "Packing",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000035
+    },
+    {
+      "id": "mo-36",
+      "text": "Prep for parents’ arrival: food & drinks",
+      "category": "Family Travel",
+      "date": "2026-09-29",
+      "time": null,
+      "notes": "For family arrival day, Thu 10/1",
+      "done": false,
+      "createdAt": 1790500000036
+    },
+    {
+      "id": "mo-37",
+      "text": "Pick up family at JFK",
+      "category": "Family Travel",
+      "date": "2026-09-29",
+      "time": "20:35",
+      "notes": "CX 840 HKG → JFK, arrives 8:35 pm",
+      "done": false,
+      "createdAt": 1790500000037
+    },
+    {
+      "id": "mo-38",
+      "text": "Pick up dad’s suit",
+      "category": "Errands & Appointments",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000038
+    },
+    {
+      "id": "mo-39",
+      "text": "Learn and practice dance",
+      "category": "Home & Personal",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000039
+    },
+    {
+      "id": "mo-40",
+      "text": "Nail appointment (?)",
+      "category": "Errands & Appointments",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000040
+    },
+    {
+      "id": "mo-41",
+      "text": "Final prep packing",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000041
+    },
+    {
+      "id": "mo-42",
+      "text": "Pick up Yujie Bao at EWR",
+      "category": "Family Travel",
+      "date": "2026-09-30",
+      "time": "13:30",
+      "notes": "AC1504 YYZ → EWR, 12:00 → 1:35 pm",
+      "done": false,
+      "createdAt": 1790500000042
+    },
+    {
+      "id": "l2-31",
+      "text": "Organize everything to bring in the U-Haul, by location/function",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187756
+    },
+    {
+      "id": "mo-44",
+      "text": "Pack: clothing",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000044,
+      "checklist": [
+        {
+          "text": "Clothing – Bride",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Wedding dress 1",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wedding dress 2",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Welcome dinner dress",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Robe",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Veils",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Sleeves",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wedding shoes",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flat whites",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Other heels",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Clothing – Groom",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Suit",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Shirts +1",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Shoes",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dress socks",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Clothing – Bridesmaids",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Yutian’s dress",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Robe *4",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Clothing – Groomsmen",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Bow tie",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Pocket square",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cufflinks",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Clothing – supporting",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Padded underwear",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Strapless bra, tape, stickers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Our regular travel pack clothes",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Puff jacket",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Comfortable shoes, sandals",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Sports bra, leggings, t shirts",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Pajama",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Jeans, shirts, hoodies",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Rain jacket",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Socks, underwear, bra",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-45",
+      "text": "Pack: accessories & jewelry",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000045,
+      "checklist": [
+        {
+          "text": "Jewelry",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Rings both",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Engagement ring",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Necklace",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Earrings",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ring box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hair",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hair pieces",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hair tie, clips, bows",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hair extensions, bang extensions",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Misc",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Swing pack",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Heel sticker",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Giant q-tips",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Makeup remover",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Baby oil",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-46",
+      "text": "Pack: skincare & makeup",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000046,
+      "checklist": [
+        {
+          "text": "Makeup",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Long eye lashes",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Eye lash clusters",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Makeup bag",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Eye liners",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Lip gloss",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Eye shadow palette",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "New foundations",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Setting spray",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Double eye lid tape",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Skincare",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Makeup remover",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Baby oil",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cotton pads",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Masks",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Whitening strips",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moisturizer",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Perfume",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Other",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mouth wash + mini cups",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dental floss",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Common pills",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Tide pen",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bandage",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-47",
+      "text": "Pack: getting-ready tools",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000047,
+      "checklist": [
+        {
+          "text": "Curling iron + glove",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Steamer",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mirror → grooms getting ready",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-48",
+      "text": "Pack: equipment & tools",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000048,
+      "checklist": [
+        {
+          "text": "Tools",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Wagon wheels",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ladder",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Electric drill",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Screw drivers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Steamer",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Torch lighter + butane",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Lighter",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Things",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Measuring tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Packing tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Double sided tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Black electrical tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Small single side tapes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Scissors",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Scissors",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Gardening scissors",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Gardening gloves",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wrappers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bubble wrapper",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Plastic wrapper",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Zipper bags",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Green garden wraps",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Metal strings",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gardening metal strings",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Ribbons",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gold ribbons",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue ribbons",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Hot glue gun + glues",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-49",
+      "text": "Pack: ceremony décor & items",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000049,
+      "checklist": [
+        {
+          "text": "Ceremony Decor",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Chuppah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "2 plant stands + middle black metal pieces",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "2 poles",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "4 white fabrics",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "4 hanging plants + hooks + pots (black + brown)",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Green artificial vines",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Zip ties",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "tapes",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Brown strings",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Black metal heavy duty hooks",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Welcome sign box",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Easel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Small plastic vases inside the box",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Seating",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "First row",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Reserved sign",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Ben’s grandpa’s photo",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Aisle seats",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue ribbon wide",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Blue ribbon skinny",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Flower cone",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Hole punching tool",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Double sided tape",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "All seats",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Fan",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Flower petals for the aisle",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "[Florist]",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "2 asymmetrical floor pieces for the chuppah",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bouquet",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bridal bouquet",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "4 bridesmaids + fans",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "2 moms + fans",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Groom boutonniere",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "9 groomsmen boutonniere",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Ceremony Items",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Binder",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "John speech",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Luba speech",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Vows",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Vow books",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Our vows",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Ring bearer",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ring box",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Suitcase",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Sunglasses *2",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Actual rings for Noah",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower girl",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower basket",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Artificial flower petals",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Breaking the Glass",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Glasses + bags",
+          "done": false,
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "id": "mo-50",
+      "text": "Pack: 4–6 pm change bag (dress, hygiene kits)",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000050,
+      "checklist": [
+        {
+          "text": "Second dress",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Flat white shoes",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Makeup pack",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hygiene kits (leave at guest restrooms after *2)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mouth wash",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dental floss",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Makeup remover",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Q-tips",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Common pills",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Tide pen",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hair curling irons",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hair pieces",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-51",
+      "text": "Pack: cocktail hour & reception décor",
+      "category": "Packing",
+      "date": "2026-09-30",
+      "time": null,
+      "notes": "From Master Organizer “Things Bring” — pack before driving down Thu",
+      "done": false,
+      "createdAt": 1790500000051,
+      "checklist": [
+        {
+          "text": "Cocktail Hour",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moved from ceremony to stage",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Seating Chart",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Black metal frames",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue cheesecloths *6",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Printed seating charts",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Artificial flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower Wheel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Tupperware",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Flower foam",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "flowers",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bottle ring",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Hot glue gun + glues",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Uplights",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Charge the night before",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Blob heads",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Guest book",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Pen + Pen holder",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Gift card box",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bud vases/ vases + flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Candles",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bud vases + flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bar",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Printed bar signs + holder",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Reception",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moved from cocktail hour to the door",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Photo Booth",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Camera",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Printer",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "A table + Props",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Black tape",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Backdrop",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gold arch",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED lights",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED name lights",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue fabric",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Paper flowers, artificial lights",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Swimming tubes",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Flower foam",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Black tape",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Blob heads",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Batteries",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Zip ties",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Weights on two sides if needed",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Moved from seating chart",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bar Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Dinner Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Centers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Vases + flowers",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "LED string lights + battery",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Candles + candle holders",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Table number + holder",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Per Seat",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Printed menu",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Name tags + holder + food indicator",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Chocolate",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Sweetheart table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hurricane candles",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower pieces from Chuppah",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue vases + flowers on the table",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Name tags + holder + indicator",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cake Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower petals go on top before serving",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cake stand + flowers + sausage flower foam",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) acrylic cake stand to elevate",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flowers around cake",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bud vases or",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Flower foams, containers",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "(maybe) floral fabric",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Dessert Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dessert tags + holder",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) blue table runners",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) bud vases",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Rooms",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Uplights *16",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Fake Sendoff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Sparklers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Torch + butane",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Lighter",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Other",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Broccoli bouquet",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Shoe game questions for DJ (kelly)",
+          "done": false,
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "id": "mo-52",
+      "text": "Drive down to Kennett Square with Linh",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "Same time as Ben",
+      "done": false,
+      "createdAt": 1790500000052
+    },
+    {
+      "id": "mo-53",
+      "text": "Ben & Noah drop off U-Haul at Airbnb, take my car",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000053
+    },
+    {
+      "id": "mo-54",
+      "text": "Kelly & Christina arrive at Philly airport",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "13:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000054
+    },
+    {
+      "id": "mo-55",
+      "text": "Luba arrives at Philly airport",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "14:40",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000055
+    },
+    {
+      "id": "mo-56",
+      "text": "Kelly & Christina pick up stuff",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000056
+    },
+    {
+      "id": "mo-57",
+      "text": "Arrange flowers & photo booth (me, Luba, Kelly, Christina)",
+      "category": "Décor & Flower Prep",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000057,
+      "checklist": [
+        {
+          "text": "Flowers fresh cut in the bucket",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mixed with flower food",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Keep temperature low/warm depending on the flowers",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-58",
+      "text": "Train NYP → WIL (Northeast Regional 85)",
+      "category": "Family Travel",
+      "date": "2026-10-01",
+      "time": "15:05",
+      "notes": "3:05 → 4:55 pm",
+      "done": false,
+      "createdAt": 1790500000058
+    },
+    {
+      "id": "mo-59",
+      "text": "Leslie & Jonathan arrive at Philly airport",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "16:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000059
+    },
+    {
+      "id": "mo-60",
+      "text": "Help Yujie Bao pick up rental car",
+      "category": "Family Travel",
+      "date": "2026-10-01",
+      "time": "17:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000060
+    },
+    {
+      "id": "mo-61",
+      "text": "Emma & Dmitriy arrive at Baltimore airport",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "17:20",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000061
+    },
+    {
+      "id": "mo-62",
+      "text": "Krakoff family, grandma, Marcia dinner",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "19:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000062
+    },
+    {
+      "id": "mo-63",
+      "text": "Dinner at P.F. Chang’s: me, family (8), Luba, Linh",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": "19:30",
+      "notes": "Family: Shuying Sun, Huankang Bao, Yujie Bao, Huiqin Gu, Yutian Sun, Li Sun, Guoxin Sun, Xiaoqi Bao",
+      "done": false,
+      "createdAt": 1790500000063
+    },
+    {
+      "id": "mo-64",
+      "text": "Ben in Philly afternoon + overnight",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000064
+    },
+    {
+      "id": "mo-65",
+      "text": "Night-before prep at Airbnb",
+      "category": "Décor & Flower Prep",
+      "date": "2026-10-01",
+      "time": null,
+      "notes": "Uplights: charge the night before",
+      "done": false,
+      "createdAt": 1790500000065,
+      "checklist": [
+        {
+          "text": "2 dresses",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Veils",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "sleeves",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Robes",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Wedding party dresses & suits ready",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hair & Makeup stages",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Iron anything needed",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Clothings",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ribbons",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Charge anything needed",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Small uplights",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Torch",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-66",
+      "text": "Longwood Gardens setup",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": "09:00",
+      "notes": "Crew: Luba, Linh, (JungMin), Emma, Leslie, Yutian, Shuying, Driving: ?",
+      "done": false,
+      "createdAt": 1790500000066
+    },
+    {
+      "id": "mo-67",
+      "text": "Groomsmen pick up suits, back from Philly",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Ben, Noah, Other groomsmen, Driving my car",
+      "done": false,
+      "createdAt": 1790500000067
+    },
+    {
+      "id": "mo-68",
+      "text": "Family Philly day trip",
+      "category": "Family Travel",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Xiaoqi, Yujie, Huiqin, Huankang, Guoxin, Li, Driving: Yujie",
+      "done": false,
+      "createdAt": 1790500000068
+    },
+    {
+      "id": "mo-69",
+      "text": "Rehearsal at Hartefeld National",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": "15:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000069,
+      "checklist": [
+        {
+          "text": "Me, Shuying, Huankang",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ben, Jonathan, Leslie",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Emma, Dmitriy, Noah",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Luba, JungMin, Yutian",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Paul, Jeff, Hari, Alexander",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Coulter, Andrew",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mark, Elizabeth, Nico",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "? Grandma",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Driving: ?",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "l2-15",
+      "text": "Try out glasses on grass (stability test at venue)",
+      "category": "Setup — Hartefeld (Ceremony)",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Do during rehearsal",
+      "done": false,
+      "createdAt": 1790520187740
+    },
+    {
+      "id": "mo-71",
+      "text": "Back to hotel/Airbnb: rest, change",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": "17:00",
+      "notes": "5:00 – 6:20 pm",
+      "done": false,
+      "createdAt": 1790500000071
+    },
+    {
+      "id": "mo-72",
+      "text": "Kelly picks up cake, drops off at Airbnb",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "Cooler + ice",
+      "done": false,
+      "createdAt": 1790500000072
+    },
+    {
+      "id": "mo-73",
+      "text": "Leave for welcome dinner",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": "18:20",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000073,
+      "checklist": [
+        {
+          "text": "Driving: Yujie",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Driving: Ben & Emily",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Driving: Leslie & Jonathan, Emma & Dmitriy",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-74",
+      "text": "Welcome dinner",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-02",
+      "time": "19:00",
+      "notes": "7:00 – 9:00 pm",
+      "done": false,
+      "createdAt": 1790500000074,
+      "checklist": [
+        {
+          "text": "Bring name LED sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Grandma Speech",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Back to hotel/Airbnb",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mufj0lvn2f31r",
+      "text": "Send welcome email",
+      "category": "Planning & Comms",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790254013891
+    },
+    {
+      "id": "t12",
+      "text": "Evening self-care: shower, cut nails, face mask",
+      "category": "Home & Personal",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 12
+    },
+    {
+      "id": "mo-77",
+      "text": "LG: prep ceremony pieces (welcome sign, aisle cones)",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000077,
+      "checklist": [
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome sign box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Easel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Small plastic vases inside the box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Seating",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Aisle seats",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue ribbon wide",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue ribbon skinny",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower cone",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Hole punching tool",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Double sided tape",
+          "done": false,
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "id": "mo-78",
+      "text": "LG: setup order",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000078,
+      "checklist": [
+        {
+          "text": "All major flower vases",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Center pieces",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Welcome sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cake stand",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bud vases",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Seating chart",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Backdrop",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Photo booth",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "All guest tables",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Other tables",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Sweetheart tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Guest table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cake table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dessert table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bars",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Other decors",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ceremony flower cones, bows",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Uplights",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Guest restrooms",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Misc",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-79",
+      "text": "LG: equipment on site",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000079,
+      "checklist": [
+        {
+          "text": "Tools",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Wagon wheels",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ladder",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Electric drill",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Screw drivers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Steamer",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Torch lighter + butane",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Lighter",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Things",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Measuring tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Packing tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Double sided tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Black electrical tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Small single side tapes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Scissors",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Scissors",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Gardening scissors",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Gardening gloves",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wrappers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bubble wrapper",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Plastic wrapper",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Zipper bags",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Green garden wraps",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Metal strings",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gardening metal strings",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Ribbons",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gold ribbons",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue ribbons",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Hot glue gun + glues",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-80",
+      "text": "LG: cocktail hour setup",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000080,
+      "checklist": [
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Moved from ceremony to stage",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Seating Chart",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Black metal frames",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue cheesecloths *6",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Printed seating charts",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Artificial flowers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower Wheel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Tupperware",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower foam",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bottle ring",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Hot glue gun + glues",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Uplights",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Charge the night before",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blob heads",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Guest book",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Pen + Pen holder",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Gift card box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bud vases/ vases + flowers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Candles",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Bud vases + flowers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bar",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Printed bar signs + holder",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-81",
+      "text": "LG: reception setup",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-02",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000081,
+      "checklist": [
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Moved from cocktail hour to the door",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Photo Booth",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Camera",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Printer",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "A table + Props",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Black tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Backdrop",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Gold arch",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "LED lights",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "LED name lights",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue fabric",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flowers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Paper flowers, artificial lights",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Swimming tubes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower foam",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Extension cords",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Black tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blob heads",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Batteries",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Tapes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Zip ties",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Weights on two sides if needed",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moved from seating chart",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bar Table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dinner Tables",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Centers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Vases + flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED string lights + battery",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Candles + candle holders",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Table number + holder",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Per Seat",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Printed menu",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Name tags + holder + food indicator",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Chocolate",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Sweetheart table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hurricane candles",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower pieces from Chuppah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue vases + flowers on the table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Name tags + holder + indicator",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cake Table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Flower petals go on top before serving",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cake stand + flowers + sausage flower foam",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "(maybe) acrylic cake stand to elevate",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flowers around cake",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bud vases or",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower foams, containers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) floral fabric",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Dessert Table",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Dessert tags + holder",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "(maybe) blue table runners",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "(maybe) bud vases",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Rooms",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Uplights *16",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Fake Sendoff",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Sparklers",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Torch + butane",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Lighter",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Other",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Broccoli bouquet",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Shoe game questions for DJ (kelly)",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-82",
+      "text": "Get up, shower",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "06:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000082
+    },
+    {
+      "id": "mo-83",
+      "text": "Bridal party hair & makeup (Airbnb)",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "07:00",
+      "notes": "7:00 am – 12:30 pm",
+      "done": false,
+      "createdAt": 1790500000083,
+      "checklist": [
+        {
+          "text": "Airbnb",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Emily",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Emma, Yutian",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Luba, JungMin",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Shuying, Leslie",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Trenton, Huankang",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "1 hair, 1 makeup artist",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "1 photographer (Tati), 1 videographer (Kevin)",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "(later) Kelly, Christina",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-84",
+      "text": "Emma & Leslie arrive with breakfast & lunch",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "07:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000084
+    },
+    {
+      "id": "l2-12",
+      "text": "Yujie drives Shuying & Huankang to Airbnb",
+      "category": "Family Travel",
+      "date": "2026-10-03",
+      "time": "07:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790520187737
+    },
+    {
+      "id": "mo-86",
+      "text": "Kelly & Christina pick up U-Haul from Airbnb → Hartefeld",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "09:00",
+      "notes": "Christina drives U-Haul, Kelly drives car",
+      "done": false,
+      "createdAt": 1790500000086
+    },
+    {
+      "id": "l2-11",
+      "text": "Hartefeld National setup",
+      "category": "Setup — Hartefeld (Ceremony)",
+      "date": "2026-10-03",
+      "time": "09:30",
+      "notes": "9:30 am – 12:30 pm · Kelly, Christina, Linh",
+      "done": false,
+      "createdAt": 1790520187736
+    },
+    {
+      "id": "mo-88",
+      "text": "Hartefeld: ceremony décor",
+      "category": "Setup — Hartefeld (Ceremony)",
+      "date": "2026-10-03",
+      "time": "09:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000088,
+      "checklist": [
+        {
+          "text": "Chuppah",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "2 plant stands + middle black metal pieces",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "2 poles",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "4 white fabrics",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "4 hanging plants + hooks + pots (black + brown)",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Green artificial vines",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Stuff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Zip ties",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "tapes",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Brown strings",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Clips",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Black metal heavy duty hooks",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome sign box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Easel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Small plastic vases inside the box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Seating",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "First row",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Reserved sign",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Ben’s grandpa’s photo",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Aisle seats",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue ribbon wide",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue ribbon skinny",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower cone",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Hole punching tool",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Double sided tape",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "All seats",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Fan",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Program – or someone hand at entrance",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower petals for the aisle",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "[Florist]",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "2 asymmetrical floor pieces for the chuppah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bouquet",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bridal bouquet",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "4 bridesmaids + fans",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "2 moms + fans",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Groom boutonniere",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "9 groomsmen boutonniere",
+          "done": false,
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "id": "mo-89",
+      "text": "Hartefeld: ceremony items",
+      "category": "Setup — Hartefeld (Ceremony)",
+      "date": "2026-10-03",
+      "time": "09:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000089,
+      "checklist": [
+        {
+          "text": "Binder",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "John speech",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Luba speech",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Vows",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Vow books",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Our vows",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ring bearer",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ring box",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Suitcase",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Sunglasses *2",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Actual rings for Noah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower girl",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Flower basket",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Artificial flower petals",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Breaking the Glass",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Glasses + bags",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-90",
+      "text": "Ben, groomsmen, Jonathan get ready at Best Western Plus",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "10:00",
+      "notes": "10:00 am – 2:00 pm · Ben preps lunch for groomsmen",
+      "done": false,
+      "createdAt": 1790500000090,
+      "checklist": [
+        {
+          "text": "Best Western",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ben",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Noah, Dmitriy",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Mark, Coulter, Andrew",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Jeff, Paul, Hari, Alexander",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Jonathan",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "1 photographer, 1 videographer",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-91",
+      "text": "Florist arrives at Hartefeld",
+      "category": "Vendors",
+      "date": "2026-10-03",
+      "time": "11:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000091
+    },
+    {
+      "id": "mo-92",
+      "text": "Kelly & Christina back to Airbnb",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "12:30",
+      "notes": "Christina picks up cake, Uber to LG · Kelly stays with her car",
+      "done": false,
+      "createdAt": 1790500000092
+    },
+    {
+      "id": "mo-93",
+      "text": "Photo & video",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "12:45",
+      "notes": "12:45 – 2:00 pm · 1:30 pm robe → get dressed",
+      "done": false,
+      "createdAt": 1790500000093
+    },
+    {
+      "id": "mo-94",
+      "text": "DJ Jim arrives at Hartefeld",
+      "category": "Vendors",
+      "date": "2026-10-03",
+      "time": "13:30",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000094
+    },
+    {
+      "id": "mo-95",
+      "text": "Drive to Hartefeld National",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "14:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000095,
+      "checklist": [
+        {
+          "text": "Airbnb",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Emma’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Yuwei, Leslie, Shuying",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Uber",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Luba, JungMin, Yutian",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Trenton, Huankang",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Kelly’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Photographer & Videographer’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Best Western",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "?A’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ben, Jonathan, Noah, Dmitriy",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "?B’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Mark, Coulter, Andrew",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "?C’s Car",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Jeff, Paul, Alexander, Hari",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Photographer & Videographer’s Car",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-96",
+      "text": "Dan & Katie arrive at Hartefeld, sound check",
+      "category": "Vendors",
+      "date": "2026-10-03",
+      "time": "14:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000096
+    },
+    {
+      "id": "mo-97",
+      "text": "John Carlson arrives at Hartefeld",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "14:15",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000097
+    },
+    {
+      "id": "mo-98",
+      "text": "Other walkers arrive at Hartefeld (time TBD)",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000098,
+      "checklist": [
+        {
+          "text": "Grandma",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ozzie wolfie",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mark, Elizabeth, Nico",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Kelly to remind these walkers about orders and finish",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-99",
+      "text": "Guest shuttle schedule",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "13:45",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000099,
+      "checklist": [
+        {
+          "text": "1:45 PM PU: -- : Holiday Inn Express and Suites West Chester (1310 Wilmington Pike West Chester, PA 19382)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "2:00 PM PU: -- : Best Western Plus (675 Conchester Hwy Concordville, PA 19342)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "2:10 PM PU: -- : Home2Suites by Hilton Glen Mills Chadds Ford (75 Applied Bank Blvd Glen Mills, PA 19342)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "DO by 2:45 PM and wait: -- : Hartefeld National (1 Hartefeld Dr Avondale, PA 19311)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "3:30 PM PU: -- : Hartefeld National (1 Hartefeld Dr Avondale, PA 19311)",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "4:00 PM DO: -- : Longwood Gardens (Back of house - 409 Conservatory Road Kennett Square, PA 19348) - use this address for buses",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "11:00 PM PU: -- : Longwood Gardens (West Lot - 419 Conservatory Road Kennett Square, PA 19348) - use this address for buses",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Drop off to all hotels, finish by 11:45 pm",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-100",
+      "text": "Ceremony",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "15:00",
+      "notes": "3:00 – 3:30 pm",
+      "done": false,
+      "createdAt": 1790500000100
+    },
+    {
+      "id": "mo-101",
+      "text": "Break the glass — group photo",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "15:30",
+      "notes": "John reminds family & bridal party to stay for photos",
+      "done": false,
+      "createdAt": 1790500000101
+    },
+    {
+      "id": "mo-102",
+      "text": "Head to Longwood Gardens",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "15:45",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000102,
+      "checklist": [
+        {
+          "text": "A’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Yuwei, Ben",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Emma, Dmitriy",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "B’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Leslie, Jonathan",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Noah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "C’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Shuying, Huankang",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Yutian",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "D’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Luba, JungMin",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Trenton",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "E’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Mark, Nico, Elizabeth",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "F’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Coulter, Rachel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Andrew, Lauren",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "G’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Jeff, Adriana",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Paul",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "H’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Hari, Ellise",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Alexander",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Kelly’s Car",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Photographer & Videographer’s Cars",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "DJ’s car",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-103",
+      "text": "Photos & videos (4–6 pm)",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "16:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000103,
+      "checklist": [
+        {
+          "text": "4 pm: Indoor photos & videos",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Yuwei’s extended family",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "4:30 pm: Outdoor photos & videos",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Wedding party",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "5:00 pm: Indoor photos & videos",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "5:30 pm: Indoor photos & videos",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Ben’s extended family",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Ben & Yuwei’s colleagues, friends",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-104",
+      "text": "LG: day-of finishing touches (lights on, move pieces)",
+      "category": "Setup — Longwood Gardens",
+      "date": "2026-10-03",
+      "time": "16:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000104,
+      "checklist": [
+        {
+          "text": "Cocktail Hour",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moved from ceremony to stage",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Seating Chart",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Uplights turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Candles turn on (if hurricane)",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED lights turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bar",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Reception",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Welcome Sign",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Moved from cocktail hour to the door",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Photo Booth",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Turn on camera, printer",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Backdrop",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "LED lights turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED name lights turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue fabric",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Wheel",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Moved from seating chart",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Guest Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cocktail Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Bar Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Move from cocktail hour",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Dinner Tables",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Centers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "LED lights turn on",
+          "done": false,
+          "depth": 3
+        },
+        {
+          "text": "Sweetheart table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Hurricane candles turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower pieces from Chuppah",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cake Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "LED or Candle lights turn on if used",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) acrylic cake stand to elevate",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flowers around cake",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "(maybe) floral fabric",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Flower petals go on top before serving",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cake to bring right before cutting, fill in with flowers",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Cake cutting sets",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Dessert Table",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "LED or Candle lights turn on if used",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Rooms",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Uplights *16 turn on",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Fake Sendoff",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Sparklers + torch",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Other",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Broccoli bouquet",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Shoe game questions for DJ (kelly)",
+          "done": false,
+          "depth": 2
+        }
+      ]
+    },
+    {
+      "id": "mo-105",
+      "text": "Cocktail hour — cheer cam",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "18:00",
+      "notes": "6:00 – 7:00 pm",
+      "done": false,
+      "createdAt": 1790500000105
+    },
+    {
+      "id": "mo-106",
+      "text": "Room reveal",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "18:45",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000106
+    },
+    {
+      "id": "mo-107",
+      "text": "Dress change, hair & makeup touch-up",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "18:55",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000107
+    },
+    {
+      "id": "mo-108",
+      "text": "Reception entry",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "19:10",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000108
+    },
+    {
+      "id": "mo-109",
+      "text": "Last dance",
+      "category": "Schedule & Logistics",
+      "date": "2026-10-03",
+      "time": "23:00",
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000109
+    },
+    {
+      "id": "mo-110",
+      "text": "Airbnb pack-up & checkout",
+      "category": "Post-Wedding",
+      "date": "2026-10-04",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000110,
+      "checklist": [
+        {
+          "text": "Ben, Yuwei pack up",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Luba, JungMin, Trenton",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-111",
+      "text": "Family: return rental car, take train back to NYC",
+      "category": "Family Travel",
+      "date": "2026-10-04",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000111
+    },
+    {
+      "id": "mo-112",
+      "text": "Ben returns U-Haul",
+      "category": "Post-Wedding",
+      "date": "2026-10-04",
+      "time": null,
+      "notes": "Evening",
+      "done": false,
+      "createdAt": 1790500000112
+    },
+    {
+      "id": "mo-113",
+      "text": "Family dinner in NYC",
+      "category": "Family Travel",
+      "date": "2026-10-04",
+      "time": null,
+      "notes": "Evening",
+      "done": false,
+      "createdAt": 1790500000113
+    },
+    {
+      "id": "mo-114",
+      "text": "Yujie flies home",
+      "category": "Family Travel",
+      "date": "2026-10-05",
+      "time": "09:00",
+      "notes": "AC1503 EWR → YYZ, 9:00 → 10:40",
+      "done": false,
+      "createdAt": 1790500000114
+    },
+    {
+      "id": "mo-115",
+      "text": "Yutian, Guoxin, Li: shopping day",
+      "category": "Family Travel",
+      "date": "2026-10-05",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000115
+    },
+    {
+      "id": "mo-116",
+      "text": "Shuying, Huankang, Huiqin, Xiaoqi(?) drive my car to Boston",
+      "category": "Family Travel",
+      "date": "2026-10-05",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000116
+    },
+    {
+      "id": "mo-117",
+      "text": "Returns",
+      "category": "Post-Wedding",
+      "date": "2026-10-05",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000117,
+      "checklist": [
+        {
+          "text": "Amazon",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Bud vases",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Cord extensions",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Uplight",
+          "done": false,
+          "depth": 0
+        }
+      ]
+    },
+    {
+      "id": "mo-118",
+      "text": "Sell leftover décor",
+      "category": "Post-Wedding",
+      "date": "2026-10-05",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000118,
+      "checklist": [
+        {
+          "text": "Vases",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Blue vases",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Bud vases",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Candles",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Candle holders",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Candles",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Decors",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Chuppah",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Black metal frame",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Easel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Flower wheel",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Fabrics",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Blue long",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Blue table runner",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "White *4",
+          "done": false,
+          "depth": 2
+        },
+        {
+          "text": "Name tag, card holders",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "All misc small decors",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Organizers",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Black bins",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "White bins",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Tupperware",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Pen holders",
+          "done": false,
+          "depth": 1
+        },
+        {
+          "text": "Electronics",
+          "done": false,
+          "depth": 0
+        },
+        {
+          "text": "Small uplights",
+          "done": false,
+          "depth": 1
+        }
+      ]
+    },
+    {
+      "id": "mo-119",
+      "text": "Yutian, Guoxin, Li fly home",
+      "category": "Family Travel",
+      "date": "2026-10-06",
+      "time": "10:00",
+      "notes": "CX841 JFK → HKG, 10 am",
+      "done": false,
+      "createdAt": 1790500000119
+    },
+    {
+      "id": "mo-120",
+      "text": "Huankang, Shuying, Huiqin, Xiaoqi(?): Boston → NYC",
+      "category": "Family Travel",
+      "date": "2026-10-07",
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790500000120
+    },
+    {
+      "id": "mo-121",
+      "text": "Xiaoqi Bao flies home",
+      "category": "Family Travel",
+      "date": "2026-10-08",
+      "time": "10:00",
+      "notes": "CX841 JFK → HKG, 10 am",
+      "done": false,
+      "createdAt": 1790500000121
+    },
+    {
+      "id": "mo-122",
+      "text": "Huankang, Shuying, Huiqin fly home",
+      "category": "Family Travel",
+      "date": "2026-10-09",
+      "time": "10:00",
+      "notes": "CX841 JFK → HKG, 10 am",
+      "done": false,
+      "createdAt": 1790500000122
+    },
+    {
+      "id": "t42",
+      "text": "Repot plants / apartment stuff",
+      "category": "Home & Personal",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 42
+    },
+    {
+      "id": "mufj0eszh2e50",
+      "text": "Add QR code to website",
+      "category": "Website & Tech",
+      "date": null,
+      "time": null,
+      "notes": "Program QR code prints Sun 9/27",
+      "done": false,
+      "createdAt": 1790254004723
+    },
+    {
+      "id": "w1-1790522032134",
+      "text": "Write Wei's feedback email",
+      "category": "Work",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790522032134
+    },
+    {
+      "id": "w2-1790522032134",
+      "text": "Write reflection for hackathon",
+      "category": "Work",
+      "date": null,
+      "time": null,
+      "notes": "",
+      "done": false,
+      "createdAt": 1790522032135
+    }
+  ],
+  "version": 2
+}
