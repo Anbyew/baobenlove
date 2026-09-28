@@ -20,6 +20,46 @@ body {
   color: var(--fg);
 }
 
+/* Password gate — matches the backdoor gate look on the main site */
+.password-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+.password-gate-card {
+  width: 100%;
+  max-width: 280px;
+  padding: 0 16px;
+  text-align: center;
+}
+.password-gate-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 4px;
+}
+.password-gate-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 24px;
+}
+.password-gate-card input[type="password"] {
+  width: 100%;
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  outline: none;
+}
+.password-gate-card input[type="password"]:focus { border-color: var(--primary); }
+.password-gate-error { color: var(--danger); font-size: 0.78rem; margin: 0 0 12px; }
+
 .layout { position: relative; }
 
 .main {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { BackdoorGate } from '../components/BackdoorGate';
 
@@ -9,6 +9,12 @@ const TODO_TRACKER_URL = IS_LOCAL ? 'http://localhost:4242/' : '/todos/';
 // The real timeline is the standalone app in <repo>/backdoor/master-timeline/
 // (port 4343 locally, proxied at /timeline/ in production — see nginx config).
 const MASTER_TIMELINE_URL = IS_LOCAL ? 'http://localhost:4343/' : '/timeline/';
+
+// Matches BACKDOOR_AUTH_KEY in master-timeline/public/app.js. baoben.love and
+// /timeline/ are the same origin (nginx path-routes both), so setting this
+// here lets the standalone app skip its own password prompt once someone's
+// already past this hub — same trick as the seating chart's vendor gate.
+const MASTER_TIMELINE_AUTH_KEY = 'baoben-timeline-auth';
 
 interface LinkItem {
   label: string;
@@ -86,6 +92,10 @@ function AdminGroup() {
 }
 
 function Hub() {
+  useEffect(() => {
+    try { localStorage.setItem(MASTER_TIMELINE_AUTH_KEY, 'true'); } catch {}
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center px-4 w-full max-w-sm">

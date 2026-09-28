@@ -673,4 +673,41 @@ try {
   if (localStorage.getItem('timeline-sidebar-collapsed')) collapseSidebar();
 } catch {}
 
-load();
+// ---------- password gate ----------
+// Uses the same password as the /backdoor entry gate on the main site — and
+// the same localStorage key, so on baoben.love (same origin as /backdoor)
+// clicking through from the hub skips this silently. A direct visit without
+// going through /backdoor still needs the password once.
+
+const BACKDOOR_PASSWORD = 'BellaBenBao2026Backdoor';
+const BACKDOOR_AUTH_KEY = 'baoben-timeline-auth';
+
+function unlockApp() {
+  el('passwordGate').classList.add('hidden');
+  el('appLayout').classList.remove('hidden');
+  load();
+}
+
+let alreadyUnlocked = false;
+try {
+  alreadyUnlocked = localStorage.getItem(BACKDOOR_AUTH_KEY) === 'true';
+} catch {}
+
+if (alreadyUnlocked) {
+  unlockApp();
+} else {
+  const submit = () => {
+    const input = el('passwordGateInput');
+    if (input.value === BACKDOOR_PASSWORD) {
+      try { localStorage.setItem(BACKDOOR_AUTH_KEY, 'true'); } catch {}
+      unlockApp();
+    } else {
+      el('passwordGateError').classList.remove('hidden');
+      input.value = '';
+    }
+  };
+  el('passwordGateSubmit').addEventListener('click', submit);
+  el('passwordGateInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submit();
+  });
+}
