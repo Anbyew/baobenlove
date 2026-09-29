@@ -106,11 +106,11 @@ const LOCATIONS: L[] = [
     notes: '',
   },
   {
-    section: VENUES, name: 'Limestone BBQ & Bourbon', role: 'Welcome dinner',
-    address: '2062 Limestone Rd, Wilmington, DE 19808 ?', moreAddresses: '',
+    section: VENUES, name: 'Eggspectation - Christiana', role: 'Welcome dinner',
+    address: '507 Stanton Christiana Rd, Newark, DE 19713', moreAddresses: '',
     when: 'Fri 6:20 pm leave\nFri 7–10 pm dinner',
     contact: '',
-    notes: 'Confirm address (Eggspectations?)',
+    notes: 'Catering by Limestone BBQ and Bourbon (see Vendors)',
   },
   {
     section: READY, name: 'Airbnb', role: 'Bride & bridesmaids',
@@ -222,18 +222,18 @@ const PEOPLE: Record<(typeof PEOPLE_GROUPS)[number], P[]> = {
     ['Dan & Katie Fletcher', 'Ceremony musicians', '', '', '', 'Arrive Hartefeld 2:00 pm for sound check'],
   ],
   Vendors: [
-    ['Tati Poly', 'Photographer (Tati Poly Photography)', 'TAH-tee PO-lee ?', '', '', 'Balance $4,700 via Zelle'],
+    ['Tati Poly', 'Photographer (Tati Poly Photography)', 'TAH-tee PO-lee ?', '', ''],
     ['Kevin & Kaylee', 'Videographer (Silver Shutter Co.)', '', '', '', 'Kevin is main contact; arrive 12:45 pm'],
     ['Jim Pierson', 'DJ (East Coast Entertainment)', '', '', '', 'Booking agent Lamiesse Mekdaschi — '],
     ['Molly & Claire', 'Florist (Full Bloom Designs)', '', '', '', 'Arrive Hartefeld ~11 am'],
-    ['Melissa', 'Hair & makeup (Flawless Finish Artistry)', '', '', '', 'Studio 1534 Packer Ave, Philadelphia · balance due 9/28 or cash day-of'],
+    ['Melissa', 'Hair & makeup (Flawless Finish Artistry)', '', '', '', 'Studio 1534 Packer Ave, Philadelphia'],
     ['Delaware Express', 'Shuttle bus — Conf #43189', '', '', '', 'Kathy Houghton (kathy@) · Toni ()'],
     ['Jennifer Ballintyn', "Cake — Spark'd Creative Pastry", '', '', ''],
     ['Limestone BBQ and Bourbon', 'Welcome dinner catering', '', '', ''],
   ],
   'Venue staff': [
     ['Sam Richards', 'Longwood — Event Operations Manager (day-of)', '', '', ''],
-    ['Annie Caulfield', 'Longwood — Catering Sales Manager', 'CALL-field', '', '', 'Final catering invoice outstanding'],
+    ['Annie Caulfield', 'Longwood — Catering Sales Manager', 'CALL-field', '', ''],
     ['Mary Murphy', 'Longwood — Sales & Client Experience', '', '', ''],
     ['Kevin Kessler', 'Longwood — Director, Event Sales', '', '', ''],
     ['Steven Cox', 'Longwood — Floristry Manager', '', '', ''],
@@ -296,13 +296,10 @@ export const NOTES: Record<string, string> = {
   'Nico Luzi': 'Mark & Elizabeth’s son',
   'Tony (Nuda) Zhang': '',
   'Dan & Katie Fletcher': 'Sound check 2 pm',
-  'Tati Poly': 'Balance $4,700 (Zelle)',
   'Kevin & Kaylee': 'Kevin = main contact\nArrive 12:45 pm',
   'Jim Pierson': 'Agent: ',
   'Molly & Claire': 'At Hartefeld ~11 am',
-  Melissa: 'Balance due 9/28 or cash day-of',
   'Delaware Express': 'Kathy: \nToni: ',
-  'Annie Caulfield': 'Final invoice pending',
 };
 // Wedding-party rows that repeat a family row.
 const ALSO_IN_FAMILY = 'Also in family list';

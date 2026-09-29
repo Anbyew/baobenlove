@@ -114,7 +114,6 @@ export const NAME_ZH: Record<string, string> = {
   // Locations
   'Longwood Gardens': '长木公园',
   'Hartefeld National': '哈特菲尔德高尔夫俱乐部',
-  'Limestone BBQ & Bourbon': 'Limestone 烧烤餐厅',
   Airbnb: '爱彼迎民宿',
   'Best Western Plus Concordville': '贝斯特韦斯特酒店（Concordville）',
   'Holiday Inn Express West Chester': '智选假日酒店（West Chester）',
@@ -200,12 +199,9 @@ export const PHRASE_ZH: Record<string, string> = {
   'Parents: David & Jess': '父母：David 和 Jess',
   'English & Chinese': '会中英文',
   'Sound check 2 pm': '下午2点 试音',
-  'Balance $4,700 (Zelle)': '尾款 $4,700（Zelle）',
   'Kevin = main contact': 'Kevin 是主要联系人',
   'Arrive 12:45 pm': '中午12:45 到',
   'At Hartefeld ~11 am': '约上午11点 到 Hartefeld',
-  'Balance due 9/28 or cash day-of': '尾款 9/28 前付，或当天付现金',
-  'Final invoice pending': '最终账单待出',
   // Dietary
   'Gluten allergy': '麸质过敏',
   'Lactose intolerant': '乳糖不耐受',
@@ -255,7 +251,7 @@ export const PHRASE_ZH: Record<string, string> = {
   'Sat 2:00 pm shuttle': '周六 下午2:00 班车',
   'Sat 2:10 pm shuttle': '周六 下午2:10 班车',
   // Location notes, section blurbs, address labels
-  'Confirm address (Eggspectations?)': '地址待确认（Eggspectations？）',
+  'Catering by Limestone BBQ and Bourbon (see Vendors)': '餐饮由 Limestone BBQ and Bourbon 提供（见供应商）',
   'U-Haul parked here': 'U-Haul 货车停在这里',
   'Groom gets ready here': '新郎在这里准备',
   'Sat 1:45–2:10 pm pickups': '周六 下午1:45–2:10 班车接人',
