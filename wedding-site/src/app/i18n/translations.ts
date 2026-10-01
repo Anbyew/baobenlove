@@ -77,7 +77,7 @@ export const t = {
     dressCodeLabel: 'Dress Code',
     dressCodeValue: 'Expressive Garden Formal',
     weatherLabel: 'Weather',
-    weatherValue: '60–70°F · Outdoor + Indoor',
+    weatherValue: '52–68°F · Mostly Sunny',
     parkingLabel: 'Parking',
     parkingValue: 'Event Parking — West Lot, 419 Conservatory Road',
     sundayBonusLabel: 'An Extra Day in the Gardens',
@@ -262,7 +262,7 @@ export const t = {
           },
           {
             q: 'What will the weather be like?',
-            a: 'October in Pennsylvania is usually gorgeous. Expect crisp autumn air and temperatures around 60–70°F during the day, with a bit of a chill once the sun goes down. We recommend a light jacket or wrap for the evening.',
+            a: 'October in Pennsylvania is usually gorgeous. Our latest forecast calls for a sunny day around 68°F, dropping to around 52°F once the sun goes down. We recommend a light jacket or wrap for the evening.',
           },
           {
             q: 'Can I take photos during the ceremony?',
@@ -390,7 +390,7 @@ export const t = {
     dressCodeLabel: '着装要求',
     dressCodeValue: '园林正式礼服',
     weatherLabel: '天气',
-    weatherValue: '约15–21°C · 户外+室内',
+    weatherValue: '11–20°C · 大部晴朗',
     parkingLabel: '停车',
     parkingValue: 'Event Parking — West Lot, 419 Conservatory Road',
     sundayBonusLabel: '婚礼次日，畅游花园',
@@ -575,7 +575,7 @@ export const t = {
           },
           {
             q: '10月份的天气如何？',
-            a: '宾夕法尼亚州10月气候宜人，日间气温约为15–21°C，入夜后气温较低。建议携带一件轻薄外套或披肩。',
+            a: '宾夕法尼亚州10月气候宜人。最新预报显示当天天气晴朗，日间气温约20°C，入夜后降至约11°C。建议携带一件轻薄外套或披肩。',
           },
           {
             q: '仪式期间可以拍照吗？',

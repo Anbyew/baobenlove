@@ -215,19 +215,21 @@ export function Details() {
               <div className="grid md:grid-cols-3 gap-12 max-w-3xl mx-auto">
                 {[
                   { icon: Calendar, label: t.dateLabel, value: t.sundayDate, sub: t.sundayDateSub, href: null },
-                  { icon: QrCode, label: t.sundayAdmissionLabel, value: t.sundayAdmissionValue, sub: t.sundayAdmissionSub, href: null },
+                  { icon: QrCode, label: t.sundayAdmissionLabel, value: t.sundayAdmissionValue, sub: t.sundayAdmissionSub, href: null, image: '/Oct4/ogqr.png' },
                   { icon: MapPin, label: t.locationLabel, value: t.sundayParkingValue, sub: t.sundayAccessAddress, href: 'https://maps.google.com/?q=1001+Longwood+Road,+Kennett+Square,+PA+19348' },
                 ].map((item, i) => (
                   <Reveal key={item.label} delay={i * 0.12} direction="up">
                     <div className="text-center group">
                       <item.icon className="w-7 h-7 text-secondary/35 mx-auto mb-4 transition-all duration-300 group-hover:text-secondary/60 group-hover:scale-110" />
                       <div className="text-xs tracking-wider uppercase text-foreground/55 mb-3 font-light">{item.label}</div>
-                      {item.href ? (
+                      {item.image ? (
+                        <img src={item.image} alt={`${item.value} — ${item.label} QR code`} className="w-28 h-28 mx-auto rounded-lg bg-white p-2 shadow-sm" />
+                      ) : item.href ? (
                         <a href={item.href} target="_blank" rel="noreferrer" onClick={() => track('Sunday Bonus Parking')} className="text-lg font-light text-foreground hover:text-secondary transition-colors duration-200">{item.value}</a>
                       ) : (
                         <div className="text-lg font-light text-foreground">{item.value}</div>
                       )}
-                      {item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
+                      {!item.image && item.sub && <div className="text-sm text-foreground/65 mt-1.5 font-light">{item.sub}</div>}
                     </div>
                   </Reveal>
                 ))}
