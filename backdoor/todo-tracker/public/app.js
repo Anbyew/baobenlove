@@ -486,6 +486,61 @@ function moveTodoToDate(id, date) {
   save();
 }
 
+// Pinned at the top of whichever view is active — consolidates every
+// unfinished item dated today or earlier into one place, since both
+// Category view (no date-based grouping at all) and Timeline view (overdue
+// days split across several separate date groups) otherwise bury this.
+// Purely additive: items still also appear in their normal category/date
+// group below: this is a surfaced summary, not a different filter.
+function renderAttentionSection() {
+  const today = todayISO();
+  const items = state.todos
+    .filter((t) => !t.done && t.date && t.date <= today)
+    .filter(matchesFilter)
+    .sort(sortTodos);
+  if (!items.length) return;
+
+  const overdueCount = items.filter((t) => t.date < today).length;
+  const todayCount = items.length - overdueCount;
+
+  const group = document.createElement('div');
+  group.className = 'group attention-group';
+
+  const header = document.createElement('div');
+  header.className = 'group-header';
+  const title = document.createElement('div');
+  title.className = 'group-title overdue';
+  const parts = [];
+  if (overdueCount) parts.push(`${overdueCount} overdue`);
+  if (todayCount) parts.push(`${todayCount} due today`);
+  title.textContent = `🔥 Needs Attention — ${parts.join(', ')}`;
+  header.appendChild(title);
+  group.appendChild(header);
+
+  const list = document.createElement('div');
+  list.className = 'card-list';
+  items.forEach((t) => {
+    const itemEl = makeTodoEl(t);
+    if (t.date < today) {
+      const chip = document.createElement('span');
+      chip.className = 'chip date overdue-chip';
+      chip.textContent = formatDateLabel(t.date).rel;
+      const meta = itemEl.querySelector('.todo-meta') || (() => {
+        const m = document.createElement('div');
+        m.className = 'todo-meta';
+        itemEl.querySelector('.todo-body').insertBefore(m, itemEl.querySelector('.todo-notes') || null);
+        return m;
+      })();
+      meta.appendChild(chip);
+    }
+    list.appendChild(itemEl);
+  });
+  group.appendChild(list);
+
+  const content = el('content');
+  content.insertBefore(group, content.firstChild);
+}
+
 function render() {
   renderProgress();
   renderSidebar();
@@ -493,6 +548,7 @@ function render() {
   el('emptyState').classList.toggle('hidden', state.todos.length > 0);
   if (currentView === 'category') renderCategoryView(filtered);
   else renderTimelineView(filtered);
+  renderAttentionSection();
 }
 
 // ---------- mutations ----------
